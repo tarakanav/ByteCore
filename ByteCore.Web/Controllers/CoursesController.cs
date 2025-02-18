@@ -1,8 +1,6 @@
 ﻿using ByteCore.Web.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace ByteCore.Web.Controllers
@@ -22,24 +20,18 @@ namespace ByteCore.Web.Controllers
             return View();
         }
 
-        // GET: Courses/1
+        // GET: Courses/{id}
         [Route("{id:int}")]
         public ActionResult Course(int id)
         {
-            var course = new CourseModel
+            var course = GetCourseById(id);
+            if (course == null)
             {
-                Id = id,
-                Title = "Introduction to Web Development",
-                ShortDescription = "Learn the fundamentals of HTML, CSS, and JavaScript.",
-                Description = "This course covers the basics of web development including responsive design, front-end frameworks, and modern JavaScript techniques. You'll work on hands-on projects and gain real-world skills.",
-                Instructor = "Jane Doe",
-                Duration = "6 weeks",
-                StartDate = DateTime.Now.AddDays(14),
-                ImageUrl = "https://dummyimage.com/600x400/343a40/6c757d"
-            };
-
+                return HttpNotFound();
+            }
             return View(course);
         }
+
         // GET: /Courses/{id}/Roadmap
         [Route("{id:int}/Roadmap")]
         public ActionResult Roadmap(int id)
@@ -53,25 +45,57 @@ namespace ByteCore.Web.Controllers
             var roadmap = new CourseRoadmapModel
             {
                 Course = course,
-                Steps = new List<RoadmapStep>
+                Modules = new List<CourseRoadmapModule>
                 {
-                    new RoadmapStep
+                    new CourseRoadmapModule
                     {
-                        StepTitle = "Introduction",
-                        Description = "Overview of the course",
-                        Week = "1"
+                        Title = "Модуль 1: Введение в Python",
+                        Topics = new List<CourseRoadmapTopic>
+                        {
+                            new CourseRoadmapTopic
+                            {
+                                Title = "Знакомство с Python и установка среды разработки",
+                                Lessons = new List<string>
+                                {
+                                    "Установка Python",
+                                    "Настройка среды разработки"
+                                }
+                            },
+                            new CourseRoadmapTopic
+                            {
+                                Title = "Регистрация в ChatGPT и настройка под себя",
+                                Lessons = new List<string>
+                                {
+                                    "Создание аккаунта",
+                                    "Настройка ChatGPT"
+                                }
+                            }
+                        }
                     },
-                    new RoadmapStep
+                    new CourseRoadmapModule
                     {
-                        StepTitle = "Fundamentals",
-                        Description = "Basic concepts and principles",
-                        Week = "2"
-                    },
-                    new RoadmapStep
-                    {
-                        StepTitle = "Advanced Topics",
-                        Description = "Deep dive into complex subjects",
-                        Week = "3"
+                        Title = "Модуль 2: Основы программирования на Python",
+                        Topics = new List<CourseRoadmapTopic>
+                        {
+                            new CourseRoadmapTopic
+                            {
+                                Title = "Основы синтаксиса, переменные и типы данных",
+                                Lessons = new List<string>
+                                {
+                                    "Переменные и их типы",
+                                    "Основные операторы"
+                                }
+                            },
+                            new CourseRoadmapTopic
+                            {
+                                Title = "Коллекции и циклы",
+                                Lessons = new List<string>
+                                {
+                                    "Списки, кортежи, словари",
+                                    "Циклы for и while"
+                                }
+                            }
+                        }
                     }
                 }
             };
@@ -86,26 +110,13 @@ namespace ByteCore.Web.Controllers
             return new CourseModel
             {
                 Id = id,
-                Title = "Sample Course",
-                ShortDescription = "This is a sample course description",
-                Description = "Detailed course description here...",
+                Title = "Python и Искусственный Интеллект",
+                ShortDescription = "Изучение Python, основ программирования и ИИ",
+                Description = "Курс охватывает основы Python, ООП, работу с базами данных, веб-разработку и машинное обучение.",
                 Instructor = "John Doe",
-                Duration = "4 weeks",
+                Duration = "14 недель",
                 StartDate = new DateTime(2025, 3, 1),
-                ImageUrl = "/images/sample-course.jpg"
-            };
-        }
-
-        // Пример метода для получения шагов roadmap
-        private List<string> GetRoadmapSteps(int courseId)
-        {
-            return new List<string>
-            {
-                "Introduction to the Course",
-                "Module 1: Basics",
-                "Module 2: Intermediate Concepts",
-                "Module 3: Advanced Topics",
-                "Final Project"
+                ImageUrl = "/images/python-course.jpg"
             };
         }
     }

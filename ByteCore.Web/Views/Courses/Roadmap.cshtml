@@ -15,18 +15,32 @@
             <div class="col-lg-11 col-xl-9 col-xxl-8">
                 <div class="card overflow-hidden shadow rounded-4 border-0 mb-5">
                     <div class="card-body p-0">
-                        <div class="d-flex align-items-center">
-                            <div class="p-5">
-                                <h2 class="fw-bolder">Course Steps</h2>
-                                <ul>
-                                    @foreach (var step in Model.Steps)
-                                    {
-                                        <li><strong>@step.StepTitle:</strong> @step.Description (Week: @step.Week)</li>
-                                    }
-                                </ul>
-                            </div>
-                            <img class="img-fluid" src="@Model.Course.ImageUrl" alt="@Model.Course.Title" />
+                        <div class="p-5">
+                            <h2 class="fw-bolder">Course Modules</h2>
+                            <ul>
+                                @foreach (var module in Model.Modules)
+                                {
+                                    <li>
+                                        <strong>@module.Title</strong>
+                                        <ul>
+                                            @foreach (var topic in module.Topics)
+                                            {
+                                                <li>
+                                                    <strong>@topic.Title</strong>
+                                                    <ul>
+                                                        @foreach (var lesson in topic.Lessons)
+                                                        {
+                                                            <li>@lesson</li>
+                                                        }
+                                                    </ul>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                            </ul>
                         </div>
+                        <img class="img-fluid" src="@Model.Course.ImageUrl" alt="@Model.Course.Title" />
                     </div>
                 </div>
             </div>

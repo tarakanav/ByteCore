@@ -6,13 +6,18 @@ namespace ByteCore.Web.Models
     public class CourseRoadmapModel
     {
         public CourseModel Course { get; set; }
-        public List<RoadmapStep> Steps { get; set; }
+        public List<CourseRoadmapModule> Modules { get; set; }
     }
 
-    public class RoadmapStep
+    public class CourseRoadmapModule
     {
-        public string StepTitle { get; set; }
-        public string Description { get; set; }
-        public string Week { get; set; }
+        public string Title { get; set; }
+        public List<CourseRoadmapTopic> Topics { get; set; }
+    }
+
+    public class CourseRoadmapTopic
+    {
+        public string Title { get; set; }
+        public List<string> Lessons { get; set; }
     }
 }
