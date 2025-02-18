@@ -1,4 +1,4 @@
-﻿namespace ByteCore.Models
+﻿namespace ByteCore.Web.Models
 {
     public class ContactFormModel
     {
