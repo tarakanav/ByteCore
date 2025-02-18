@@ -103,6 +103,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\CourseRoadmapModel.cs" />
     <Compile Include="Models\ContactFormModel.cs" />
     <Compile Include="Models\CourseModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -121,6 +122,7 @@
     <Content Include="Views\Courses\Overview.cshtml" />
     <Content Include="Views\Courses\Course.cshtml" />
     <Content Include="Views\AboutUs\Index.cshtml" />
+    <Content Include="Views\Courses\Roadmap.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
