@@ -1,0 +1,40 @@
+﻿@model ByteCore.Web.Models.Course
+
+@{
+    ViewBag.Title = Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="py-5">
+    <div class="container px-5">
+        <!-- Header Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bolder">@Model.Title</h1>
+            <p class="lead">@Model.ShortDescription</p>
+        </div>
+        <!-- Course Details Section -->
+        <div class="row gx-5 align-items-center">
+            <div class="col-lg-6">
+                <img class="img-fluid rounded-4 shadow" src="@Model.ImageUrl" alt="@Model.Title" />
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow border-0 rounded-4">
+                    <div class="card-body p-5">
+                        <h2 class="fw-bolder mb-4">Course Overview</h2>
+                        <p>@Model.Description</p>
+                        <ul class="list-unstyled">
+                            <li><strong>Instructor:</strong> @Model.Instructor</li>
+                            <li><strong>Duration:</strong> @Model.Duration</li>
+                            <li><strong>Start Date:</strong> @Model.StartDate.ToString("MMMM dd, yyyy")</li>
+                        </ul>
+                        <div class="mt-4">
+                            <a class="btn btn-primary" href="@Url.Action("Register", "Courses", new { courseId = Model.Id })">
+                                Enroll Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
