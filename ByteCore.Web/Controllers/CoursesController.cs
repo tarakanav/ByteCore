@@ -26,7 +26,7 @@ namespace ByteCore.Web.Controllers
         [Route("{id:int}")]
         public ActionResult Course(int id)
         {
-            var course = new Course
+            var course = new CourseModel
             {
                 Id = id,
                 Title = "Introduction to Web Development",
