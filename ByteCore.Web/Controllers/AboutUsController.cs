@@ -1,4 +1,4 @@
-﻿using ByteCore.Models;
+﻿using ByteCore.Web.Models;
 using System.Web.Mvc;
 
 namespace ByteCore.Controllers
