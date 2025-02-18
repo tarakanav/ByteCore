@@ -99,6 +99,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CoursesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\AboutUsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -119,6 +120,7 @@
     <Content Include="Views\Courses\Index.cshtml" />
     <Content Include="Views\Courses\Overview.cshtml" />
     <Content Include="Views\Courses\Course.cshtml" />
+    <Content Include="Views\AboutUs\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
