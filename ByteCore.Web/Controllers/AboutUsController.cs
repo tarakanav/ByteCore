@@ -21,7 +21,6 @@ namespace ByteCore.Web.Controllers
                 TempData["Message"] = "Thank you for reaching out! We'll get back to you soon.";
                 return RedirectToAction("Index");
             }
-
             
             return View("Index");
         }
