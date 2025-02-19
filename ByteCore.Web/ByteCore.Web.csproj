@@ -92,7 +92,9 @@
     <Content Include="Content\scripts.js" />
     <Content Include="Content\styles.css" />
     <Content Include="Global.asax" />
+    <Content Include="Views\Account\Dashboard.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\Account\Manage.cshtml" />
     <Content Include="Views\Privacy\Index.cshtml" />
     <Content Include="Views\Terms\Index.cshtml" />
     <Content Include="Web.config" />
@@ -111,6 +113,8 @@
     <Compile Include="Models\CourseRoadmapModel.cs" />
     <Compile Include="Models\ContactFormModel.cs" />
     <Compile Include="Models\CourseModel.cs" />
+    <Compile Include="Models\UserCourseModel.cs" />
+    <Compile Include="Models\UserModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
