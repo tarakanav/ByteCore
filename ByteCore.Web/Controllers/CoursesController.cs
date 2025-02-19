@@ -11,7 +11,33 @@ namespace ByteCore.Web.Controllers
         // GET: Courses
         public ActionResult Index()
         {
-            return View();
+            var courses = new List<CourseModel>
+            {
+                new CourseModel
+                {
+                    Id = 1,
+                    Title = "Python и Искусственный Интеллект",
+                    ShortDescription = "Изучение Python, основ программирования и ИИ",
+                    Description = "Курс охватывает основы Python, ООП, работу с базами данных, веб-разработку и машинное обучение.",
+                    Instructor = "John Doe",
+                    Duration = "14 недель",
+                    StartDate = new DateTime(2025, 3, 1),
+                    ImageUrl = "/images/python-course.jpg"
+                },
+                new CourseModel
+                {
+                    Id = 2,
+                    Title = "Web-разработка на ASP.NET",
+                    ShortDescription = "Изучение ASP.NET, MVC, Web API и Entity Framework",
+                    Description = "Курс охватывает основы веб-разработки с использованием ASP.NET, создание веб-приложений и API.",
+                    Instructor = "Jane Smith",
+                    Duration = "10 недель",
+                    StartDate = new DateTime(2025, 4, 1),
+                    ImageUrl = "/images/aspnet-course.jpg"
+                }
+            };
+
+            return View(courses);
         }
 
         // GET: Courses/Overview
