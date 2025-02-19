@@ -13,5 +13,47 @@ namespace ByteCore.Web.Controllers
         {
             return View();
         }
+        
+        // POST: /Account/Register
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Registration(string username, string email, string password)
+        {
+            if (string.IsNullOrWhiteSpace(username) ||
+                string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(password))
+            {
+                ModelState.AddModelError("", "All fields are required.");
+                return View();
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        // GET: /Account/Login
+        public ActionResult Login()
+        {
+            return View();
+        }
+        
+        // POST: /Account/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Login(string email, string password, bool rememberMe = false)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                ModelState.AddModelError("", "Email and password are required.");
+                return View();
+            }
+            
+            if (email == "test@example.com" && password == "password")
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            ModelState.AddModelError("", "Invalid login attempt.");
+            return View();
+        }
     }
 }
