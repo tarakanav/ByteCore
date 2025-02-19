@@ -1,7 +1,7 @@
 ﻿using ByteCore.Web.Models;
 using System.Web.Mvc;
 
-namespace ByteCore.Controllers
+namespace ByteCore.Web.Controllers
 {
     public class AboutUsController : Controller
     {
