@@ -28,9 +28,7 @@
                             <li><strong>Start Date:</strong> @Model.StartDate.ToString("MMMM dd, yyyy")</li>
                         </ul>
                         <div class="mt-4">
-                            <a class="btn btn-primary" href="@Url.Action("Register", "Courses", new { courseId = Model.Id })">
-                                Enroll Now
-                            </a>
+                            @Html.Partial("_EnrollButton", Model)
                         </div>
                     </div>
                 </div>

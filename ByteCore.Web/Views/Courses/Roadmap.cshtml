@@ -8,7 +8,6 @@
 <section class="py-5">
     <div class="container">
         <div class="row">
-            <!-- Left Sidebar: Course Overview -->
             <div class="col-lg-4 col-md-5">
                 <div class="card shadow-sm sticky-top" style="top: 20px;">
                     <img src="@Model.Course.ImageUrl" class="card-img-top rounded-top" alt="@Model.Course.Title">
@@ -21,11 +20,11 @@
                             <li><span class="fw-bold text-success"><i class="bi bi-clock"></i> Duration:</span> @Model.Course.Duration</li>
                             <li><span class="fw-bold text-danger"><i class="bi bi-calendar-event"></i> Start Date:</span> @Model.Course.StartDate.ToString("MMMM dd, yyyy")</li>
                         </ul>
+                        @Html.Partial("_EnrollButton", Model.Course)
                     </div>
                 </div>
             </div>
-
-            <!-- Main Content: Roadmap -->
+            
             <div class="col-lg-8 col-md-7">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -34,7 +33,7 @@
                         <hr>
 
                         <div class="accordion" id="modulesAccordion">
-                            @for (int i = 0; i < Model.Modules.Count; i++)
+                            @for (var i = 0; i < Model.Modules.Count; i++)
                             {
                                 var module = Model.Modules[i];
                                 var moduleId = $"module{i}"; // Unique module ID
@@ -84,7 +83,7 @@
                                     </div>
                                 </div>
                             }
-                        </div> <!-- End of Accordion -->
+                        </div>
                     </div>
                 </div>
             </div>

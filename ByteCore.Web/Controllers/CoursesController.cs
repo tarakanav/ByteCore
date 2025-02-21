@@ -119,5 +119,18 @@ namespace ByteCore.Web.Controllers
                 ImageUrl = "https://placehold.co/800x600"
             };
         }
+        
+        // POST: Courses/1/Enroll
+        [Route("{id:int}/Enroll")]
+        [HttpPost]
+        public ActionResult Enroll(int id)
+        {
+            var course = GetCourseById(id);
+            if (course == null)
+            {
+                return HttpNotFound();
+            }
+            return RedirectToAction("Course", new { id });
+        }
     }
 }
