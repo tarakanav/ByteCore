@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Images\favicon.ico" />
+    <Content Include="Content\Images\bytecore.svg" />
     <Content Include="Content\scripts.js" />
     <Content Include="Content\styles.css" />
     <Content Include="Global.asax" />
