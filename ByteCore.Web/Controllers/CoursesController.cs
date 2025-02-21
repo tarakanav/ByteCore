@@ -16,24 +16,46 @@ namespace ByteCore.Web.Controllers
                 new CourseModel
                 {
                     Id = 1,
-                    Title = "Python и Искусственный Интеллект",
-                    ShortDescription = "Изучение Python, основ программирования и ИИ",
-                    Description = "Курс охватывает основы Python, ООП, работу с базами данных, веб-разработку и машинное обучение.",
+                    Title = "Python and Artificial Intelligence",
+                    ShortDescription = "Learn Python, programming fundamentals, and AI.",
+                    Description = "This course covers Python basics, OOP, databases, web development, and machine learning.",
                     Instructor = "John Doe",
-                    Duration = "14 недель",
+                    Duration = "14 weeks",
                     StartDate = new DateTime(2025, 3, 1),
-                    ImageUrl = "/images/python-course.jpg"
+                    ImageUrl = "https://placehold.co/800x600"
                 },
                 new CourseModel
                 {
                     Id = 2,
-                    Title = "Web-разработка на ASP.NET",
-                    ShortDescription = "Изучение ASP.NET, MVC, Web API и Entity Framework",
-                    Description = "Курс охватывает основы веб-разработки с использованием ASP.NET, создание веб-приложений и API.",
+                    Title = "Web Development using ASP.NET",
+                    ShortDescription = "Learn ASP.NET, MVC, Web API & Entity Framework",
+                    Description = "Course contains main information about web development using ASP.NET.",
                     Instructor = "Jane Smith",
-                    Duration = "10 недель",
+                    Duration = "10 weeks",
                     StartDate = new DateTime(2025, 4, 1),
-                    ImageUrl = "/images/aspnet-course.jpg"
+                    ImageUrl = "https://placehold.co/800x600"
+                },
+                new CourseModel
+                {
+                    Id = 3,
+                    Title = "Web Development using ASP.NET",
+                    ShortDescription = "Learn ASP.NET, MVC, Web API & Entity Framework",
+                    Description = "Course contains main information about web development using ASP.NET.",
+                    Instructor = "Jane Smith",
+                    Duration = "10 weeks",
+                    StartDate = new DateTime(2025, 4, 1),
+                    ImageUrl = "https://placehold.co/800x600"
+                },
+                new CourseModel
+                {
+                    Id = 4,
+                    Title = "Web Development using ASP.NET",
+                    ShortDescription = "Learn ASP.NET, MVC, Web API & Entity Framework",
+                    Description = "Course contains main information about web development using ASP.NET.",
+                    Instructor = "Jane Smith",
+                    Duration = "10 weeks",
+                    StartDate = new DateTime(2025, 4, 1),
+                    ImageUrl = "https://placehold.co/800x600"
                 }
             };
 

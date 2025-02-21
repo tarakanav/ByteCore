@@ -27,8 +27,11 @@
                             <li><strong>Duration:</strong> @Model.Duration</li>
                             <li><strong>Start Date:</strong> @Model.StartDate.ToString("MMMM dd, yyyy")</li>
                         </ul>
-                        <div class="mt-4">
+                        <div class="mt-4 d-flex">
                             @Html.Partial("_EnrollButton", Model)
+                            <a href="@Url.Action("Roadmap", "Courses", new { id = Model.Id })" class="btn btn-lg ms-2 roadmap-button">
+                                View Roadmap
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -36,3 +39,14 @@
         </div>
     </div>
 </section>
+
+<style>
+    .roadmap-button {
+        color: #343434;
+        transition: color 0.3s ease;
+    }
+
+    .roadmap-button:hover {
+        color: #e21e80;
+    }
+</style>
