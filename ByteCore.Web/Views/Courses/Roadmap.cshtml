@@ -6,41 +6,85 @@
 }
 
 <section class="py-5">
-    <div class="container px-5 mb-5">
-        <div class="text-center mb-5">
-            <h1 class="display-5 fw-bolder mb-0"><span class="text-gradient d-inline">Roadmap for: @Model.Course.Title</span></h1>
-        </div>
+    <div class="container">
+        <div class="row">
+            <!-- Left Sidebar: Course Overview -->
+            <div class="col-lg-4 col-md-5">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <img src="@Model.Course.ImageUrl" class="card-img-top rounded-top" alt="@Model.Course.Title">
+                    <div class="card-body text-center">
+                        <h4 class="card-title fw-bold">@Model.Course.Title</h4>
+                        <p class="text-muted">@Model.Course.ShortDescription</p>
+                        <hr>
+                        <ul class="list-unstyled">
+                            <li><span class="fw-bold text-primary"><i class="bi bi-person-fill"></i> Instructor:</span> @Model.Course.Instructor</li>
+                            <li><span class="fw-bold text-success"><i class="bi bi-clock"></i> Duration:</span> @Model.Course.Duration</li>
+                            <li><span class="fw-bold text-danger"><i class="bi bi-calendar-event"></i> Start Date:</span> @Model.Course.StartDate.ToString("MMMM dd, yyyy")</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-        <div class="row gx-5 justify-content-center">
-            <div class="col-lg-11 col-xl-9 col-xxl-8">
-                <div class="card overflow-hidden shadow rounded-4 border-0 mb-5">
-                    <div class="card-body p-0">
-                        <div class="p-5">
-                            <h2 class="fw-bolder">Course Modules</h2>
-                            <ul>
-                                @foreach (var module in Model.Modules)
-                                {
-                                    <li>
-                                        <strong>@module.Title</strong>
-                                        <ul>
-                                            @foreach (var topic in module.Topics)
+            <!-- Main Content: Roadmap -->
+            <div class="col-lg-8 col-md-7">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h1 class="display-5 fw-bold text-primary">@Model.Course.Title Roadmap</h1>
+                        <p class="lead">Explore the course structure with detailed modules and lessons.</p>
+                        <hr>
+
+                        <div class="accordion" id="modulesAccordion">
+                            @for (int i = 0; i < Model.Modules.Count; i++)
+                            {
+                                var module = Model.Modules[i];
+                                var moduleId = $"module{i}"; // Unique module ID
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading-@moduleId">
+                                        <button class="accordion-button @(i == 0 ? "" : "collapsed")"
+                                                type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#collapse-@moduleId"
+                                                aria-expanded="@(i == 0 ? "true" : "false")"
+                                                aria-controls="collapse-@moduleId">
+                                            @module.Title
+                                        </button>
+                                    </h2>
+                                    <div id="collapse-@moduleId" class="accordion-collapse collapse @(i == 0 ? "show" : "")" aria-labelledby="heading-@moduleId">
+                                        <div class="accordion-body">
+                                            @if (module.Topics != null && module.Topics.Any())
                                             {
-                                                <li>
-                                                    <strong>@topic.Title</strong>
-                                                    <ul>
-                                                        @foreach (var lesson in topic.Lessons)
-                                                        {
-                                                            <li>@lesson</li>
-                                                        }
-                                                    </ul>
-                                                </li>
+                                                <div class="list-group">
+                                                    @foreach (var topic in module.Topics)
+                                                    {
+                                                        <div class="list-group-item">
+                                                            <h5 class="mb-2">@topic.Title</h5>
+                                                            @if (topic.Lessons != null && topic.Lessons.Any())
+                                                            {
+                                                                <ul class="mb-0">
+                                                                    @foreach (var lesson in topic.Lessons)
+                                                                    {
+                                                                        <li>@lesson</li>
+                                                                    }
+                                                                </ul>
+                                                            }
+                                                            else
+                                                            {
+                                                                <p class="text-muted mb-0">No lessons available.</p>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
                                             }
-                                        </ul>
-                                    </li>
-                                }
-                            </ul>
-                        </div>
-                        <img class="img-fluid" src="@Model.Course.ImageUrl" alt="@Model.Course.Title" />
+                                            else
+                                            {
+                                                <p class="text-muted">No topics available.</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div> <!-- End of Accordion -->
                     </div>
                 </div>
             </div>
