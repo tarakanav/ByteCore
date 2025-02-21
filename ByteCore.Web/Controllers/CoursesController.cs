@@ -75,50 +75,50 @@ namespace ByteCore.Web.Controllers
                 {
                     new CourseRoadmapModule
                     {
-                        Title = "Модуль 1: Введение в Python",
+                        Title = "Module 1: Introduction to Python",
                         Topics = new List<CourseRoadmapTopic>
                         {
                             new CourseRoadmapTopic
                             {
-                                Title = "Знакомство с Python и установка среды разработки",
+                                Title = "Getting Started with Python and Setting Up Environment",
                                 Lessons = new List<string>
                                 {
-                                    "Установка Python",
-                                    "Настройка среды разработки"
+                                    "Installing Python",
+                                    "Setting Up Development Environment"
                                 }
                             },
                             new CourseRoadmapTopic
                             {
-                                Title = "Регистрация в ChatGPT и настройка под себя",
+                                Title = "Understanding AI Basics",
                                 Lessons = new List<string>
                                 {
-                                    "Создание аккаунта",
-                                    "Настройка ChatGPT"
+                                    "Introduction to AI",
+                                    "History and Evolution of AI"
                                 }
                             }
                         }
                     },
                     new CourseRoadmapModule
                     {
-                        Title = "Модуль 2: Основы программирования на Python",
+                        Title = "Module 2: Python Programming Basics",
                         Topics = new List<CourseRoadmapTopic>
                         {
                             new CourseRoadmapTopic
                             {
-                                Title = "Основы синтаксиса, переменные и типы данных",
+                                Title = "Syntax, Variables, and Data Types",
                                 Lessons = new List<string>
                                 {
-                                    "Переменные и их типы",
-                                    "Основные операторы"
+                                    "Understanding Variables",
+                                    "Operators and Expressions"
                                 }
                             },
                             new CourseRoadmapTopic
                             {
-                                Title = "Коллекции и циклы",
+                                Title = "Collections and Loops",
                                 Lessons = new List<string>
                                 {
-                                    "Списки, кортежи, словари",
-                                    "Циклы for и while"
+                                    "Lists, Tuples, and Dictionaries",
+                                    "For and While Loops"
                                 }
                             }
                         }
@@ -130,20 +130,33 @@ namespace ByteCore.Web.Controllers
             return View(roadmap);
         }
 
-        // Пример метода для получения курса
+        // Example method to retrieve a course
         private CourseModel GetCourseById(int id)
         {
             return new CourseModel
             {
                 Id = id,
-                Title = "Python и Искусственный Интеллект",
-                ShortDescription = "Изучение Python, основ программирования и ИИ",
-                Description = "Курс охватывает основы Python, ООП, работу с базами данных, веб-разработку и машинное обучение.",
+                Title = "Python and Artificial Intelligence",
+                ShortDescription = "Learn Python, programming fundamentals, and AI.",
+                Description = "This course covers Python basics, OOP, databases, web development, and machine learning.",
                 Instructor = "John Doe",
-                Duration = "14 недель",
+                Duration = "14 weeks",
                 StartDate = new DateTime(2025, 3, 1),
-                ImageUrl = "/images/python-course.jpg"
+                ImageUrl = "https://placehold.co/800x600"
             };
+        }
+        
+        // POST: Courses/1/Enroll
+        [Route("{id:int}/Enroll")]
+        [HttpPost]
+        public ActionResult Enroll(int id)
+        {
+            var course = GetCourseById(id);
+            if (course == null)
+            {
+                return HttpNotFound();
+            }
+            return RedirectToAction("Course", new { id });
         }
     }
 }

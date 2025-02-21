@@ -97,6 +97,7 @@
     <Content Include="Views\Account\Manage.cshtml" />
     <Content Include="Views\Privacy\Index.cshtml" />
     <Content Include="Views\Terms\Index.cshtml" />
+    <Content Include="Views\Shared\_EnrollButton.cshtml" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
