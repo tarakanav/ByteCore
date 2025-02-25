@@ -1,0 +1,33 @@
+﻿@model List<ByteCore.Web.Models.QuizModel>
+
+@{
+    ViewBag.Title = "Тесты";
+}
+
+<div class="container mt-5">
+    <h2>Тесты</h2>
+    <p>Выберите тест из списка ниже, чтобы начать обучение и проверку знаний.</p>
+
+    <div class="list-group">
+        @foreach (var quiz in Model)
+        {
+            <div class="list-group-item">
+                <h5>@quiz.Title</h5>
+                <p><strong>Очки за прохождение:</strong> @quiz.RewardPoints</p>
+                <p><strong>Количество вопросов:</strong> @quiz.Questions.Count</p>
+                <a href="@Url.Action("Quiz", "Quizzes", new { id = quiz.Id })" class="btn btn-primary">Пройти тест</a>
+            </div>
+        }
+    </div>
+
+<div class="pagination mt-4">
+    @if (ViewBag.CurrentPage > 1)
+    {
+        <a href="@Url.Action("Index", "Quizzes", new { page = ViewBag.CurrentPage - 1 })" class="btn btn-secondary">Предыдущая</a>
+    }
+
+    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+    {
+        <a href="@Url.Action("Index", "Quizzes", new { page = ViewBag.CurrentPage + 1 })" class="btn btn-secondary">Следующая</a>
+    }
+</div>

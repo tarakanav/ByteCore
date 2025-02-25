@@ -1,0 +1,16 @@
+﻿@model ByteCore.Web.Models.QuizResultModel
+
+<h2>Результаты теста</h2>
+<p>Тест: @Model.QuizTitle</p>
+<p>Правильных ответов: @Model.CorrectAnswersCount из @Model.TotalQuestions</p>
+
+@if (Model.IsPassed)
+{
+    <p>Поздравляем! Вы успешно прошли тест!</p>
+}
+else
+{
+    <p>Попробуйте снова. Вы можете пересдать тест.</p>
+}
+
+<a href="@Url.Action("Index", "Quizzes")">Вернуться к списку тестов</a>

@@ -109,16 +109,22 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\AboutUsController.cs" />
     <Compile Include="Controllers\PrivacyController.cs" />
+    <Compile Include="Controllers\QuizzesControllerController.cs" />
     <Compile Include="Controllers\TermsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\QuizModel.cs" />
     <Compile Include="Models\CourseRoadmapModel.cs" />
     <Compile Include="Models\ContactFormModel.cs" />
     <Compile Include="Models\CourseModel.cs" />
     <Compile Include="Models\UserCourseModel.cs" />
     <Compile Include="Models\UserModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="Views\Quizzes\Result.cshtml" />
+    <None Include="Views\Quizzes\Start.cshtml" />
+    <None Include="Views\Quizzes\Quiz.cshtml" />
+    <None Include="Views\Quizzes\Index.cshtml" />
     <None Include="Views\Error\NotFound.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -146,6 +152,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\NewFolder1\" />
+    <Folder Include="Views\QuizzesController\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

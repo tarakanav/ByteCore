@@ -1,0 +1,11 @@
+﻿@model ByteCore.Web.Models.QuizModel
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+<div class="container mt-5">
+    <h2>@Model.Title</h2>
+    <p>Очки за тест: @Model.RewardPoints</p>
+    <a href="@Url.Action("Start", "Quizzes", new { id = Model.Id })" class="btn btn-primary">Начать тест</a>
+</div>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace ByteCore.Web
@@ -15,6 +11,24 @@ namespace ByteCore.Web
 
             routes.MapMvcAttributeRoutes();
 
+            //routes.MapRoute(
+            //    name: "QuizStart",
+            //    url: "Quizzes/Quiz/{id}",
+            //    defaults: new { controller = "Quizzes", action = "Quiz" },
+            //    constraints: new { id = @"\d+" }
+            //);
+
+            routes.MapRoute(
+                name: "Quizzes",
+                url: "Quizzes/{action}/{id}",
+                defaults: new { controller = "Quizzes", action = "Index", id = UrlParameter.Optional }
+            );
+            routes.MapRoute(
+             name: "StartQuiz",
+             url: "Quizzes/Start/{id}",
+             defaults: new { controller = "Quizzes", action = "Start" },
+             constraints: new { id = @"\d+" }
+            );
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
