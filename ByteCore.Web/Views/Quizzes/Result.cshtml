@@ -1,35 +1,35 @@
 ﻿@{
-    var isPassed = ViewBag.Score >= (ViewBag.Total * 0.6); // Порог для успешного прохождения (например, 60%)
+    var isPassed = ViewBag.Score >= (ViewBag.Total * 0.6);
+    ViewBag.Title = "Test Results";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-12 col-md-8">
-            <div class="card text-center">
-                <div class="card-header">
-                    <h2>Результаты теста</h2>
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2>Test Results</h2>
                 </div>
-                <div class="card-body">
+                <div class="card-body text-center">
                     @if (isPassed)
                     {
-                        <div class="alert alert-success">
-                            <h3>Поздравляем! Вы прошли тест!</h3>
-                            <p>Вы набрали <strong>@ViewBag.Score</strong> из <strong>@ViewBag.Total</strong> правильных ответов.</p>
-                            <p>Ваши очки: <strong>@ViewBag.RewardPoints</strong></p>
-                            <i class="bi bi-trophy" style="font-size: 50px; color: gold;"></i>
-                        </div>
+                    <div class="alert alert-success">
+                        <h3 class="mb-3">Congratulations! You passed the test!</h3>
+                        <p class="lead">You answered <strong>@ViewBag.Score</strong> out of <strong>@ViewBag.Total</strong> questions correctly.</p>
+                        <p>Your reward points: <strong>@ViewBag.RewardPoints</strong></p>
+                        <i class="bi bi-trophy" style="font-size: 60px; color: gold;"></i>
+                    </div>
                     }
                     else
                     {
-                        <div class="alert alert-danger">
-                            <h3>Увы, вы не прошли тест.</h3>
-                            <p>Вы набрали <strong>@ViewBag.Score</strong> из <strong>@ViewBag.Total</strong> правильных ответов.</p>
-                            <p>Попробуйте еще раз, у вас получится!</p>
-                            <i class="bi bi-x-circle" style="font-size: 50px; color: red;"></i>
-                        </div>
+                    <div class="alert alert-danger">
+                        <h3 class="mb-3">Sorry, you did not pass the test.</h3>
+                        <p class="lead">You answered <strong>@ViewBag.Score</strong> out of <strong>@ViewBag.Total</strong> questions correctly.</p>
+                        <p>Don't worry—try again and you'll get it!</p>
+                        <i class="bi bi-x-circle" style="font-size: 60px; color: red;"></i>
+                    </div>
                     }
-
-                    <a href="@Url.Action("Index", "Quizzes")" class="btn btn-primary">Вернуться к тестам</a>
+                    <a href="@Url.Action("Index", "Quizzes")" class="btn btn-primary btn-lg mt-3">Back to Quizzes</a>
                 </div>
             </div>
         </div>

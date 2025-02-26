@@ -1,33 +1,65 @@
 ﻿@model List<ByteCore.Web.Models.QuizModel>
 
 @{
-    ViewBag.Title = "Тесты";
+    ViewBag.Title = "Quizzes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container mt-5">
-    <h2>Тесты</h2>
-    <p>Выберите тест из списка ниже, чтобы начать обучение и проверку знаний.</p>
+    <h2 class="text-center mb-4">Available Quizzes</h2>
+    <p class="text-center text-muted">Select a quiz from the list below to start learning and test your knowledge.</p>
 
-    <div class="list-group">
+    <div class="row row-cols-1 row-cols-md-2 g-4">
         @foreach (var quiz in Model)
         {
-            <div class="list-group-item">
-                <h5>@quiz.Title</h5>
-                <p><strong>Очки за прохождение:</strong> @quiz.RewardPoints</p>
-                <p><strong>Количество вопросов:</strong> @quiz.Questions.Count</p>
-                <a href="@Url.Action("Quiz", "Quizzes", new { id = quiz.Id })" class="btn btn-primary">Пройти тест</a>
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@quiz.Title</h5>
+                        <p class="card-text"><strong>Points:</strong> @quiz.RewardPoints</p>
+                        <p class="card-text"><strong>Number of Questions:</strong> @quiz.Questions.Count</p>
+                        <a href="@Url.Action("Quiz", "Quizzes", new { id = quiz.Id })" class="btn btn-primary">Take Quiz</a>
+                    </div>
+                </div>
             </div>
         }
     </div>
 
-<div class="pagination mt-4">
-    @if (ViewBag.CurrentPage > 1)
-    {
-        <a href="@Url.Action("Index", "Quizzes", new { page = ViewBag.CurrentPage - 1 })" class="btn btn-secondary">Предыдущая</a>
-    }
-
-    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-    {
-        <a href="@Url.Action("Index", "Quizzes", new { page = ViewBag.CurrentPage + 1 })" class="btn btn-secondary">Следующая</a>
-    }
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            @if (ViewBag.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Index", "Quizzes", new { page = ViewBag.CurrentPage - 1 })" aria-label="Previous">
+                        <span aria-hidden="true">&laquo; Previous</span>
+                    </a>
+                </li>
+            }
+            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Index", "Quizzes", new { page = ViewBag.CurrentPage + 1 })" aria-label="Next">
+                        <span aria-hidden="true">Next &raquo;</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
 </div>
+
+<style>
+    .card-title {
+        color: #007bff;
+    }
+    .card-text {
+        color: #6c757d;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+</style>
