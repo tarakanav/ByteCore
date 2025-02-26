@@ -1,7 +1,7 @@
-﻿@model ByteCore.Web.Models.CourseRoadmapModel
+﻿@model ByteCore.Web.Models.CourseModel
 
 @{
-    ViewBag.Title = $"{Model.Course.Title} Roadmap";
+    ViewBag.Title = $"{Model.Title} Roadmap";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -10,17 +10,17 @@
         <div class="row">
             <div class="col-lg-4 col-md-5">
                 <div class="card shadow-sm sticky-top" style="top: 20px;">
-                    <img src="@Model.Course.ImageUrl" class="card-img-top rounded-top" alt="@Model.Course.Title">
+                    <img src="@Model.ImageUrl" class="card-img-top rounded-top" alt="@Model.Title">
                     <div class="card-body text-center">
-                        <h4 class="card-title fw-bold">@Model.Course.Title</h4>
-                        <p class="text-muted">@Model.Course.ShortDescription</p>
+                        <h4 class="card-title fw-bold">@Model.Title</h4>
+                        <p class="text-muted">@Model.ShortDescription</p>
                         <hr>
                         <ul class="list-unstyled">
-                            <li><span class="fw-bold text-primary"><i class="bi bi-person-fill"></i> Instructor:</span> @Model.Course.Instructor</li>
-                            <li><span class="fw-bold text-success"><i class="bi bi-clock"></i> Duration:</span> @Model.Course.Duration</li>
-                            <li><span class="fw-bold text-danger"><i class="bi bi-calendar-event"></i> Start Date:</span> @Model.Course.StartDate.ToString("MMMM dd, yyyy")</li>
+                            <li><span class="fw-bold text-primary"><i class="bi bi-person-fill"></i> Instructor:</span> @Model.Instructor</li>
+                            <li><span class="fw-bold text-success"><i class="bi bi-clock"></i> Duration:</span> @Model.Duration</li>
+                            <li><span class="fw-bold text-danger"><i class="bi bi-calendar-event"></i> Start Date:</span> @Model.StartDate.ToString("MMMM dd, yyyy")</li>
                         </ul>
-                        @Html.Partial("_EnrollButton", Model.Course)
+                        @Html.Partial("_EnrollButton", Model)
                     </div>
                 </div>
             </div>
@@ -28,48 +28,45 @@
             <div class="col-lg-8 col-md-7">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h1 class="display-5 fw-bold text-primary">@Model.Course.Title Roadmap</h1>
+                        <h1 class="display-5 fw-bold text-primary">@Model.Title Roadmap</h1>
                         <p class="lead">Explore the course structure with detailed modules and lessons.</p>
                         <hr>
 
                         <div class="accordion" id="modulesAccordion">
-                            @for (var i = 0; i < Model.Modules.Count; i++)
+                            @for (var i = 0; i < Model.Chapters.Count; i++)
                             {
-                                var module = Model.Modules[i];
-                                var moduleId = $"module{i}"; // Unique module ID
+                                var chapter = Model.Chapters[i];
+                                var chapterId = $"module{i}";
 
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header" id="heading-@moduleId">
+                                    <h2 class="accordion-header" id="heading-@chapterId">
                                         <button class="accordion-button @(i == 0 ? "" : "collapsed")"
                                                 type="button"
                                                 data-bs-toggle="collapse"
-                                                data-bs-target="#collapse-@moduleId"
+                                                data-bs-target="#collapse-@chapterId"
                                                 aria-expanded="@(i == 0 ? "true" : "false")"
-                                                aria-controls="collapse-@moduleId">
-                                            @module.Title
+                                                aria-controls="collapse-@chapterId">
+                                            Chapter @chapter.GetChapterNumber(): @chapter.Title
                                         </button>
                                     </h2>
-                                    <div id="collapse-@moduleId" class="accordion-collapse collapse @(i == 0 ? "show" : "")" aria-labelledby="heading-@moduleId">
+                                    <div id="collapse-@chapterId" class="accordion-collapse collapse @(i == 0 ? "show" : "")" aria-labelledby="heading-@chapterId">
                                         <div class="accordion-body">
-                                            @if (module.Topics != null && module.Topics.Any())
+                                            @if (chapter.Sections != null && chapter.Sections.Any())
                                             {
                                                 <div class="list-group">
-                                                    @foreach (var topic in module.Topics)
+                                                    @foreach (var section in chapter.Sections)
                                                     {
                                                         <div class="list-group-item">
-                                                            <h5 class="mb-2">@topic.Title</h5>
-                                                            @if (topic.Lessons != null && topic.Lessons.Any())
+                                                            <h5 class="mb-2">@(chapter.GetChapterNumber() + "." + section.GetSectionNumber()): @(section.Title)</h5>
+                                                            @if (section.Description != null)
                                                             {
                                                                 <ul class="mb-0">
-                                                                    @foreach (var lesson in topic.Lessons)
-                                                                    {
-                                                                        <li>@lesson</li>
-                                                                    }
+                                                                    <li>@(section.Description)</li>
                                                                 </ul>
                                                             }
                                                             else
                                                             {
-                                                                <p class="text-muted mb-0">No lessons available.</p>
+                                                                <p class="text-muted mb-0">No description available.</p>
                                                             }
                                                         </div>
                                                     }

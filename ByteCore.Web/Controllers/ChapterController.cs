@@ -1,13 +1,13 @@
-﻿using ByteCore.Web.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using ByteCore.Web.Models;
 
 namespace ByteCore.Web.Controllers
 {
-    [RoutePrefix("Courses")]
-    public class CoursesController : Controller
+    [RoutePrefix("Courses/{courseId:int}/Chapters")]
+    public class ChapterController : Controller
     {
         public List<CourseModel> GetCourses()
         {
@@ -61,7 +61,8 @@ namespace ByteCore.Web.Controllers
                             Id = 2,
                             Title = "Getting Started",
                             CourseId = 1,
-                            Description = "Setting up the development environment and writing your first Python program.",
+                            Description =
+                                "Setting up the development environment and writing your first Python program.",
                             Sections = new List<SectionModel>
                             {
                                 new SectionModel
@@ -125,8 +126,18 @@ namespace ByteCore.Web.Controllers
                                 {
                                     Id = 7,
                                     Title = "Classes and Objects",
-                                    TextContent =
-                                        "Dive into object-oriented programming with classes and objects in Python.",
+                                    TextContent = "Explore inheritance and polymorphism concepts in Python OOP." +
+                                                  "Learn how to create subclasses and override methods." +
+                                                  "Understand polymorphism and how it simplifies code." +
+                                                  "Discover the benefits of inheritance and polymorphism.\n" +
+                                                  "Learn how to create subclasses and override methods." +
+                                                  "Understand polymorphism and how it simplifies code." +
+                                                  "Discover the benefits of inheritance and polymorphism." +
+                                                  "Learn how to create subclasses and override methods." +
+                                                  "Understand polymorphism and how it simplifies code.\n\n" +
+                                                  "Discover the benefits of inheritance and polymorphism." +
+                                                  "Learn how to create subclasses and override methods." +
+                                                  "Understand polymorphism and how it simplifies code.",
                                     Type = SectionType.Read,
                                     ChapterId = 4,
                                     Description = "Classes and objects"
@@ -135,7 +146,18 @@ namespace ByteCore.Web.Controllers
                                 {
                                     Id = 8,
                                     Title = "Inheritance and Polymorphism",
-                                    TextContent = "Explore inheritance and polymorphism concepts in Python OOP.",
+                                    TextContent = "Explore inheritance and polymorphism concepts in Python OOP." +
+                                                  "Learn how to create subclasses and override methods." +
+                                                  "Understand polymorphism and how it simplifies code." +
+                                                    "Discover the benefits of inheritance and polymorphism.\n" +
+                                                  "Learn how to create subclasses and override methods." +
+                                                    "Understand polymorphism and how it simplifies code." +
+                                                  "Discover the benefits of inheritance and polymorphism." +
+                                                    "Learn how to create subclasses and override methods." +
+                                                    "Understand polymorphism and how it simplifies code.\n\n" +
+                                                  "Discover the benefits of inheritance and polymorphism." +
+                                                    "Learn how to create subclasses and override methods." +
+                                                    "Understand polymorphism and how it simplifies code.",
                                     Type = SectionType.Read,
                                     ChapterId = 4,
                                     Description = "Inheritance and polymorphism"
@@ -191,7 +213,8 @@ namespace ByteCore.Web.Controllers
                             Id = 6,
                             Title = "Getting Started",
                             CourseId = 2,
-                            Description = "Setting up the development environment and creating your first ASP.NET project.",
+                            Description =
+                                "Setting up the development environment and creating your first ASP.NET project.",
                             Sections = new List<SectionModel>
                             {
                                 new SectionModel
@@ -285,7 +308,7 @@ namespace ByteCore.Web.Controllers
                     {
                         section.Chapter = chapter;
                     }
-                    
+
                     chapter.Course = course;
                 }
             }
@@ -293,68 +316,51 @@ namespace ByteCore.Web.Controllers
             return courses;
         }
 
-        // GET: Courses
-        public ActionResult Index()
+        [Route("{chapterId:int}")]
+        public ActionResult Index(int courseId, int chapterId)
         {
-            return View(GetCourses());
-        }
-
-        // GET: Courses/Overview
-        public ActionResult Overview()
-        {
-            return View();
-        }
-
-        // GET: Courses/{id}
-        [Route("{id:int}")]
-        public ActionResult Course(int id)
-        {
-            var course = GetCourseById(id);
-            if (course == null)
-            {
+            var chapter = GetChapterById(courseId, chapterId);
+            if (chapter == null)
                 return HttpNotFound();
-            }
 
-            var isEnrolled = CheckUserEnrollment(course.Id);
-            return View(isEnrolled ? "CourseEnrolled" : "CourseUnenrolled", course);
+            return View(chapter);
         }
 
-        // GET: /Courses/{id}/Roadmap
-        [Route("{id:int}/Roadmap")]
-        public ActionResult Roadmap(int id)
-        {
-            var course = GetCourseById(id);
-            if (course == null)
-            {
-                return HttpNotFound();
-            }
-
-            return View(course);
-        }
-
-        private CourseModel GetCourseById(int id)
-        {
-            return GetCourses().FirstOrDefault(c => c.Id == id);
-        }
-
-        // POST: Courses/1/Enroll
-        [Route("{id:int}/Enroll")]
         [HttpPost]
-        public ActionResult Enroll(int id)
+        public ActionResult UpdateSectionProgress(int sectionId, bool isCompleted)
         {
-            var course = GetCourseById(id);
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public ActionResult CompleteChapter(int courseId, int chapterId)
+        {
+            var course = GetCourses().FirstOrDefault(c => c.Id == courseId);
             if (course == null)
             {
                 return HttpNotFound();
             }
 
-            TempData["EnrollMessage"] = "You are now enrolled in the course!";
-            return RedirectToAction("Course", new { id });
+            var chapter = course.Chapters.FirstOrDefault(c => c.Id == chapterId);
+            if (chapter == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Mark the chapter as completed
+            // Redirect to the next chapter
+            var nextChapter = course.Chapters.OrderBy(c => c.GetChapterNumber()).FirstOrDefault(c =>
+                c.GetChapterNumber() > chapter.GetChapterNumber());
+            return nextChapter != null
+                ? RedirectToAction("Index", new { courseId = course.Id, chapterId = nextChapter.Id })
+                : RedirectToAction("Course", "Courses", new { id = course.Id });
         }
 
-        private bool CheckUserEnrollment(int courseId)
+
+        private ChapterModel GetChapterById(int courseId, int chapterId)
         {
-            return courseId % 2 == 0;
+            var course = GetCourses().FirstOrDefault(c => c.Id == courseId);
+            return course?.Chapters.FirstOrDefault(c => c.GetChapterNumber() == chapterId);
         }
     }
 }
