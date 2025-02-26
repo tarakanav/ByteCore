@@ -11,12 +11,12 @@ namespace ByteCore.Web
 
             routes.MapMvcAttributeRoutes();
 
-            //routes.MapRoute(
-            //    name: "QuizStart",
-            //    url: "Quizzes/Quiz/{id}",
-            //    defaults: new { controller = "Quizzes", action = "Quiz" },
-            //    constraints: new { id = @"\d+" }
-            //);
+            routes.MapRoute(
+                name: "QuizStart",
+                url: "Quizzes/Start/{id}",
+                defaults: new { controller = "Quizzes", action = "Start" },
+                constraints: new { id = @"\d+" }
+            );
 
             routes.MapRoute(
                 name: "Quizzes",

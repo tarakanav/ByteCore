@@ -1,16 +1,37 @@
-﻿@model ByteCore.Web.Models.QuizResultModel
-
-<h2>Результаты теста</h2>
-<p>Тест: @Model.QuizTitle</p>
-<p>Правильных ответов: @Model.CorrectAnswersCount из @Model.TotalQuestions</p>
-
-@if (Model.IsPassed)
-{
-    <p>Поздравляем! Вы успешно прошли тест!</p>
-}
-else
-{
-    <p>Попробуйте снова. Вы можете пересдать тест.</p>
+﻿@{
+    var isPassed = ViewBag.Score >= (ViewBag.Total * 0.6); // Порог для успешного прохождения (например, 60%)
 }
 
-<a href="@Url.Action("Index", "Quizzes")">Вернуться к списку тестов</a>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8">
+            <div class="card text-center">
+                <div class="card-header">
+                    <h2>Результаты теста</h2>
+                </div>
+                <div class="card-body">
+                    @if (isPassed)
+                    {
+                        <div class="alert alert-success">
+                            <h3>Поздравляем! Вы прошли тест!</h3>
+                            <p>Вы набрали <strong>@ViewBag.Score</strong> из <strong>@ViewBag.Total</strong> правильных ответов.</p>
+                            <p>Ваши очки: <strong>@ViewBag.RewardPoints</strong></p>
+                            <i class="bi bi-trophy" style="font-size: 50px; color: gold;"></i>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger">
+                            <h3>Увы, вы не прошли тест.</h3>
+                            <p>Вы набрали <strong>@ViewBag.Score</strong> из <strong>@ViewBag.Total</strong> правильных ответов.</p>
+                            <p>Попробуйте еще раз, у вас получится!</p>
+                            <i class="bi bi-x-circle" style="font-size: 50px; color: red;"></i>
+                        </div>
+                    }
+
+                    <a href="@Url.Action("Index", "Quizzes")" class="btn btn-primary">Вернуться к тестам</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -109,11 +109,12 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\AboutUsController.cs" />
     <Compile Include="Controllers\PrivacyController.cs" />
-    <Compile Include="Controllers\QuizzesControllerController.cs" />
+    <Compile Include="Controllers\QuizzesController.cs" />
     <Compile Include="Controllers\TermsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\QuizResultModel.cs" />
     <Compile Include="Models\QuizModel.cs" />
     <Compile Include="Models\CourseRoadmapModel.cs" />
     <Compile Include="Models\ContactFormModel.cs" />
