@@ -1,0 +1,92 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
+using ByteCore.Web.Data;
+using ByteCore.Web.Models;
+
+namespace ByteCore.Web.Services
+{
+    public class QuizzesService : IQuizzesService
+    {
+        private readonly ApplicationDbContext _db;
+
+        public QuizzesService(ApplicationDbContext db)
+        {
+            _db = db;
+        }
+
+        public List<QuizModel> GetQuizzes()
+        {
+            return _db.Quizzes.ToList();
+        }
+
+        public QuizModel GetQuiz(int id)
+        {
+            return _db.Quizzes
+                .Include(x => x.Questions)
+                .Include(x => x.Questions.Select(q => q.Options))
+                .FirstOrDefault(q => q.Id == id);
+        }
+
+        public QuizResultModel GetQuizResult(int id, int resultId)
+        {
+            return _db.QuizResults
+                .Include(q => q.Quiz)
+                .Include(q => q.Answers)
+                .Include(q => q.User)
+                .FirstOrDefault(q => q.Id == resultId && q.Quiz.Id == id);
+        }
+
+        public async Task<QuizResultModel> SubmitQuizResultAsync(int id, List<int> userAnswers, string email)
+        {
+            var quiz = _db.Quizzes.Include(quizModel => quizModel.Questions).FirstOrDefault(q => q.Id == id);
+            var user = _db.Users.FirstOrDefault(u => u.Email == email);
+            
+            if (quiz == null || user == null)
+            {
+                return null;
+            }
+
+            if (quiz.Questions.Count != userAnswers.Count)
+            {
+                throw new InvalidOperationException("Invalid number of answers.");
+            }
+            
+            var answers = new List<QuizResultAnswerModel>();
+
+            for (var i = 0; i < quiz.Questions.Count; i++)
+            {
+                var question = quiz.Questions[i];
+                var answer = userAnswers[i];
+                var correct = question.CorrectOption == answer;
+                
+                answers.Add(new QuizResultAnswerModel
+                {
+                    Question = question,
+                    SelectedOption = answer,
+                    IsCorrect = correct,
+                });
+            }
+            
+            var quizResult = new QuizResultModel
+            {
+                Quiz = quiz,
+                Answers = answers,
+                User = user
+            };
+            
+            _db.QuizResults.Add(quizResult);
+            await _db.SaveChangesAsync();
+            
+            return quizResult;
+        }
+
+        public async Task AddQuizAsync(QuizModel quiz)
+        {
+            _db.Quizzes.Add(quiz);
+            await _db.SaveChangesAsync();
+        }
+    }
+}

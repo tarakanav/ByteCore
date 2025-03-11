@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ByteCore.Web.Controllers;
 
 namespace ByteCore.Web.Models
 {
@@ -6,7 +7,7 @@ namespace ByteCore.Web.Models
     {
         public int Id { get; set; }
         public string QuestionText { get; set; }
-        public List<string> Options { get; set; }
-        public int CorrectOptionIndex { get; set; }
+        public List<QuestionOptionModel> Options { get; set; }
+        public int CorrectOption { get; set; }
     }
 }

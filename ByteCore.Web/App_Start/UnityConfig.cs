@@ -21,7 +21,7 @@ namespace ByteCore.Web
             container.RegisterType<IPasswordService, PasswordService>();
             container.RegisterType<ApplicationDbContext>(new HierarchicalLifetimeManager());
             container.RegisterType<IUserService, UserService>();
-            container.RegisterType<AccountController>();
+            container.RegisterType<IQuizzesService, QuizzesService>();
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
         }
     }
