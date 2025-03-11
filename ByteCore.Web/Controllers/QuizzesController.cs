@@ -71,6 +71,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // GET: Quizzes/Create
+        [Authorize]
         [HttpGet]
         [Route("Create")]
         public ActionResult Create()
@@ -95,6 +96,7 @@ namespace ByteCore.Web.Controllers
         }
 
         // POST: Quizzes/Create
+        [Authorize]
         [HttpPost]
         [Route("Create")]
         [ValidateAntiForgeryToken]
@@ -114,6 +116,46 @@ namespace ByteCore.Web.Controllers
             {
                 await _quizzesService.AddQuizAsync(quiz);
                 return RedirectToAction("Quiz", new { id = quiz.Id });
+            }
+            return View(quiz);
+        }
+
+        // GET: Quizzes/1/Edit
+        [Authorize]
+        [Route("{id:int}/Edit")]
+        public ActionResult Edit(int id)
+        {
+            var quiz = _quizzesService.GetQuiz(id);
+
+            if (quiz == null)
+            {
+                return RedirectToAction("NotFound", "Error");
+            }
+
+            return View(quiz);
+        }
+        
+        // POST: Quizzes/1/Edit
+        [Authorize]
+        [HttpPost]
+        [Route("{id:int}/Edit")]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Edit(int id, QuizModel quiz)
+        {
+            if (quiz.Questions.Count > 25 || quiz.Questions.Count == 0)
+            {
+                ModelState.AddModelError("Questions", "A quiz can have a maximum of 25 questions and a minimum of 1 question.");
+            }
+            
+            if (quiz.Questions.Any(q => q.Options.Count > 16 || q.Options.Count == 0))
+            {
+                ModelState.AddModelError("Questions", "A question can have a maximum of 16 options and a minimum of 1 option.");
+            }
+            
+            if (ModelState.IsValid)
+            {
+                await _quizzesService.UpdateQuizAsync(id, quiz);
+                return RedirectToAction("Quiz", new { id });
             }
             return View(quiz);
         }

@@ -1,0 +1,209 @@
+﻿@model ByteCore.Web.Models.QuizModel
+
+@{
+    ViewBag.Title = "Edit Quiz";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <h2>Edit Quiz</h2>
+    @using (Html.BeginForm("Edit", "Quizzes", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Title)
+            @Html.TextBoxFor(model => model.Title, new { @class = "form-control", placeholder = "Quiz Title" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RewardPoints)
+            @Html.TextBoxFor(model => model.RewardPoints, new { @class = "form-control", type = "number", placeholder = "Reward Points" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.PassingPercentage)
+            @Html.TextBoxFor(model => model.PassingPercentage, new { @class = "form-control", type = "number", step = "0.01", placeholder = "Passing Percentage" })
+        </div>
+
+        <h3>Questions</h3>
+        <div id="questions-container">
+            @for (int i = 0; i < Model.Questions.Count; i++)
+            {
+                <div class="question-item border rounded p-3 mb-3" data-index="@i">
+                    @Html.HiddenFor(model => model.Questions[i].Id)
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4>Question @(i + 1)</h4>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Questions[i].QuestionText, "Question Text")
+                        @Html.TextBoxFor(model => model.Questions[i].QuestionText, new { @class = "form-control", placeholder = "Enter question text" })
+                    </div>
+
+                    <div class="form-group">
+                        <label>Options</label>
+                        <div class="options-container">
+                            @for (int j = 0; j < Model.Questions[i].Options.Count; j++)
+                            {
+                                <div class="input-group mb-2 option-item">
+                                    @Html.HiddenFor(model => model.Questions[i].Options[j].Id)
+                                    @Html.TextBoxFor(model => model.Questions[i].Options[j].OptionText, new { @class = "form-control", placeholder = "Option " + (j + 1) })
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Questions[i].CorrectOption, "Correct Option Index")
+                        @Html.TextBoxFor(model => model.Questions[i].CorrectOption, new { @class = "form-control", type = "number", min = "0" })
+                    </div>
+                </div>
+            }
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Update the naming and placeholder values for options within a question block.
+        function reindexOptions(questionDiv, qIndex) {
+            const optionItems = questionDiv.querySelectorAll('.options-container .option-item');
+            optionItems.forEach((optionDiv, oIndex) => {
+                optionDiv.setAttribute('data-index', oIndex);
+                const optionInput = optionDiv.querySelector('input');
+                optionInput.name = `Questions[${qIndex}].Options[${oIndex}].OptionText`;
+                optionInput.placeholder = 'Option ' + (oIndex + 1);
+            });
+        }
+
+        // Re-index questions and update input names and labels.
+        function reindexQuestions() {
+            const questionItems = document.querySelectorAll('#questions-container .question-item');
+            questionItems.forEach((questionDiv, qIndex) => {
+                questionDiv.setAttribute('data-index', qIndex);
+                questionDiv.querySelector('h4').textContent = 'Question ' + (qIndex + 1);
+                const qText = questionDiv.querySelector('input[name^="Questions"]');
+                if (qText) {
+                    qText.name = `Questions[${qIndex}].QuestionText`;
+                    qText.id = `Questions_${qIndex}__QuestionText`;
+                    const label = questionDiv.querySelector('label[for^="Questions_"]');
+                    if (label) {
+                        label.setAttribute('for', `Questions_${qIndex}__QuestionText`);
+                    }
+                }
+                const correctInput = questionDiv.querySelector('input[name^="Questions"][name$="CorrectOption"]');
+                if (correctInput) {
+                    correctInput.name = `Questions[${qIndex}].CorrectOption`;
+                    correctInput.id = `Questions_${qIndex}__CorrectOption`;
+                    const correctLabel = questionDiv.querySelector('label[for^="Questions_"][for$="CorrectOption"]');
+                    if (correctLabel) {
+                        correctLabel.setAttribute('for', `Questions_${qIndex}__CorrectOption`);
+                    }
+                }
+                reindexOptions(questionDiv, qIndex);
+            });
+        }
+
+        // Add a new question block.
+        document.getElementById('add-question').addEventListener('click', function () {
+            const container = document.getElementById('questions-container');
+            if (container.children.length >= 25) {
+                alert("Maximum of 25 questions reached.");
+                return;
+            }
+            const index = container.children.length;
+            let html = `
+                <div class="question-item border rounded p-3 mb-3" data-index="${index}">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4>Question ${index + 1}</h4>
+                        <button type="button" class="btn btn-danger btn-sm remove-question">Remove Question</button>
+                    </div>
+                    <div class="form-group">
+                        <label for="Questions_${index}__QuestionText">Question Text</label>
+                        <input class="form-control" type="text" id="Questions_${index}__QuestionText" name="Questions[${index}].QuestionText" placeholder="Enter question text" />
+                    </div>
+                    <div class="form-group">
+                        <label>Options</label>
+                        <div class="options-container">
+                            <div class="input-group mb-2 option-item" data-index="0">
+                                <input class="form-control" type="text" name="Questions[${index}].Options[0].OptionText" placeholder="Option 1" />
+                            </div>
+                            <div class="input-group mb-2 option-item" data-index="1">
+                                <input class="form-control" type="text" name="Questions[${index}].Options[1].OptionText" placeholder="Option 2" />
+                            </div>
+                            <div class="input-group mb-2 option-item" data-index="2">
+                                <input class="form-control" type="text" name="Questions[${index}].Options[2].OptionText" placeholder="Option 3" />
+                            </div>
+                            <div class="input-group mb-2 option-item" data-index="3">
+                                <input class="form-control" type="text" name="Questions[${index}].Options[3].OptionText" placeholder="Option 4" />
+                            </div>
+                        </div>
+                        <div class="options-buttons mt-2">
+                            <button type="button" class="btn btn-secondary add-option">Add Option</button>
+                            <button type="button" class="btn btn-secondary remove-last-option">Remove Latest Option</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Questions_${index}__CorrectOption">Correct Option Index</label>
+                        <input class="form-control" type="number" id="Questions_${index}__CorrectOption" name="Questions[${index}].CorrectOption" min="0" />
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+            reindexQuestions();
+        });
+
+        // Delegate events for remove-question, add-option, and remove-last-option.
+        document.getElementById('questions-container').addEventListener('click', function (e) {
+            // Remove Question.
+            if (e.target.classList.contains('remove-question')) {
+                const container = document.getElementById('questions-container');
+                if (container.children.length > 1) {
+                    const questionDiv = e.target.closest('.question-item');
+                    questionDiv.remove();
+                    reindexQuestions();
+                } else {
+                    alert("At least one question is required.");
+                }
+            }
+            // Add Option.
+            if (e.target.classList.contains('add-option')) {
+                const questionDiv = e.target.closest('.question-item');
+                const qIndex = questionDiv.getAttribute('data-index');
+                const optionsContainer = questionDiv.querySelector('.options-container');
+                if (optionsContainer.children.length >= 16) {
+                    alert("Maximum of 16 options reached for this question.");
+                    return;
+                }
+                const newIndex = optionsContainer.children.length;
+                const optionHtml = `
+                    <div class="input-group mb-2 option-item" data-index="${newIndex}">
+                        <input class="form-control" type="text" name="Questions[${qIndex}].Options[${newIndex}].OptionText" placeholder="Option ${newIndex + 1}" />
+                    </div>`;
+                optionsContainer.insertAdjacentHTML('beforeend', optionHtml);
+                reindexOptions(questionDiv, qIndex);
+            }
+            // Remove Latest Option.
+            if (e.target.classList.contains('remove-last-option')) {
+                const questionDiv = e.target.closest('.question-item');
+                const optionsContainer = questionDiv.querySelector('.options-container');
+                if (optionsContainer.children.length > 1) {
+                    optionsContainer.lastElementChild.remove();
+                    const qIndex = questionDiv.getAttribute('data-index');
+                    reindexOptions(questionDiv, qIndex);
+                } else {
+                    alert("A question must have at least one option.");
+                }
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            reindexQuestions();
+        });
+    
+    </script>
+}

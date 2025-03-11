@@ -88,5 +88,22 @@ namespace ByteCore.Web.Services
             _db.Quizzes.Add(quiz);
             await _db.SaveChangesAsync();
         }
+
+        public Task UpdateQuizAsync(int id, QuizModel quiz)
+        {
+            var existingQuiz = _db.Quizzes.Include(quizModel => quizModel.Questions).FirstOrDefault(q => q.Id == id);
+            
+            if (existingQuiz == null)
+            {
+                throw new InvalidOperationException("Quiz not found.");
+            }
+            
+            existingQuiz.Title = quiz.Title;
+            existingQuiz.PassingPercentage = quiz.PassingPercentage;
+            existingQuiz.RewardPoints = quiz.RewardPoints;
+            existingQuiz.Questions = quiz.Questions;
+            
+            return _db.SaveChangesAsync();
+        }
     }
 }

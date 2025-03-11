@@ -99,6 +99,9 @@ namespace ByteCore.Web.Controllers
                     new Claim(ClaimTypes.Name, user.Name),
                     new Claim(ClaimTypes.Email, user.Email),
                 }, "Password");
+                
+                if (user.Name == "admin") 
+                    Roles.AddUserToRole(user.Name, "Admin");
 
                 var principal = new ClaimsPrincipal(identity);
                 HttpContext.User = principal;

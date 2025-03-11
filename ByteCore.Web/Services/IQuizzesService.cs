@@ -11,5 +11,6 @@ namespace ByteCore.Web.Services
         QuizResultModel GetQuizResult(int id, int resultId);
         Task<QuizResultModel> SubmitQuizResultAsync(int id, List<int> userAnswers, string email);
         Task AddQuizAsync(QuizModel quiz);
+        Task UpdateQuizAsync(int id, QuizModel quiz);
     }
 }

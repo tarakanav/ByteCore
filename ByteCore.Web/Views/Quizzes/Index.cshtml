@@ -1,27 +1,31 @@
 ﻿@model List<ByteCore.Web.Models.QuizModel>
 
 @{
-    ViewBag.Title = "Quizzes";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+ViewBag.Title = "Quizzes";
+Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container mt-5">
     <h2 class="text-center mb-4">Available Quizzes</h2>
     <p class="text-center text-muted">Select a quiz from the list below to start learning and test your knowledge.</p>
 
+    <div class="text-center mb-4">
+        <a href="@Url.Action("Create", "Quizzes")" class="btn btn-success">Create Quiz</a>
+    </div>
+
     <div class="row row-cols-1 row-cols-md-2 g-4">
         @foreach (var quiz in Model)
         {
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">@quiz.Title</h5>
-                        <p class="card-text"><strong>Points:</strong> @quiz.RewardPoints</p>
-                        <p class="card-text"><strong>Number of Questions:</strong> @quiz.Questions.Count</p>
-                        <a href="@Url.Action("Quiz", "Quizzes", new { id = quiz.Id })" class="btn btn-primary">Take Quiz</a>
-                    </div>
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@quiz.Title</h5>
+                    <p class="card-text"><strong>Points:</strong> @quiz.RewardPoints</p>
+                    <p class="card-text"><strong>Number of Questions:</strong> @quiz.Questions.Count</p>
+                    <a href="@Url.Action("Quiz", "Quizzes", new { id = quiz.Id })" class="btn btn-primary">Take Quiz</a>
                 </div>
             </div>
+        </div>
         }
     </div>
 
@@ -29,19 +33,19 @@
         <ul class="pagination justify-content-center">
             @if (ViewBag.CurrentPage > 1)
             {
-                <li class="page-item">
-                    <a class="page-link" href="@Url.Action("Index", "Quizzes", new { page = ViewBag.CurrentPage - 1 })" aria-label="Previous">
-                        <span aria-hidden="true">&laquo; Previous</span>
-                    </a>
-                </li>
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action("Index", "Quizzes", new { page = ViewBag.CurrentPage - 1 })" aria-label="Previous">
+                    <span aria-hidden="true">&laquo; Previous</span>
+                </a>
+            </li>
             }
             @if (ViewBag.CurrentPage < ViewBag.TotalPages)
             {
-                <li class="page-item">
-                    <a class="page-link" href="@Url.Action("Index", "Quizzes", new { page = ViewBag.CurrentPage + 1 })" aria-label="Next">
-                        <span aria-hidden="true">Next &raquo;</span>
-                    </a>
-                </li>
+            <li class="page-item">
+                <a class="page-link" href="@Url.Action("Index", "Quizzes", new { page = ViewBag.CurrentPage + 1 })" aria-label="Next">
+                    <span aria-hidden="true">Next &raquo;</span>
+                </a>
+            </li>
             }
         </ul>
     </nav>
