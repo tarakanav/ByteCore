@@ -13,7 +13,16 @@
                 <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Home")">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Courses")">Courses</a></li>
                 <li class="nav-item"><a class="nav-link" href="@Url.Action("Overview", "Courses")">Overview</a></li>
-                <li class="nav-item"><a class="nav-link" href="@Url.Action("Registration", "Account")">Registration</a></li>
+                @{
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("Dashboard", "Account")">@User.Identity.Name</a></li>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("Registration", "Account")">Registration</a></li>
+                    }
+                }
             </ul>
         </div>
     </div>

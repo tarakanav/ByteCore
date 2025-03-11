@@ -1,39 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using System.Web.Mvc;
+using System.Web.Security;
 using ByteCore.Web.Models;
+using ByteCore.Web.Services;
 
 namespace ByteCore.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private static List<UserModel> Users = new List<UserModel>
+        private readonly IUserService _userService;
+
+        public AccountController(IUserService userService)
         {
-            new UserModel
-            {
-                Id = 1,
-                Name = "Sample User",
-                Email = "sample@example.com",
-                EnrolledCourses = new List<CourseModel>
-                {
-                    new CourseModel { Id = 1, Title = "Course 1", ShortDescription = "Short description 1" },
-                    new CourseModel { Id = 2, Title = "Course 2", ShortDescription = "Short description 2" }
-                }
-            }
-        };
+            _userService = userService;
+        }
 
         // GET: Account/Registration
         public ActionResult Registration()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Dashboard");
+            }
+            
             return View();
         }
 
         // POST: Account/Registration
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Registration(string username, string email, string password)
+        public async Task<ActionResult> Registration(string username, string email, string password)
         {
             if (string.IsNullOrWhiteSpace(username) ||
                 string.IsNullOrWhiteSpace(email) ||
@@ -42,28 +40,37 @@ namespace ByteCore.Web.Controllers
                 ModelState.AddModelError("", "All fields should be presented.");
                 return View();
             }
-            
-            if (Users.Any(u => u.Email == email))
+
+            try
             {
-                ModelState.AddModelError("", "User with this email already exists.");
+                var newUser = await _userService.RegisterUserAsync(username, email, password);
+                
+                var identity = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Name, newUser.Name),
+                    new Claim(ClaimTypes.Email, newUser.Email),
+                }, "Password");
+
+                var principal = new ClaimsPrincipal(identity);
+                HttpContext.User = principal;
+                
+                return RedirectToAction("Index", "Home");
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
                 return View();
             }
-            
-            var newUser = new UserModel
-            {
-                Id = Users.Max(u => u.Id) + 1,
-                Name = username,
-                Email = email,
-                EnrolledCourses = new List<CourseModel>()
-            };
-            Users.Add(newUser);
-
-            return RedirectToAction("Index", "Home");
         }
 
         // GET: Account/Login
         public ActionResult Login()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Dashboard");
+            }
+            
             return View();
         }
 
@@ -77,46 +84,55 @@ namespace ByteCore.Web.Controllers
                 ModelState.AddModelError("", "You should enter email and password.");
                 return View();
             }
-            
-            var user = Users.FirstOrDefault(u => u.Email == email);
-            if (user != null)
+
+            try
             {
+                var user = _userService.AuthenticateUser(email, password);
+        
+                var identity = new ClaimsIdentity(new[] 
+                {
+                    new Claim(ClaimTypes.Name, user.Name),
+                    new Claim(ClaimTypes.Email, user.Email),
+                }, "Password");
+
+                var principal = new ClaimsPrincipal(identity);
+                HttpContext.User = principal;
+                FormsAuthentication.SetAuthCookie(user.Email, rememberMe);
+
                 return RedirectToAction("Index", "Home");
             }
-
-            ModelState.AddModelError("", "Invalid credentials.");
-            return View();
+            catch (UnauthorizedAccessException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View();
+            }
         }
 
         // GET: Account/Dashboard
-        //[Authorize]
+        [Authorize]
         public ActionResult Dashboard()
         {
-            //var userEmail = User.Identity.Name;
-            var userEmail = "sample@example.com";
-            var user = Users.FirstOrDefault(u => u.Email == userEmail);
+            var user = _userService.GetUserByEmail(User.Identity.Name);
 
             if (user == null)
             {
-                return HttpNotFound();
+                return RedirectToAction("Login");
             }
 
             return View(user);
         }
-        
+
         // GET: Account/Manage
-        //[Authorize]
+        [Authorize]
         public ActionResult Manage()
         {
-            //var userEmail = User.Identity.Name;
-            var userEmail = "sample@example.com";
-            var user = Users.FirstOrDefault(u => u.Email == userEmail);
-
+            var user = _userService.GetUserByEmail(User.Identity.Name);
+            
             if (user == null)
             {
                 return HttpNotFound();
             }
-
+            
             return View(user);
         }
 
@@ -124,36 +140,32 @@ namespace ByteCore.Web.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public ActionResult Manage(UserModel model)
+        public async Task<ActionResult> Manage(UserModel model)
         {
             if (ModelState.IsValid)
             {
-                var user = Users.FirstOrDefault(u => u.Id == model.Id);
-                if (user != null)
+                try
                 {
-                    user.Name = model.Name;
-                    user.Email = model.Email;
-                }
+                    await _userService.UpdateUserAsync(User.Identity.Name, model);
+                    var identity = new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.Name, model.Name),
+                        new Claim(ClaimTypes.Email, model.Email),
+                    }, "Password");
 
-                return RedirectToAction("Dashboard");
+                    var principal = new ClaimsPrincipal(identity);
+                    HttpContext.User = principal;
+                    FormsAuthentication.SetAuthCookie(model.Email, true);
+
+                    return RedirectToAction("Dashboard");
+                }
+                catch (InvalidOperationException ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
             }
 
             return View(model);
         }
-        
-        // POST: /Account/Update
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Update(string name, string email)
-        {
-            var user = Users.FirstOrDefault();
-            if (user != null)
-            {
-                user.Name = name;
-                user.Email = email;
-            }
-            return RedirectToAction("Dashboard");
-        }
-
     }
 }

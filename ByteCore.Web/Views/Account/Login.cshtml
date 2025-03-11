@@ -29,8 +29,8 @@
                         </div>
                         <!-- Remember Me checkbox-->
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe" />
-                            <label class="form-check-label" for="rememberMe">Remember Me</label>
+                            @Html.CheckBox("rememberMe", new { @class = "form-check-input", id = "rememberMe" })
+                            @Html.Label("rememberMe", "Remember me", new { @class = "form-check-label" })
                         </div>
                         <!-- Submit Button-->
                         <div class="d-grid mb-3">

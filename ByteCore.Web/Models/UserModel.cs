@@ -7,6 +7,7 @@ namespace ByteCore.Web.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public List<CourseModel> EnrolledCourses { get; set; }
+        public string Password { get; set; }
+        public virtual List<CourseModel> EnrolledCourses { get; set; }
     }
 }
