@@ -146,6 +146,10 @@
     <Compile Include="Migrations\202503111805443_Add_User_Password.Designer.cs">
       <DependentUpon>202503111805443_Add_User_Password.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202503111927370_Change_Course_Model.cs" />
+    <Compile Include="Migrations\202503111927370_Change_Course_Model.Designer.cs">
+      <DependentUpon>202503111927370_Change_Course_Model.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\QuestionModel.cs" />
     <Compile Include="Models\QuizResultModel.cs" />
@@ -198,6 +202,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202503111805443_Add_User_Password.resx">
       <DependentUpon>202503111805443_Add_User_Password.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202503111927370_Change_Course_Model.resx">
+      <DependentUpon>202503111927370_Change_Course_Model.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

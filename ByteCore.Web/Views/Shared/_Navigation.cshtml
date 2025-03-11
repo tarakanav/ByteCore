@@ -20,7 +20,7 @@
                     }
                     else
                     {
-                        <li class="nav-item"><a class="nav-link" href="@Url.Action("Registration", "Account")">Registration</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("Login", "Account", new { ReturnUrl = Request.Url?.AbsolutePath })">Login</a></li>
                     }
                 }
             </ul>

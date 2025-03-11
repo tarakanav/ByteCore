@@ -20,6 +20,8 @@ namespace ByteCore.Web.Controllers
         // GET: Account/Registration
         public ActionResult Registration()
         {
+            ViewBag.ReturnUrl = Request.QueryString["ReturnUrl"];
+
             if (User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Dashboard");
@@ -31,7 +33,7 @@ namespace ByteCore.Web.Controllers
         // POST: Account/Registration
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Registration(string username, string email, string password)
+        public async Task<ActionResult> Registration(string username, string email, string password, string returnUrl = null)
         {
             if (string.IsNullOrWhiteSpace(username) ||
                 string.IsNullOrWhiteSpace(email) ||
@@ -53,8 +55,9 @@ namespace ByteCore.Web.Controllers
 
                 var principal = new ClaimsPrincipal(identity);
                 HttpContext.User = principal;
+                FormsAuthentication.SetAuthCookie(email, true);
                 
-                return RedirectToAction("Index", "Home");
+                return Redirect(returnUrl ?? "/");
             }
             catch (InvalidOperationException ex)
             {
@@ -66,6 +69,8 @@ namespace ByteCore.Web.Controllers
         // GET: Account/Login
         public ActionResult Login()
         {
+            ViewBag.ReturnUrl = Request.QueryString["ReturnUrl"];
+            
             if (User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Dashboard");
@@ -77,7 +82,7 @@ namespace ByteCore.Web.Controllers
         // POST: Account/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(string email, string password, bool rememberMe = false)
+        public ActionResult Login(string email, string password, bool rememberMe = false, string returnUrl = null)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
@@ -99,7 +104,7 @@ namespace ByteCore.Web.Controllers
                 HttpContext.User = principal;
                 FormsAuthentication.SetAuthCookie(user.Email, rememberMe);
 
-                return RedirectToAction("Index", "Home");
+                return Redirect(returnUrl ?? "/");
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -166,6 +171,13 @@ namespace ByteCore.Web.Controllers
             }
 
             return View(model);
+        }
+        
+        // GET: Account/Logout
+        public ActionResult Logout()
+        {
+            FormsAuthentication.SignOut();
+            return RedirectToAction("Login");
         }
     }
 }

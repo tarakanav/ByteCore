@@ -32,12 +32,17 @@
                             @Html.CheckBox("rememberMe", new { @class = "form-check-input", id = "rememberMe" })
                             @Html.Label("rememberMe", "Remember me", new { @class = "form-check-label" })
                         </div>
+                        <!-- ReturnUrl input-->
+                        @if (!string.IsNullOrWhiteSpace(ViewBag.ReturnUrl))
+                        {
+                            <input type="hidden" name="ReturnUrl" value="@ViewBag.ReturnUrl"/>
+                        }
                         <!-- Submit Button-->
                         <div class="d-grid mb-3">
                             <button class="btn btn-primary btn-lg px-5 py-3" type="submit">Login</button>
                         </div>
                         <div class="text-center">
-                            <p>Don't have an account? <a href="@Url.Action("Registration", "Account")">Register here</a></p>
+                            <p>Don't have an account? <a href="@Url.Action("Registration", "Account", new { ViewBag.ReturnUrl })">Register here</a></p>
                         </div>
                     </form>
                 </div>
