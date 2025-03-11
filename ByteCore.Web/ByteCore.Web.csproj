@@ -115,6 +115,8 @@
     <Content Include="Views\Account\Dashboard.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Manage.cshtml" />
+    <Content Include="Views\Chapter\Index.cshtml" />
+    <Content Include="Views\Courses\CourseEnrolled.cshtml" />
     <Content Include="Views\Privacy\Index.cshtml" />
     <Content Include="Views\Terms\Index.cshtml" />
     <Content Include="Views\Shared\_EnrollButton.cshtml" />
@@ -124,6 +126,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\ChapterController.cs" />
     <Compile Include="Controllers\CoursesController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -147,9 +150,11 @@
     <Compile Include="Models\QuestionModel.cs" />
     <Compile Include="Models\QuizResultModel.cs" />
     <Compile Include="Models\QuizModel.cs" />
+    <Compile Include="Models\ChapterModel.cs" />
     <Compile Include="Models\CourseRoadmapModel.cs" />
     <Compile Include="Models\ContactFormModel.cs" />
     <Compile Include="Models\CourseModel.cs" />
+    <Compile Include="Models\SectionModel.cs" />
     <Compile Include="Models\UserCourseModel.cs" />
     <Compile Include="Models\UserModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -174,7 +179,7 @@
     <Content Include="Views\Account\Registration.cshtml" />
     <Content Include="Views\Courses\Index.cshtml" />
     <Content Include="Views\Courses\Overview.cshtml" />
-    <Content Include="Views\Courses\Course.cshtml" />
+    <Content Include="Views\Courses\CourseUnenrolled.cshtml" />
     <Content Include="Views\AboutUs\Index.cshtml" />
     <Content Include="Views\Courses\Roadmap.cshtml" />
     <None Include="Web.Debug.config">
