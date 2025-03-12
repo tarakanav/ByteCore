@@ -10,7 +10,13 @@ namespace ByteCore.Web
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapMvcAttributeRoutes();
-            
+
+            routes.MapRoute(
+                name: "Mentorship",
+                url: "Mentorship/{action}/{id}",
+                defaults: new { controller = "Mentorship", action = "Index", id = UrlParameter.Optional }
+            );
+
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",

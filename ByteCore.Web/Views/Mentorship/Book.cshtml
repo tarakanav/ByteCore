@@ -1,0 +1,28 @@
+@model ByteCore.Web.Models.MentorModel
+
+@{
+    ViewBag.Title = "Book a Session";
+}
+
+<div class="container mt-5">
+    <h2>Book a Session with @Model.Name</h2>
+    <p><strong>Expertise:</strong> @Model.Expertise</p>
+    <p><strong>Rate:</strong> $@Model.Rate / hour</p>
+    <p><strong>Rating:</strong> ⭐ @Model.Rating</p>
+
+    <form method="post" action="@Url.Action("Book", "Mentorship")">
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.Id)
+        @Html.HiddenFor(m => m.Name)
+        @Html.HiddenFor(m => m.Expertise)
+        @Html.HiddenFor(m => m.Rate)
+
+        <div class="form-group">
+            <label for="date">Select Date & Time</label>
+            <input type="datetime-local" class="form-control" name="date" required>
+        </div>
+
+        <button type="submit" class="btn btn-success mt-3">Confirm Booking</button>
+        <a href="@Url.Action("Index", "Mentorship")" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+</div>

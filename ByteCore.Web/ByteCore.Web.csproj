@@ -146,6 +146,7 @@
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\AboutUsController.cs" />
+    <Compile Include="Controllers\MentorshipController.cs" />
     <Compile Include="Controllers\PrivacyController.cs" />
     <Compile Include="Controllers\QuizzesController.cs" />
     <Compile Include="Controllers\TermsController.cs" />
@@ -182,6 +183,7 @@
       <DependentUpon>202503121049409_Change_Chapter_Model.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\MentorModel.cs" />
     <Compile Include="Models\QuestionModel.cs" />
     <Compile Include="Models\QuestionOptionModel.cs" />
     <Compile Include="Models\QuizResultAnswerModel.cs" />
@@ -203,6 +205,8 @@
     <Compile Include="Services\PasswordService.cs" />
     <Compile Include="Services\QuizzesService.cs" />
     <Compile Include="Services\UserService.cs" />
+    <Content Include="Views\Mentorship\Book.cshtml" />
+    <Content Include="Views\Mentorship\Index.cshtml" />
     <None Include="Views\Quizzes\Result.cshtml" />
     <None Include="Views\Quizzes\Quiz.cshtml" />
     <None Include="Views\Quizzes\Index.cshtml" />

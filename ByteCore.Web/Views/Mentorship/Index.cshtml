@@ -1,0 +1,28 @@
+@model List<ByteCore.Web.Models.MentorModel>
+
+@{
+    ViewBag.Title = "Mentorship Program";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center">Find a Mentor</h2>
+    <p class="text-center text-muted">Book a session with an expert and boost your skills.</p>
+
+    <div class="row">
+        @foreach (var mentor in Model)
+        {
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    <img src="@mentor.ImageUrl" class="card-img-top" alt="@mentor.Name">
+                    <div class="card-body">
+                        <h5 class="card-title">@mentor.Name</h5>
+                        <p class="card-text"><strong>Expertise:</strong> @mentor.Expertise</p>
+                        <p class="card-text"><strong>Rate:</strong> $@mentor.Rate / hour</p>
+                        <p class="card-text"><strong>Rating:</strong> ⭐ @mentor.Rating</p>
+                        <a href="@Url.Action("Book", "Mentorship", new { id = mentor.Id })" class="btn btn-primary">Book a Session</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
