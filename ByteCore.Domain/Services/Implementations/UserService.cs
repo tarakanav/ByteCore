@@ -2,24 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ByteCore.Data;
+using ByteCore.Domain.Entities;
 using ByteCore.Domain.Services.Interfaces;
-using ByteCore.Model.Models;
 
 namespace ByteCore.Domain.Services.Implementations
 {
     public class UserService : IUserService
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IDbContext _db;
         private readonly IPasswordService _passwordService;
 
-        public UserService(ApplicationDbContext db, IPasswordService passwordService)
+        public UserService(IDbContext db, IPasswordService passwordService)
         {
             _db = db;
             _passwordService = passwordService;
         }
 
-        public async Task<UserModel> RegisterUserAsync(string name, string email, string password)
+        public async Task<User> RegisterUserAsync(string name, string email, string password)
         {
             if (_db.Users.Any(u => u.Email == email || u.Name == name))
             {
@@ -28,12 +27,12 @@ namespace ByteCore.Domain.Services.Implementations
             
             var hashedPassword = _passwordService.HashPassword(password);
 
-            var newUser = new UserModel
+            var newUser = new User
             {
                 Name = name,
                 Email = email,
                 Password = hashedPassword,
-                EnrolledCourses = new List<CourseModel>()
+                EnrolledCourses = new List<Course>()
             };
 
             _db.Users.Add(newUser);
@@ -42,7 +41,7 @@ namespace ByteCore.Domain.Services.Implementations
             return newUser;
         }
 
-        public UserModel AuthenticateUser(string email, string password)
+        public User AuthenticateUser(string email, string password)
         {
             var user = _db.Users.FirstOrDefault(u => u.Email == email);
             if (user == null || !_passwordService.VerifyPassword(password, user.Password))
@@ -53,12 +52,12 @@ namespace ByteCore.Domain.Services.Implementations
             return user;
         }
 
-        public UserModel GetUserByEmail(string email)
+        public User GetUserByEmail(string email)
         {
             return _db.Users.FirstOrDefault(u => u.Email == email);
         }
 
-        public async Task<UserModel> UpdateUserAsync(string currentEmail, UserModel updatedUser)
+        public async Task<User> UpdateUserAsync(string currentEmail, User updatedUser)
         {
             var user = _db.Users.FirstOrDefault(u => u.Email == currentEmail);
             if (user == null)

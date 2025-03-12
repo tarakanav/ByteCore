@@ -1,4 +1,5 @@
 ﻿using System.Data.Entity.Migrations;
+using ByteCore.Data.Context;
 
 namespace ByteCore.Data.Migrations
 {

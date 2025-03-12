@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using ByteCore.Domain.Entities;
 using ByteCore.Domain.Services.Interfaces;
 using ByteCore.Model.Models;
 
@@ -95,15 +96,15 @@ namespace ByteCore.Web.Controllers
         [Route("Create")]
         public ActionResult Create()
         {
-            var course = new CourseModel
+            var course = new Course
             {
-                Chapters = new List<ChapterModel>
+                Chapters = new List<Chapter>
                 {
-                    new ChapterModel
+                    new Chapter
                     {
-                        Sections = new List<SectionModel>
+                        Sections = new List<Section>
                         {
-                            new SectionModel { Type = SectionType.Read },
+                            new Section { Type = SectionType.Read },
                         }
                     }
                 }
@@ -116,7 +117,7 @@ namespace ByteCore.Web.Controllers
         [HttpPost]
         [Route("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(CourseModel model)
+        public async Task<ActionResult> Create(Course model)
         {
             try
             {

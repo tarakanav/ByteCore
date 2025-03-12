@@ -46,29 +46,27 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Entities\Chapter.cs" />
+        <Compile Include="Entities\Course.cs" />
+        <Compile Include="Entities\CourseRoadmap.cs" />
+        <Compile Include="Entities\Question.cs" />
+        <Compile Include="Entities\QuestionOption.cs" />
+        <Compile Include="Entities\Quiz.cs" />
+        <Compile Include="Entities\QuizResultAnswer.cs" />
+        <Compile Include="Entities\QuizResult.cs" />
+        <Compile Include="Entities\Section.cs" />
+        <Compile Include="Entities\UserCourse.cs" />
+        <Compile Include="Entities\User.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="Services\Implementations\CoursesService.cs" />
         <Compile Include="Services\Implementations\PasswordService.cs" />
         <Compile Include="Services\Implementations\QuizzesService.cs" />
         <Compile Include="Services\Implementations\UserService.cs" />
         <Compile Include="Services\Interfaces\ICoursesService.cs" />
+        <Compile Include="Services\Interfaces\IDbContext.cs" />
         <Compile Include="Services\Interfaces\IPasswordService.cs" />
         <Compile Include="Services\Interfaces\IQuizzesService.cs" />
         <Compile Include="Services\Interfaces\IUserService.cs" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\ByteCore.Data\ByteCore.Data.csproj">
-        <Project>{33525bff-5340-416c-ae71-87309bc23b28}</Project>
-        <Name>ByteCore.Data</Name>
-      </ProjectReference>
-      <ProjectReference Include="..\ByteCore.Model\ByteCore.Model.csproj">
-        <Project>{9ebf3435-0a62-4e23-b244-eab54ea171ab}</Project>
-        <Name>ByteCore.Model</Name>
-      </ProjectReference>
-    </ItemGroup>
-    <ItemGroup>
-      <None Include="App.config" />
-      <None Include="packages.config" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

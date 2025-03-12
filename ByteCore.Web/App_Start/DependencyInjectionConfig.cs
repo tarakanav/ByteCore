@@ -1,5 +1,6 @@
 using System.Web.Mvc;
 using ByteCore.Data;
+using ByteCore.Data.Context;
 using ByteCore.Domain.Services.Implementations;
 using ByteCore.Domain.Services.Interfaces;
 using Unity;
@@ -19,7 +20,7 @@ namespace ByteCore.Web
             
             // e.g. container.RegisterType<ITestService, TestService>();
             container.RegisterType<IPasswordService, PasswordService>();
-            container.RegisterType<ApplicationDbContext>(new HierarchicalLifetimeManager());
+            container.RegisterType<IDbContext, ApplicationDbContext>(new HierarchicalLifetimeManager());
             container.RegisterType<IUserService, UserService>();
             container.RegisterType<IQuizzesService, QuizzesService>();
             container.RegisterType<ICoursesService, CoursesService>();

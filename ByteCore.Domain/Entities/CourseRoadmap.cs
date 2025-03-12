@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace ByteCore.Model.Models
+namespace ByteCore.Domain.Entities
 {
-    public class CourseRoadmapModel
+    public class CourseRoadmap
     {
-        public CourseModel Course { get; set; }
+        public Course Course { get; set; }
         public List<CourseRoadmapModule> Modules { get; set; }
     }
 

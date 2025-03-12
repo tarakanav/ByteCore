@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Security;
+using ByteCore.Domain.Entities;
 using ByteCore.Domain.Services.Interfaces;
 using ByteCore.Model.Models;
 
@@ -148,7 +149,7 @@ namespace ByteCore.Web.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Manage(UserModel model)
+        public async Task<ActionResult> Manage(User model)
         {
             if (ModelState.IsValid)
             {

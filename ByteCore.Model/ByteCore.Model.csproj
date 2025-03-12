@@ -39,19 +39,14 @@
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Models\ChapterModel.cs" />
         <Compile Include="Models\ContactFormModel.cs" />
-        <Compile Include="Models\CourseModel.cs" />
-        <Compile Include="Models\CourseRoadmapModel.cs" />
-        <Compile Include="Models\QuestionModel.cs" />
-        <Compile Include="Models\QuestionOptionModel.cs" />
-        <Compile Include="Models\QuizModel.cs" />
-        <Compile Include="Models\QuizResultAnswerModel.cs" />
-        <Compile Include="Models\QuizResultModel.cs" />
-        <Compile Include="Models\SectionModel.cs" />
-        <Compile Include="Models\UserCourseModel.cs" />
-        <Compile Include="Models\UserModel.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\ByteCore.Domain\ByteCore.Domain.csproj">
+        <Project>{2e0282fe-3ba9-45a2-a576-537844e92c8a}</Project>
+        <Name>ByteCore.Domain</Name>
+      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

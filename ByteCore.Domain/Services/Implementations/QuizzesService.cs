@@ -3,27 +3,26 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using ByteCore.Data;
+using ByteCore.Domain.Entities;
 using ByteCore.Domain.Services.Interfaces;
-using ByteCore.Model.Models;
 
 namespace ByteCore.Domain.Services.Implementations
 {
     public class QuizzesService : IQuizzesService
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IDbContext _db;
 
-        public QuizzesService(ApplicationDbContext db)
+        public QuizzesService(IDbContext db)
         {
             _db = db;
         }
 
-        public IEnumerable<QuizModel> GetQuizzes()
+        public IEnumerable<Quiz> GetQuizzes()
         {
             return _db.Quizzes.ToList();
         }
 
-        public QuizModel GetQuiz(int id)
+        public Quiz GetQuiz(int id)
         {
             return _db.Quizzes
                 .Include(x => x.Questions)
@@ -31,7 +30,7 @@ namespace ByteCore.Domain.Services.Implementations
                 .FirstOrDefault(q => q.Id == id);
         }
 
-        public QuizResultModel GetQuizResult(int id, int resultId)
+        public QuizResult GetQuizResult(int id, int resultId)
         {
             return _db.QuizResults
                 .Include(q => q.Quiz)
@@ -40,7 +39,7 @@ namespace ByteCore.Domain.Services.Implementations
                 .FirstOrDefault(q => q.Id == resultId && q.Quiz.Id == id);
         }
 
-        public async Task<QuizResultModel> SubmitQuizResultAsync(int id, List<int> userAnswers, string email)
+        public async Task<QuizResult> SubmitQuizResultAsync(int id, List<int> userAnswers, string email)
         {
             var quiz = _db.Quizzes.Include(quizModel => quizModel.Questions).FirstOrDefault(q => q.Id == id);
             var user = _db.Users.FirstOrDefault(u => u.Email == email);
@@ -55,7 +54,7 @@ namespace ByteCore.Domain.Services.Implementations
                 throw new InvalidOperationException("Invalid number of answers.");
             }
             
-            var answers = new List<QuizResultAnswerModel>();
+            var answers = new List<QuizResultAnswer>();
 
             for (var i = 0; i < quiz.Questions.Count; i++)
             {
@@ -63,7 +62,7 @@ namespace ByteCore.Domain.Services.Implementations
                 var answer = userAnswers[i];
                 var correct = question.CorrectOption == answer;
                 
-                answers.Add(new QuizResultAnswerModel
+                answers.Add(new QuizResultAnswer
                 {
                     Question = question,
                     SelectedOption = answer,
@@ -71,7 +70,7 @@ namespace ByteCore.Domain.Services.Implementations
                 });
             }
             
-            var quizResult = new QuizResultModel
+            var quizResult = new QuizResult
             {
                 Quiz = quiz,
                 Answers = answers,
@@ -84,13 +83,13 @@ namespace ByteCore.Domain.Services.Implementations
             return quizResult;
         }
 
-        public async Task AddQuizAsync(QuizModel quiz)
+        public async Task AddQuizAsync(Quiz quiz)
         {
             _db.Quizzes.Add(quiz);
             await _db.SaveChangesAsync();
         }
 
-        public Task UpdateQuizAsync(int id, QuizModel quiz)
+        public Task UpdateQuizAsync(int id, Quiz quiz)
         {
             var existingQuiz = _db.Quizzes.Include(quizModel => quizModel.Questions).FirstOrDefault(q => q.Id == id);
             

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using ByteCore.Domain.Entities;
 using ByteCore.Domain.Services.Interfaces;
 using ByteCore.Model.Models;
 
@@ -76,18 +77,18 @@ namespace ByteCore.Web.Controllers
         [Route("Create")]
         public ActionResult Create()
         {
-            var quiz = new QuizModel
+            var quiz = new Quiz
             {
-                Questions = new List<QuestionModel>
+                Questions = new List<Question>
                 {
-                    new QuestionModel
+                    new Question
                     {
-                        Options = new List<QuestionOptionModel>
+                        Options = new List<QuestionOption>
                         {
-                            new QuestionOptionModel(),
-                            new QuestionOptionModel(),
-                            new QuestionOptionModel(),
-                            new QuestionOptionModel()
+                            new QuestionOption(),
+                            new QuestionOption(),
+                            new QuestionOption(),
+                            new QuestionOption()
                         }
                     }
                 }
@@ -100,7 +101,7 @@ namespace ByteCore.Web.Controllers
         [HttpPost]
         [Route("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(QuizModel quiz)
+        public async Task<ActionResult> Create(Quiz quiz)
         {
             if (quiz.Questions.Count > 25 || quiz.Questions.Count == 0)
             {
@@ -165,7 +166,7 @@ namespace ByteCore.Web.Controllers
         [HttpPost]
         [Route("{id:int}/Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, QuizModel quiz)
+        public async Task<ActionResult> Edit(int id, Quiz quiz)
         {
             if (quiz.Questions.Count > 25 || quiz.Questions.Count == 0)
             {
