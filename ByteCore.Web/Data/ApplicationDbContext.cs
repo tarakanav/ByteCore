@@ -10,6 +10,7 @@ namespace ByteCore.Web.Data
         public DbSet<QuizModel> Quizzes { get; set; }
         public DbSet<QuestionModel> Questions { get; set; }
         public DbSet<QuizResultModel> QuizResults { get; set; }
+        public DbSet<QuizResultAnswerModel> QuizResultAnswers { get; set; }
 
         public ApplicationDbContext() : base("name=DefaultConnection") { }
     }

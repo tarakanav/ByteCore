@@ -105,5 +105,32 @@ namespace ByteCore.Web.Services
             
             return _db.SaveChangesAsync();
         }
+
+        public async Task DeleteQuizAsync(int id)
+        {
+            var quiz = _db.Quizzes
+                .Include(quizModel => quizModel.Questions)
+                .FirstOrDefault(q => q.Id == id);
+            
+            if (quiz == null)
+            {
+                throw new InvalidOperationException("Quiz not found.");
+            }
+            
+            var relatedResults = _db.QuizResults
+                .Where(r => r.Quiz.Id == id)
+                .Include(quizResultModel => quizResultModel.Answers)
+                .ToList();
+    
+            foreach (var result in relatedResults)
+            {
+                _db.QuizResultAnswers.RemoveRange(result.Answers);
+            }
+
+            _db.QuizResults.RemoveRange(relatedResults);
+            _db.Questions.RemoveRange(quiz.Questions);
+            _db.Quizzes.Remove(quiz);
+            await _db.SaveChangesAsync();
+        }
     }
 }

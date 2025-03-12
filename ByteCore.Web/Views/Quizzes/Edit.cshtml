@@ -15,25 +15,27 @@
         <div class="form-group">
             @Html.LabelFor(model => model.Title)
             @Html.TextBoxFor(model => model.Title, new { @class = "form-control", placeholder = "Quiz Title" })
+            @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
         </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.RewardPoints)
             @Html.TextBoxFor(model => model.RewardPoints, new { @class = "form-control", type = "number", placeholder = "Reward Points" })
+            @Html.ValidationMessageFor(model => model.RewardPoints, "", new { @class = "text-danger" })
         </div>
-
+        
         <div class="form-group">
             @Html.LabelFor(model => model.PassingPercentage)
             @Html.TextBoxFor(model => model.PassingPercentage, new { @class = "form-control", type = "number", step = "0.01", placeholder = "Passing Percentage" })
+            @Html.ValidationMessageFor(model => model.PassingPercentage, "", new { @class = "text-danger" })
         </div>
 
-        <h3>Questions</h3>
+
+    <h3>Questions</h3>
         <div id="questions-container">
-            @for (int i = 0; i < Model.Questions.Count; i++)
+            @for (var i = 0; i < Model.Questions.Count; i++)
             {
                 <div class="question-item border rounded p-3 mb-3" data-index="@i">
-                    @Html.HiddenFor(model => model.Questions[i].Id)
-
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h4>Question @(i + 1)</h4>
                     </div>
@@ -41,16 +43,18 @@
                     <div class="form-group">
                         @Html.LabelFor(model => model.Questions[i].QuestionText, "Question Text")
                         @Html.TextBoxFor(model => model.Questions[i].QuestionText, new { @class = "form-control", placeholder = "Enter question text" })
+                        @Html.ValidationMessageFor(model => model.Questions[i].QuestionText, "", new { @class = "text-danger" })
                     </div>
+
 
                     <div class="form-group">
                         <label>Options</label>
                         <div class="options-container">
-                            @for (int j = 0; j < Model.Questions[i].Options.Count; j++)
+                            @for (var j = 0; j < Model.Questions[i].Options.Count; j++)
                             {
                                 <div class="input-group mb-2 option-item">
-                                    @Html.HiddenFor(model => model.Questions[i].Options[j].Id)
                                     @Html.TextBoxFor(model => model.Questions[i].Options[j].OptionText, new { @class = "form-control", placeholder = "Option " + (j + 1) })
+                                    @Html.ValidationMessageFor(model => model.Questions[i].Options[j].OptionText, "", new { @class = "text-danger" })
                                 </div>
                             }
                         </div>
@@ -59,18 +63,31 @@
                     <div class="form-group">
                         @Html.LabelFor(model => model.Questions[i].CorrectOption, "Correct Option Index")
                         @Html.TextBoxFor(model => model.Questions[i].CorrectOption, new { @class = "form-control", type = "number", min = "0" })
+                        @Html.ValidationMessageFor(model => model.Questions[i].CorrectOption, "", new { @class = "text-danger" })
                     </div>
+
                 </div>
             }
         </div>
 
+        <button type="button" id="add-question" class="btn btn-secondary">Add Question</button>
+        <br/>
+        <br/>
         <button type="submit" class="btn btn-primary">Save Changes</button>
+    }
+    @using (Html.BeginForm("Delete", "Quizzes", FormMethod.Post, new { id = "delete-form" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <button type="submit" class="btn btn-danger"
+                onclick="return confirm('Are you sure you want to delete this quiz? This action cannot be undone.');">
+            Delete Quiz
+        </button>
     }
 </div>
 
 @section Scripts {
     <script>
-        // Update the naming and placeholder values for options within a question block.
         function reindexOptions(questionDiv, qIndex) {
             const optionItems = questionDiv.querySelectorAll('.options-container .option-item');
             optionItems.forEach((optionDiv, oIndex) => {
@@ -81,7 +98,6 @@
             });
         }
 
-        // Re-index questions and update input names and labels.
         function reindexQuestions() {
             const questionItems = document.querySelectorAll('#questions-container .question-item');
             questionItems.forEach((questionDiv, qIndex) => {
@@ -109,7 +125,6 @@
             });
         }
 
-        // Add a new question block.
         document.getElementById('add-question').addEventListener('click', function () {
             const container = document.getElementById('questions-container');
             if (container.children.length >= 25) {
@@ -157,9 +172,7 @@
             reindexQuestions();
         });
 
-        // Delegate events for remove-question, add-option, and remove-last-option.
         document.getElementById('questions-container').addEventListener('click', function (e) {
-            // Remove Question.
             if (e.target.classList.contains('remove-question')) {
                 const container = document.getElementById('questions-container');
                 if (container.children.length > 1) {
@@ -170,7 +183,6 @@
                     alert("At least one question is required.");
                 }
             }
-            // Add Option.
             if (e.target.classList.contains('add-option')) {
                 const questionDiv = e.target.closest('.question-item');
                 const qIndex = questionDiv.getAttribute('data-index');
@@ -187,7 +199,6 @@
                 optionsContainer.insertAdjacentHTML('beforeend', optionHtml);
                 reindexOptions(questionDiv, qIndex);
             }
-            // Remove Latest Option.
             if (e.target.classList.contains('remove-last-option')) {
                 const questionDiv = e.target.closest('.question-item');
                 const optionsContainer = questionDiv.querySelector('.options-container');
@@ -200,10 +211,10 @@
                 }
             }
         });
-        
-        document.addEventListener('DOMContentLoaded', function() {
+
+        document.addEventListener('DOMContentLoaded', function () {
             reindexQuestions();
         });
-    
+
     </script>
 }
