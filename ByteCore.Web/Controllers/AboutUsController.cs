@@ -1,5 +1,5 @@
-﻿using ByteCore.Web.Models;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
+using ByteCore.Model.Models;
 
 namespace ByteCore.Web.Controllers
 {

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using ByteCore.Web.Models;
 using System.Web.Mvc;
-using ByteCore.Web.Services;
+using ByteCore.Domain.Services.Interfaces;
+using ByteCore.Model.Models;
 
 namespace ByteCore.Web.Controllers
 {

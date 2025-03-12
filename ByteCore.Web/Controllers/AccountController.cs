@@ -3,8 +3,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Security;
-using ByteCore.Web.Models;
-using ByteCore.Web.Services;
+using ByteCore.Domain.Services.Interfaces;
+using ByteCore.Model.Models;
 
 namespace ByteCore.Web.Controllers
 {
