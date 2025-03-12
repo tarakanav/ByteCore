@@ -17,7 +17,7 @@ namespace ByteCore.Web.Services
             _db = db;
         }
 
-        public List<QuizModel> GetQuizzes()
+        public IEnumerable<QuizModel> GetQuizzes()
         {
             return _db.Quizzes.ToList();
         }

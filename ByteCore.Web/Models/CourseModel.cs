@@ -16,5 +16,6 @@ namespace ByteCore.Web.Models
 		public DateTime StartDate { get; set; }
 		public string ImageUrl { get; set; }
 		public List<ChapterModel> Chapters { get; set; }
+		public List<UserModel> EnrolledUsers { get; set; }
 	}
 }

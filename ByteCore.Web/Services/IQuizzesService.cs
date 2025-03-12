@@ -6,7 +6,7 @@ namespace ByteCore.Web.Services
 {
     public interface IQuizzesService
     {
-        List<QuizModel> GetQuizzes();
+        IEnumerable<QuizModel> GetQuizzes();
         QuizModel GetQuiz(int id);
         QuizResultModel GetQuizResult(int id, int resultId);
         Task<QuizResultModel> SubmitQuizResultAsync(int id, List<int> userAnswers, string email);

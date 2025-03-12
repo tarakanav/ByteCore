@@ -22,6 +22,7 @@ namespace ByteCore.Web
             container.RegisterType<ApplicationDbContext>(new HierarchicalLifetimeManager());
             container.RegisterType<IUserService, UserService>();
             container.RegisterType<IQuizzesService, QuizzesService>();
+            container.RegisterType<ICoursesService, CoursesService>();
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
         }
     }

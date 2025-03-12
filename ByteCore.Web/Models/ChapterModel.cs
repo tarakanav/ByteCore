@@ -10,7 +10,7 @@ namespace ByteCore.Web.Models
         public string Description { get; set; }
         public int CourseId { get; set; }
         public virtual CourseModel Course { get; set; }
-        public virtual ICollection<SectionModel> Sections { get; set; }
+        public virtual List<SectionModel> Sections { get; set; }
         
         public int GetChapterNumber()
         {

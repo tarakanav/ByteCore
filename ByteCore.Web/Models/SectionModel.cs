@@ -9,8 +9,8 @@ namespace ByteCore.Web.Models
         public string Description { get; set; }
         public string TextContent { get; set; }
         public string VideoUrl { get; set; }
+        public QuizModel Quiz { get; set; }
         public SectionType Type { get; set; }
-        public int ChapterId { get; set; }
         public virtual ChapterModel Chapter { get; set; }
         
         public int GetSectionNumber()

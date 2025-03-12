@@ -67,7 +67,7 @@
                     <div class="row mt-4">
                         <div class="col-12 text-center">
                             <form
-                                action="@Url.Action("CompleteChapter", "Chapter", new { courseId = Model.Course.Id, chapterId = Model.Id })"
+                                action="@Url.Action("CompleteChapter", "Chapter", new { courseId = Model.Course.Id, chapterId = Model.GetChapterNumber() })"
                                 method="post">
                                 <button type="submit" class="btn btn-success">Mark as Completed</button>
                             </form>

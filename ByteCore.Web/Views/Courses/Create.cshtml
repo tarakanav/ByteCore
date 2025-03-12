@@ -1,0 +1,203 @@
+﻿@model ByteCore.Web.Models.CourseModel
+@{
+    ViewBag.Title = "Create New Course";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="py-5">
+    <div class="container px-5 mb-5">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bolder mb-0">
+                <span class="text-gradient d-inline">Create New Course</span>
+            </h1>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                <h4>Please correct the following errors:</h4>
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            </div>
+        }
+
+        @using (Html.BeginForm("Create", "Courses", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row gx-5">
+                <div class="col-12 col-md-6">
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.Title, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Title, new { @class = "form-control", placeholder = "Course Title" })
+                        @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.ShortDescription, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.ShortDescription, new { @class = "form-control", placeholder = "Short Description" })
+                        @Html.ValidationMessageFor(m => m.ShortDescription, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.Description, new { @class = "form-label" })
+                        @Html.TextAreaFor(m => m.Description, new { @class = "form-control", placeholder = "Full Description", rows = 5 })
+                        @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.Instructor, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Instructor, new { @class = "form-control", placeholder = "Instructor Name" })
+                        @Html.ValidationMessageFor(m => m.Instructor, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.Duration, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Duration, new { @class = "form-control", placeholder = "Duration (e.g., 2:00:00)" })
+                        @Html.ValidationMessageFor(m => m.Duration, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.StartDate, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.StartDate, new { @class = "form-control", type = "date" })
+                        @Html.ValidationMessageFor(m => m.StartDate, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.ImageUrl, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.ImageUrl, new { @class = "form-control", placeholder = "Image URL" })
+                        @Html.ValidationMessageFor(m => m.ImageUrl, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        <div id="chapterContainer">
+                            <h5>Chapters</h5>
+                            <button type="button" class="btn btn-primary" id="addChapterButton">Add Chapter</button>
+                            <div id="chapterList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success">Create Course</button>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        let chapterCounter = 0;
+        let sectionCounters = {};
+
+        document.getElementById("addChapterButton").addEventListener("click", function () {
+            const chapterContainer = document.getElementById("chapterList");
+            chapterCounter++;
+            const chapterId = 'chapter_' + chapterCounter;
+            sectionCounters[chapterId] = 0;
+
+            // Create chapter div
+            const chapterDiv = document.createElement('div');
+            chapterDiv.className = 'chapter-group';
+            chapterDiv.id = chapterId;
+            
+            // Set chapter HTML
+            chapterDiv.innerHTML = `
+                <h6>Chapter</h6>
+                <input type="hidden" name="Chapters.Index" value="${chapterCounter}" />
+                <div class="mb-3">
+                    <label class="form-label">Chapter Title</label>
+                    <input type="text" class="form-control" name="Chapters[${chapterCounter}].Title" placeholder="Chapter Title" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Chapter Description</label>
+                    <textarea class="form-control" name="Chapters[${chapterCounter}].Description" placeholder="Chapter Description"></textarea>
+                </div>
+                <div id="sectionContainer_${chapterId}">
+                    <button type="button" class="btn btn-primary" onclick="addSection('${chapterId}')">Add Section</button>
+                    <div id="sectionList_${chapterId}"></div>
+                </div>
+                <div class="mb-3">
+                    <button type="button" class="btn btn-danger removeChapterButton" onclick="removeChapter('${chapterId}')">Remove Chapter</button>
+                </div>
+            `;
+            
+            // Append to container
+            chapterContainer.appendChild(chapterDiv);
+        });
+
+        function removeChapter(chapterId) {
+            const chapterElement = document.getElementById(chapterId);
+            chapterElement.remove();
+            delete sectionCounters[chapterId];
+        }
+
+        function addSection(chapterId) {
+            const sectionList = document.getElementById(`sectionList_${chapterId}`);
+            sectionCounters[chapterId]++;
+            const sectionCounter = sectionCounters[chapterId];
+            const uniqueSectionId = `${chapterId}_section_${sectionCounter}`;
+            
+            const chapterIndex = chapterId.split('_')[1];
+            
+            // Create section div
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'mb-3 section-group';
+            sectionDiv.id = uniqueSectionId;
+            
+            // Set section HTML
+            sectionDiv.innerHTML = `
+                <h6>Section ${sectionCounter}</h6>
+                <input type="hidden" name="Chapters[${chapterIndex}].Sections.Index" value="${sectionCounter}" />
+                <div class="form-group mb-2">
+                    <label class="form-label">Section Type</label>
+                    <select class="form-control section-type-select" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].Type">
+                        <option value="Read">TextContent</option>
+                        <option value="Video">VideoUrl</option>
+                        <option value="Quiz">Quiz Id</option>
+                    </select>
+                </div>
+                <div class="form-group mb-2">
+                    <label class="form-label">Section Title</label>
+                    <input type="text" class="form-control" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].Title" placeholder="Section Title" />
+                </div>
+                <div class="form-group mb-2">
+                    <label class="form-label">Section Description</label>
+                    <textarea class="form-control" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].Description" placeholder="Section Description"></textarea>
+                </div>
+                <div class="form-group mb-2 section-content" data-type="Read">
+                    <label class="form-label">Text Content</label>
+                    <input type="text" class="form-control" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].TextContent" placeholder="Text Content" />
+                </div>
+                <div class="form-group mb-2 section-content" data-type="Video" style="display: none;">
+                    <label class="form-label">Video URL</label>
+                    <input type="text" class="form-control" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].VideoUrl" placeholder="Video URL" />
+                </div>
+                <div class="form-group mb-2 section-content" data-type="Quiz" style="display: none;">
+                    <label class="form-label">Quiz Id</label>
+                    <input type="number" class="form-control" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].QuizId" placeholder="Quiz Id" />
+                </div>
+                <button type="button" class="btn btn-danger" onclick="removeSection('${uniqueSectionId}')">Remove Section</button>
+            `;
+            
+            // Append to section list
+            sectionList.appendChild(sectionDiv);
+            
+            // Add event listener for section type change
+            const typeSelect = sectionDiv.querySelector('.section-type-select');
+            typeSelect.addEventListener('change', function() {
+                handleSectionTypeChange(this);
+            });
+        }
+
+        function removeSection(sectionId) {
+            const sectionElement = document.getElementById(sectionId);
+            sectionElement.remove();
+        }
+
+        function handleSectionTypeChange(selectElement) {
+            const sectionDiv = selectElement.closest('.section-group');
+            const contentDivs = sectionDiv.querySelectorAll('.section-content');
+            
+            contentDivs.forEach(div => {
+                if (div.getAttribute('data-type') === selectElement.value) {
+                    div.style.display = 'block';
+                } else {
+                    div.style.display = 'none';
+                }
+            });
+        }
+    </script>
+}

@@ -220,7 +220,7 @@ namespace ByteCore.Web.Controllers
             var quiz = _quizzesService.GetQuiz(id);
             if (quiz == null)
             {
-                return RedirectToAction("NotFound", "Error");
+                return HttpNotFound();
             }
 
             await _quizzesService.DeleteQuizAsync(id);
