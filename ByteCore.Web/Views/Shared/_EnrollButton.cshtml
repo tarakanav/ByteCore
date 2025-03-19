@@ -1,4 +1,4 @@
-@model ByteCore.Web.Models.CourseModel
+@model ByteCore.Domain.CourseScope.Course
 
 <form action="@Url.Action("Enroll", "Courses")" method="post">
     <input type="hidden" name="courseId" value="@Model.Id" />
