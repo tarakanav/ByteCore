@@ -149,7 +149,6 @@
     <Compile Include="Controllers\PrivacyController.cs" />
     <Compile Include="Controllers\QuizzesController.cs" />
     <Compile Include="Controllers\TermsController.cs" />
-    <Compile Include="Data\ApplicationDbContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -182,27 +181,8 @@
       <DependentUpon>202503121049409_Change_Chapter_Model.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\QuestionModel.cs" />
-    <Compile Include="Models\QuestionOptionModel.cs" />
-    <Compile Include="Models\QuizResultAnswerModel.cs" />
-    <Compile Include="Models\QuizResultModel.cs" />
-    <Compile Include="Models\QuizModel.cs" />
-    <Compile Include="Models\ChapterModel.cs" />
-    <Compile Include="Models\CourseRoadmapModel.cs" />
     <Compile Include="Models\ContactFormModel.cs" />
-    <Compile Include="Models\CourseModel.cs" />
-    <Compile Include="Models\SectionModel.cs" />
-    <Compile Include="Models\UserCourseModel.cs" />
-    <Compile Include="Models\UserModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\CoursesService.cs" />
-    <Compile Include="Services\ICoursesService.cs" />
-    <Compile Include="Services\IPasswordService.cs" />
-    <Compile Include="Services\IQuizzesService.cs" />
-    <Compile Include="Services\IUserService.cs" />
-    <Compile Include="Services\PasswordService.cs" />
-    <Compile Include="Services\QuizzesService.cs" />
-    <Compile Include="Services\UserService.cs" />
     <None Include="Views\Quizzes\Result.cshtml" />
     <None Include="Views\Quizzes\Quiz.cshtml" />
     <None Include="Views\Quizzes\Index.cshtml" />
@@ -255,6 +235,20 @@
     <EmbeddedResource Include="Migrations\202503121049409_Change_Chapter_Model.resx">
       <DependentUpon>202503121049409_Change_Chapter_Model.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ByteCore.BusinessLogic\ByteCore.BusinessLogic.csproj">
+      <Project>{f46466d7-aab3-411a-a00a-6732e01b6ea7}</Project>
+      <Name>ByteCore.BusinessLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ByteCore.Domain\ByteCore.Domain.csproj">
+      <Project>{7eb7c489-f367-4535-8f77-8e5bc8f1b272}</Project>
+      <Name>ByteCore.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ByteCore.Helpers\ByteCore.Helpers.csproj">
+      <Project>{cb0396ba-429d-456e-aa74-2f57728d451c}</Project>
+      <Name>ByteCore.Helpers</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

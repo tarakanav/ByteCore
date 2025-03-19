@@ -1,7 +1,8 @@
 using System.Web.Mvc;
+using ByteCore.BusinessLogic.Data;
+using ByteCore.BusinessLogic.Implementations;
+using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Web.Controllers;
-using ByteCore.Web.Data;
-using ByteCore.Web.Services;
 using Unity;
 using Unity.Lifetime;
 using Unity.Mvc5;
@@ -18,11 +19,10 @@ namespace ByteCore.Web
             // it is NOT necessary to register your controllers
             
             // e.g. container.RegisterType<ITestService, TestService>();
-            container.RegisterType<IPasswordService, PasswordService>();
             container.RegisterType<ApplicationDbContext>(new HierarchicalLifetimeManager());
-            container.RegisterType<IUserService, UserService>();
-            container.RegisterType<IQuizzesService, QuizzesService>();
-            container.RegisterType<ICoursesService, CoursesService>();
+            container.RegisterType<IUserBl, UserBl>();
+            container.RegisterType<IQuizBl, QuizBl>();
+            container.RegisterType<ICourseBl, CourseBl>();
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
         }
     }

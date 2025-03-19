@@ -1,13 +1,14 @@
 using System.Collections.Generic;
+using ByteCore.Domain.CourseScope;
 
-namespace ByteCore.Web.Models
+namespace ByteCore.Domain.UserScope
 {
-    public class UserModel
+    public class User
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public virtual List<CourseModel> EnrolledCourses { get; set; }
+        public virtual List<Course> EnrolledCourses { get; set; }
     }
 }

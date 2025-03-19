@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace ByteCore.Web.Models
+namespace ByteCore.Domain.CourseScope
 {
-    public class CourseRoadmapModel
+    public class CourseRoadmap
     {
-        public CourseModel Course { get; set; }
+        public Course Course { get; set; }
         public List<CourseRoadmapModule> Modules { get; set; }
     }
 

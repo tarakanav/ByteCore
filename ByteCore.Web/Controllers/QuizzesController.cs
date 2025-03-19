@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using ByteCore.Web.Models;
-using ByteCore.Web.Services;
+using ByteCore.BusinessLogic.Interfaces;
+using ByteCore.Domain.QuizScope;
 
 namespace ByteCore.Web.Controllers
 {
@@ -12,17 +12,17 @@ namespace ByteCore.Web.Controllers
     [RoutePrefix("Quizzes")]
     public class QuizzesController : Controller
     {
-        private readonly IQuizzesService _quizzesService;
+        private readonly IQuizBl _quizBl;
 
-        public QuizzesController(IQuizzesService quizzesService)
+        public QuizzesController(IQuizBl quizBl)
         {
-            _quizzesService = quizzesService;
+            _quizBl = quizBl;
         }
 
         // GET: Quizzes
         public ActionResult Index()
         {
-            var quizzes = _quizzesService.GetQuizzes();
+            var quizzes = _quizBl.GetQuizzes();
             return View(quizzes);
         }
 
@@ -30,7 +30,7 @@ namespace ByteCore.Web.Controllers
         [Route("{id:int}")]
         public ActionResult Quiz(int id)
         {
-            var quiz = _quizzesService.GetQuiz(id);
+            var quiz = _quizBl.GetQuiz(id);
 
             if (quiz == null)
             {
@@ -47,7 +47,7 @@ namespace ByteCore.Web.Controllers
         {
             try
             {
-                var quizResult = await _quizzesService.SubmitQuizResultAsync(id, userAnswers, User.Identity.Name);
+                var quizResult = await _quizBl.SubmitQuizResultAsync(id, userAnswers, User.Identity.Name);
                 return RedirectToAction("Result", new { id, resultId = quizResult.Id });
             }
             catch (InvalidOperationException)
@@ -60,7 +60,7 @@ namespace ByteCore.Web.Controllers
         [Route("{id:int}/Result/{resultId:int}")]
         public ActionResult Result(int id, int resultId)
         {
-            var quizResult = _quizzesService.GetQuizResult(id, resultId);
+            var quizResult = _quizBl.GetQuizResult(id, resultId);
 
             if (quizResult == null)
             {
@@ -76,22 +76,7 @@ namespace ByteCore.Web.Controllers
         [Route("Create")]
         public ActionResult Create()
         {
-            var quiz = new QuizModel
-            {
-                Questions = new List<QuestionModel>
-                {
-                    new QuestionModel
-                    {
-                        Options = new List<QuestionOptionModel>
-                        {
-                            new QuestionOptionModel(),
-                            new QuestionOptionModel(),
-                            new QuestionOptionModel(),
-                            new QuestionOptionModel()
-                        }
-                    }
-                }
-            };
+            var quiz = new Quiz();
             return View(quiz);
         }
 
@@ -100,7 +85,7 @@ namespace ByteCore.Web.Controllers
         [HttpPost]
         [Route("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(QuizModel quiz)
+        public async Task<ActionResult> Create(Quiz quiz)
         {
             if (quiz.Questions.Count > 25 || quiz.Questions.Count == 0)
             {
@@ -139,7 +124,7 @@ namespace ByteCore.Web.Controllers
             
             if (ModelState.IsValid)
             {
-                await _quizzesService.AddQuizAsync(quiz);
+                await _quizBl.AddQuizAsync(quiz);
                 return RedirectToAction("Quiz", new { id = quiz.Id });
             }
             return View(quiz);
@@ -150,7 +135,7 @@ namespace ByteCore.Web.Controllers
         [Route("{id:int}/Edit")]
         public ActionResult Edit(int id)
         {
-            var quiz = _quizzesService.GetQuiz(id);
+            var quiz = _quizBl.GetQuiz(id);
 
             if (quiz == null)
             {
@@ -165,7 +150,7 @@ namespace ByteCore.Web.Controllers
         [HttpPost]
         [Route("{id:int}/Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, QuizModel quiz)
+        public async Task<ActionResult> Edit(int id, Quiz quiz)
         {
             if (quiz.Questions.Count > 25 || quiz.Questions.Count == 0)
             {
@@ -204,7 +189,7 @@ namespace ByteCore.Web.Controllers
             
             if (ModelState.IsValid)
             {
-                await _quizzesService.UpdateQuizAsync(id, quiz);
+                await _quizBl.UpdateQuizAsync(id, quiz);
                 return RedirectToAction("Quiz", new { id });
             }
             return View(quiz);
@@ -217,13 +202,13 @@ namespace ByteCore.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(int id)
         {
-            var quiz = _quizzesService.GetQuiz(id);
+            var quiz = _quizBl.GetQuiz(id);
             if (quiz == null)
             {
                 return HttpNotFound();
             }
 
-            await _quizzesService.DeleteQuizAsync(id);
+            await _quizBl.DeleteQuizAsync(id);
             return RedirectToAction("Index");
         }
 

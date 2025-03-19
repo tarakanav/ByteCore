@@ -3,18 +3,19 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Security;
+using ByteCore.BusinessLogic.Interfaces;
+using ByteCore.Domain.UserScope;
 using ByteCore.Web.Models;
-using ByteCore.Web.Services;
 
 namespace ByteCore.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IUserService _userService;
+        private readonly IUserBl _userBl;
 
-        public AccountController(IUserService userService)
+        public AccountController(IUserBl userBl)
         {
-            _userService = userService;
+            _userBl = userBl;
         }
 
         // GET: Account/Registration
@@ -45,7 +46,7 @@ namespace ByteCore.Web.Controllers
 
             try
             {
-                var newUser = await _userService.RegisterUserAsync(username, email, password);
+                var newUser = await _userBl.RegisterUserAsync(username, email, password);
                 
                 var identity = new ClaimsIdentity(new[]
                 {
@@ -92,7 +93,7 @@ namespace ByteCore.Web.Controllers
 
             try
             {
-                var user = _userService.AuthenticateUser(email, password);
+                var user = _userBl.AuthenticateUser(email, password);
         
                 var identity = new ClaimsIdentity(new[] 
                 {
@@ -120,7 +121,7 @@ namespace ByteCore.Web.Controllers
         [Authorize]
         public ActionResult Dashboard()
         {
-            var user = _userService.GetUserByEmail(User.Identity.Name);
+            var user = _userBl.GetUserByEmail(User.Identity.Name);
 
             if (user == null)
             {
@@ -134,7 +135,7 @@ namespace ByteCore.Web.Controllers
         [Authorize]
         public ActionResult Manage()
         {
-            var user = _userService.GetUserByEmail(User.Identity.Name);
+            var user = _userBl.GetUserByEmail(User.Identity.Name);
             
             if (user == null)
             {
@@ -148,13 +149,13 @@ namespace ByteCore.Web.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Manage(UserModel model)
+        public async Task<ActionResult> Manage(User model)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _userService.UpdateUserAsync(User.Identity.Name, model);
+                    await _userBl.UpdateUserAsync(User.Identity.Name, model);
                     var identity = new ClaimsIdentity(new[]
                     {
                         new Claim(ClaimTypes.Name, model.Name),

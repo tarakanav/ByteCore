@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
-using ByteCore.Web.Controllers;
 
-namespace ByteCore.Web.Models
+namespace ByteCore.Domain.QuizScope
 {
-    public class QuestionModel
+    public class Question
     {
         public int Id { get; set; }
         public string QuestionText { get; set; }
-        public List<QuestionOptionModel> Options { get; set; }
+        public List<QuestionOption> Options { get; set; } = new List<QuestionOption>();
         public int CorrectOption { get; set; }
     }
 }

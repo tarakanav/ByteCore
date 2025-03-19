@@ -2,37 +2,38 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ByteCore.Web.Data;
-using ByteCore.Web.Models;
+using ByteCore.BusinessLogic.Data;
+using ByteCore.BusinessLogic.Interfaces;
+using ByteCore.Domain.CourseScope;
+using ByteCore.Domain.UserScope;
+using ByteCore.Helpers;
 
-namespace ByteCore.Web.Services
+namespace ByteCore.BusinessLogic.Implementations
 {
-    public class UserService : IUserService
+    public class UserBl : IUserBl
     {
         private readonly ApplicationDbContext _db;
-        private readonly IPasswordService _passwordService;
 
-        public UserService(ApplicationDbContext db, IPasswordService passwordService)
+        public UserBl(ApplicationDbContext db)
         {
             _db = db;
-            _passwordService = passwordService;
         }
 
-        public async Task<UserModel> RegisterUserAsync(string name, string email, string password)
+        public async Task<User> RegisterUserAsync(string name, string email, string password)
         {
             if (_db.Users.Any(u => u.Email == email || u.Name == name))
             {
                 throw new InvalidOperationException("User with this name or email already exists.");
             }
             
-            var hashedPassword = _passwordService.HashPassword(password);
+            var hashedPassword = PasswordHasher.HashPassword(password);
 
-            var newUser = new UserModel
+            var newUser = new User
             {
                 Name = name,
                 Email = email,
                 Password = hashedPassword,
-                EnrolledCourses = new List<CourseModel>()
+                EnrolledCourses = new List<Course>()
             };
 
             _db.Users.Add(newUser);
@@ -41,10 +42,10 @@ namespace ByteCore.Web.Services
             return newUser;
         }
 
-        public UserModel AuthenticateUser(string email, string password)
+        public User AuthenticateUser(string email, string password)
         {
             var user = _db.Users.FirstOrDefault(u => u.Email == email);
-            if (user == null || !_passwordService.VerifyPassword(password, user.Password))
+            if (user == null || !PasswordHasher.VerifyPassword(password, user.Password))
             {
                 throw new UnauthorizedAccessException("Invalid credentials.");
             }
@@ -52,12 +53,12 @@ namespace ByteCore.Web.Services
             return user;
         }
 
-        public UserModel GetUserByEmail(string email)
+        public User GetUserByEmail(string email)
         {
             return _db.Users.FirstOrDefault(u => u.Email == email);
         }
 
-        public async Task<UserModel> UpdateUserAsync(string currentEmail, UserModel updatedUser)
+        public async Task<User> UpdateUserAsync(string currentEmail, User updatedUser)
         {
             var user = _db.Users.FirstOrDefault(u => u.Email == currentEmail);
             if (user == null)

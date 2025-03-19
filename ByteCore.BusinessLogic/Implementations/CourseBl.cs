@@ -3,26 +3,27 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using ByteCore.Web.Data;
-using ByteCore.Web.Models;
+using ByteCore.BusinessLogic.Data;
+using ByteCore.BusinessLogic.Interfaces;
+using ByteCore.Domain.CourseScope;
 
-namespace ByteCore.Web.Services
+namespace ByteCore.BusinessLogic.Implementations
 {
-    public class CoursesService : ICoursesService
+    public class CourseBl : ICourseBl
     {
         private readonly ApplicationDbContext _db;
 
-        public CoursesService(ApplicationDbContext db)
+        public CourseBl(ApplicationDbContext db)
         {
             _db = db;
         }
 
-        public IEnumerable<CourseModel> GetCourses()
+        public IEnumerable<Course> GetCourses()
         {
             return _db.Courses.ToList();
         }
 
-        public CourseModel GetCourse(int id)
+        public Course GetCourse(int id)
         {
             return _db.Courses
                 .Include(x => x.Chapters)
@@ -59,7 +60,7 @@ namespace ByteCore.Web.Services
             return _db.SaveChangesAsync();
         }
 
-        public async Task CreateCourseAsync(CourseModel course)
+        public async Task CreateCourseAsync(Course course)
         {
             await ValidateCourseAsync(course);
 
@@ -91,7 +92,7 @@ namespace ByteCore.Web.Services
             await _db.SaveChangesAsync();
         }
 
-        public ChapterModel GetChapter(int courseId, int chapterId)
+        public Chapter GetChapter(int courseId, int chapterId)
         {
             var course = GetCourse(courseId);
             if (course?.Chapters != null && course.Chapters.Count >= chapterId)
@@ -102,7 +103,7 @@ namespace ByteCore.Web.Services
         }
 
 
-        private async Task ValidateCourseAsync(CourseModel course)
+        private async Task ValidateCourseAsync(Course course)
         {
             if (await _db.Courses.AnyAsync(x => x.Title == course.Title))
             {

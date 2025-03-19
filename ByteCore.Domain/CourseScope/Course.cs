@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using ByteCore.Domain.UserScope;
 
-namespace ByteCore.Web.Models
+namespace ByteCore.Domain.CourseScope
 {
-	public class CourseModel
+	public class Course
 	{
 		public int Id { get; set; }
 		public string Title { get; set; }
@@ -15,7 +14,7 @@ namespace ByteCore.Web.Models
 		public TimeSpan Duration { get; set; }
 		public DateTime StartDate { get; set; }
 		public string ImageUrl { get; set; }
-		public List<ChapterModel> Chapters { get; set; }
-		public List<UserModel> EnrolledUsers { get; set; }
+		public List<Chapter> Chapters { get; set; } = new List<Chapter>();
+		public List<User> EnrolledUsers { get; set; }
 	}
 }

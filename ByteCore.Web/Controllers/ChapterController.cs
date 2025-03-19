@@ -2,26 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Web.Models;
-using ByteCore.Web.Services;
 
 namespace ByteCore.Web.Controllers
 {
     [RoutePrefix("Courses/{courseId:int}/Chapters")]
     public class ChapterController : Controller
     {
-        private readonly ICoursesService _coursesService;
+        private readonly ICourseBl _courseBl;
 
-        public ChapterController(ICoursesService coursesService)
+        public ChapterController(ICourseBl courseBl)
         {
-            _coursesService = coursesService;
+            _courseBl = courseBl;
         }
 
         [Authorize]
         [Route("{chapterId:int}")]
         public ActionResult Index(int courseId, int chapterId)
         {
-            var chapter = _coursesService.GetChapter(courseId, chapterId);
+            var chapter = _courseBl.GetChapter(courseId, chapterId);
             if (chapter == null)
                 return HttpNotFound();
 
@@ -39,7 +39,7 @@ namespace ByteCore.Web.Controllers
         [HttpPost]
         public ActionResult CompleteChapter(int courseId, int chapterId)
         {
-            var course = _coursesService.GetCourse(courseId);
+            var course = _courseBl.GetCourse(courseId);
             if (course == null)
             {
                 return HttpNotFound();

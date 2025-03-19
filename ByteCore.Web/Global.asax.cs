@@ -8,7 +8,6 @@ using System.Web.Routing;
 using System.Web.Security;
 using System.Web.SessionState;
 using ByteCore.Web.Controllers;
-using ByteCore.Web.Data;
 using Unity;
 using Unity.Lifetime;
 using Unity.Mvc5;

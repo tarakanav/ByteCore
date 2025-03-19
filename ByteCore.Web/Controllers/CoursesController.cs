@@ -1,27 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using ByteCore.Web.Models;
 using System.Web.Mvc;
-using ByteCore.Web.Services;
+using ByteCore.BusinessLogic.Interfaces;
+using ByteCore.Domain.CourseScope;
 
 namespace ByteCore.Web.Controllers
 {
     [RoutePrefix("Courses")]
     public class CoursesController : Controller
     {
-        private readonly ICoursesService _coursesService;
+        private readonly ICourseBl _courseBl;
 
-        public CoursesController(ICoursesService coursesService)
+        public CoursesController(ICourseBl courseBl)
         {
-            _coursesService = coursesService;
+            _courseBl = courseBl;
         }
 
         // GET: Courses
         public ActionResult Index()
         {
-            var courses = _coursesService.GetCourses();
+            var courses = _courseBl.GetCourses();
             return View(courses);
         }
 
@@ -35,7 +33,7 @@ namespace ByteCore.Web.Controllers
         [Route("{id:int}")]
         public ActionResult Course(int id)
         {
-            var course = _coursesService.GetCourse(id);
+            var course = _courseBl.GetCourse(id);
             
             if (course == null)
             {
@@ -47,7 +45,7 @@ namespace ByteCore.Web.Controllers
                 return View("CourseUnenrolled", course);
             }
 
-            var isEnrolled = _coursesService.IsUserEnrolled(course.Id, User.Identity.Name);
+            var isEnrolled = _courseBl.IsUserEnrolled(course.Id, User.Identity.Name);
             return View(isEnrolled ? "CourseEnrolled" : "CourseUnenrolled", course);
         }
 
@@ -55,7 +53,7 @@ namespace ByteCore.Web.Controllers
         [Route("{id:int}/Roadmap")]
         public ActionResult Roadmap(int id)
         {
-            var course = _coursesService.GetCourse(id);
+            var course = _courseBl.GetCourse(id);
             
             if (course == null)
             {
@@ -71,20 +69,20 @@ namespace ByteCore.Web.Controllers
         [HttpPost]
         public async Task<ActionResult> Enroll(int id)
         {
-            var course = _coursesService.GetCourse(id);
+            var course = _courseBl.GetCourse(id);
             
             if (course == null)
             {
                 return HttpNotFound();
             }
             
-            if (_coursesService.IsUserEnrolled(id, User.Identity.Name))
+            if (_courseBl.IsUserEnrolled(id, User.Identity.Name))
             {
                 TempData["EnrollMessage"] = "You are already enrolled in the course!";
                 return RedirectToAction("Course", new { id });
             }
             
-            await _coursesService.EnrollUserAsync(id, User.Identity.Name);
+            await _courseBl.EnrollUserAsync(id, User.Identity.Name);
             
             TempData["EnrollMessage"] = "You are now enrolled in the course!";
             return RedirectToAction("Course", new { id });
@@ -96,19 +94,7 @@ namespace ByteCore.Web.Controllers
         [Route("Create")]
         public ActionResult Create()
         {
-            var course = new CourseModel
-            {
-                Chapters = new List<ChapterModel>
-                {
-                    new ChapterModel
-                    {
-                        Sections = new List<SectionModel>
-                        {
-                            new SectionModel { Type = SectionType.Read },
-                        }
-                    }
-                }
-            };
+            var course = new Course();
             return View(course);
         }
         
@@ -117,11 +103,11 @@ namespace ByteCore.Web.Controllers
         [HttpPost]
         [Route("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(CourseModel model)
+        public async Task<ActionResult> Create(Course model)
         {
             try
             {
-                await _coursesService.CreateCourseAsync(model);
+                await _courseBl.CreateCourseAsync(model);
                 return RedirectToAction("Index");
             }
             catch (InvalidOperationException ex)

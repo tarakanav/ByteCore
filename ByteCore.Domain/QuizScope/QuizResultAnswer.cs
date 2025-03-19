@@ -1,9 +1,9 @@
-﻿namespace ByteCore.Web.Models
+﻿namespace ByteCore.Domain.QuizScope
 {
-    public class QuizResultAnswerModel
+    public class QuizResultAnswer
     {
         public int Id { get; set; }
-        public QuestionModel Question { get; set; }
+        public Question Question { get; set; }
         public int SelectedOption { get; set; }
         public bool IsCorrect { get; set; }
     }
