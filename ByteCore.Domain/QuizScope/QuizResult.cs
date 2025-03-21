@@ -8,6 +8,6 @@ namespace ByteCore.Domain.QuizScope
         public int Id { get; set; }
         public Quiz Quiz { get; set; }
         public User User { get; set; }
-        public List<QuizResultAnswer> Answers { get; set; }
+        public List<QuizResultAnswer> Answers { get; set; } = new List<QuizResultAnswer>();
     }
 }

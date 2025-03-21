@@ -92,12 +92,12 @@ namespace ByteCore.BusinessLogic.Implementations
             await _db.SaveChangesAsync();
         }
 
-        public Chapter GetChapter(int courseId, int chapterId)
+        public Chapter GetChapter(int courseId, int chapterNumber)
         {
             var course = GetCourse(courseId);
-            if (course?.Chapters != null && course.Chapters.Count >= chapterId)
+            if (course?.Chapters != null && course.Chapters.Count >= chapterNumber)
             {
-                return course.Chapters.OrderBy(x => x.Id).ElementAtOrDefault(chapterId - 1);
+                return course.Chapters.OrderBy(x => x.Id).ElementAtOrDefault(chapterNumber - 1);
             }
             return null;
         }

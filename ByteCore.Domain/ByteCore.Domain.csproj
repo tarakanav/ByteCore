@@ -41,7 +41,6 @@
     <ItemGroup>
         <Compile Include="CourseScope\Chapter.cs" />
         <Compile Include="CourseScope\Course.cs" />
-        <Compile Include="CourseScope\CourseRoadmap.cs" />
         <Compile Include="CourseScope\Section.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="QuizScope\Question.cs" />

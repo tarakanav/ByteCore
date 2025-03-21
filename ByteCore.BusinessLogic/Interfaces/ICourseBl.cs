@@ -11,6 +11,6 @@ namespace ByteCore.BusinessLogic.Interfaces
         bool IsUserEnrolled(int courseId, string email);
         Task EnrollUserAsync(int id, string email);
         Task CreateCourseAsync(Course course);
-        Chapter GetChapter(int courseId, int chapterId);
+        Chapter GetChapter(int courseId, int chapterNumber);
     }
 }
