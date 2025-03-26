@@ -54,6 +54,65 @@
         <Compile Include="Interfaces\IQuizBl.cs" />
         <Compile Include="Interfaces\IUserBl.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Data\Migrations\202503111722043_Initial.cs" />
+        <Compile Include="Data\Migrations\202503111722043_Initial.Designer.cs">
+            <DependentUpon>202503111722043_Initial.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Data\Migrations\202503111805443_Add_User_Password.cs" />
+        <Compile Include="Data\Migrations\202503111805443_Add_User_Password.Designer.cs">
+            <DependentUpon>202503111805443_Add_User_Password.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Data\Migrations\202503111927370_Change_Course_Model.cs" />
+        <Compile Include="Data\Migrations\202503111927370_Change_Course_Model.Designer.cs">
+            <DependentUpon>202503111927370_Change_Course_Model.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Data\Migrations\202503112106574_Change_Quiz_Model.cs" />
+        <Compile Include="Data\Migrations\202503112106574_Change_Quiz_Model.Designer.cs">
+            <DependentUpon>202503112106574_Change_Quiz_Model.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Data\Migrations\202503112122131_Add_Question_Options.cs" />
+        <Compile Include="Data\Migrations\202503112122131_Add_Question_Options.Designer.cs">
+            <DependentUpon>202503112122131_Add_Question_Options.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Data\Migrations\202503121008013_Add_Course_EnrolledUsers.cs" />
+        <Compile Include="Data\Migrations\202503121008013_Add_Course_EnrolledUsers.Designer.cs">
+            <DependentUpon>202503121008013_Add_Course_EnrolledUsers.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Data\Migrations\202503121049409_Change_Chapter_Model.cs" />
+        <Compile Include="Data\Migrations\202503121049409_Change_Chapter_Model.Designer.cs">
+            <DependentUpon>202503121049409_Change_Chapter_Model.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Data\Migrations\202503261340427_Renamed-Entities.cs" />
+        <Compile Include="Data\Migrations\202503261340427_Renamed-Entities.Designer.cs">
+            <DependentUpon>202503261340427_Renamed-Entities.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Data\Migrations\Configuration.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Data\Migrations\202503111722043_Initial.resx">
+            <DependentUpon>202503111722043_Initial.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Data\Migrations\202503111805443_Add_User_Password.resx">
+            <DependentUpon>202503111805443_Add_User_Password.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Data\Migrations\202503111927370_Change_Course_Model.resx">
+            <DependentUpon>202503111927370_Change_Course_Model.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Data\Migrations\202503112106574_Change_Quiz_Model.resx">
+            <DependentUpon>202503112106574_Change_Quiz_Model.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Data\Migrations\202503112122131_Add_Question_Options.resx">
+            <DependentUpon>202503112122131_Add_Question_Options.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Data\Migrations\202503121008013_Add_Course_EnrolledUsers.resx">
+            <DependentUpon>202503121008013_Add_Course_EnrolledUsers.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Data\Migrations\202503121049409_Change_Chapter_Model.resx">
+            <DependentUpon>202503121049409_Change_Chapter_Model.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Data\Migrations\202503261340427_Renamed-Entities.resx">
+            <DependentUpon>202503261340427_Renamed-Entities.cs</DependentUpon>
+        </EmbeddedResource>
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\ByteCore.Domain\ByteCore.Domain.csproj">
