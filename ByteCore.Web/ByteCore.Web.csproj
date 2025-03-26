@@ -180,6 +180,10 @@
     <Compile Include="Migrations\202503121049409_Change_Chapter_Model.Designer.cs">
       <DependentUpon>202503121049409_Change_Chapter_Model.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202503261340427_Renamed-Entities.cs" />
+    <Compile Include="Migrations\202503261340427_Renamed-Entities.Designer.cs">
+      <DependentUpon>202503261340427_Renamed-Entities.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\ContactFormModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -234,6 +238,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202503121049409_Change_Chapter_Model.resx">
       <DependentUpon>202503121049409_Change_Chapter_Model.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202503261340427_Renamed-Entities.resx">
+      <DependentUpon>202503261340427_Renamed-Entities.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
