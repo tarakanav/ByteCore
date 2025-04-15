@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Web;
 using ByteCore.Domain.UserScope;
 
 namespace ByteCore.BusinessLogic.Interfaces
@@ -9,5 +10,7 @@ namespace ByteCore.BusinessLogic.Interfaces
         User AuthenticateUser(string email, string password);
         User GetUserByEmail(string email);
         Task<User> UpdateUserAsync(string currentEmail, User updatedUser);
+        Task<HttpCookie> GetUserCookieAsync(string email, bool rememberMe);
+        User GetUserByCookie(string cookie);
     }
 }

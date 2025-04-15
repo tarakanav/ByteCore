@@ -13,6 +13,7 @@ namespace ByteCore.BusinessLogic.Data
         public DbSet<Question> Questions { get; set; }
         public DbSet<QuizResult> QuizResults { get; set; }
         public DbSet<QuizResultAnswer> QuizResultAnswers { get; set; }
+        public DbSet<UserSession> UserSessions { get; set; }
 
         public ApplicationDbContext() : base("name=DefaultConnection") { }
     }

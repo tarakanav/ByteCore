@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using ByteCore.BusinessLogic.Attributes;
 using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Domain.QuizScope;
 
 namespace ByteCore.Web.Controllers
 {
-    [Authorize]
+    [CustomAuthorize]
     [RoutePrefix("Quizzes")]
     public class QuizzesController : Controller
     {
@@ -71,7 +72,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // GET: Quizzes/Create
-        [Authorize]
+        [CustomAuthorize]
         [HttpGet]
         [Route("Create")]
         public ActionResult Create()
@@ -81,7 +82,7 @@ namespace ByteCore.Web.Controllers
         }
 
         // POST: Quizzes/Create
-        [Authorize]
+        [CustomAuthorize]
         [HttpPost]
         [Route("Create")]
         [ValidateAntiForgeryToken]
@@ -131,7 +132,7 @@ namespace ByteCore.Web.Controllers
         }
 
         // GET: Quizzes/1/Edit
-        [Authorize]
+        [CustomAuthorize]
         [Route("{id:int}/Edit")]
         public ActionResult Edit(int id)
         {
@@ -146,7 +147,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // POST: Quizzes/1/Edit
-        [Authorize]
+        [CustomAuthorize]
         [HttpPost]
         [Route("{id:int}/Edit")]
         [ValidateAntiForgeryToken]
@@ -196,7 +197,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // POST: Quizzes/1/Delete
-        [Authorize]
+        [CustomAuthorize]
         [HttpPost]
         [Route("{id:int}/Delete")]
         [ValidateAntiForgeryToken]
@@ -211,6 +212,5 @@ namespace ByteCore.Web.Controllers
             await _quizBl.DeleteQuizAsync(id);
             return RedirectToAction("Index");
         }
-
     }
 }

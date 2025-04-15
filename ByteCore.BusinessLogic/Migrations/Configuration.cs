@@ -1,12 +1,8 @@
-﻿using ByteCore.BusinessLogic.Data;
+﻿using System.Data.Entity.Migrations;
+using ByteCore.BusinessLogic.Data;
 
-namespace ByteCore.Web.Migrations
+namespace ByteCore.BusinessLogic.Migrations
 {
-    using System;
-    using System.Data.Entity;
-    using System.Data.Entity.Migrations;
-    using System.Linq;
-
     internal sealed class Configuration : DbMigrationsConfiguration<ApplicationDbContext>
     {
         public Configuration()

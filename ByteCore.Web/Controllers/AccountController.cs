@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Security;
+using ByteCore.BusinessLogic.Attributes;
 using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Domain.UserScope;
 using ByteCore.Web.Models;
@@ -46,17 +47,9 @@ namespace ByteCore.Web.Controllers
 
             try
             {
-                var newUser = await _userBl.RegisterUserAsync(username, email, password);
-                
-                var identity = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, newUser.Name),
-                    new Claim(ClaimTypes.Email, newUser.Email),
-                }, "Password");
-
-                var principal = new ClaimsPrincipal(identity);
-                HttpContext.User = principal;
-                FormsAuthentication.SetAuthCookie(email, true);
+                await _userBl.RegisterUserAsync(username, email, password);
+                var cookie = await _userBl.GetUserCookieAsync(email, true);
+                Response.Cookies.Add(cookie);
                 
                 return Redirect(returnUrl ?? "/");
             }
@@ -83,7 +76,7 @@ namespace ByteCore.Web.Controllers
         // POST: Account/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(string email, string password, bool rememberMe = false, string returnUrl = null)
+        public async Task<ActionResult> Login(string email, string password, bool rememberMe = false, string returnUrl = null)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
@@ -93,20 +86,9 @@ namespace ByteCore.Web.Controllers
 
             try
             {
-                var user = _userBl.AuthenticateUser(email, password);
-        
-                var identity = new ClaimsIdentity(new[] 
-                {
-                    new Claim(ClaimTypes.Name, user.Name),
-                    new Claim(ClaimTypes.Email, user.Email),
-                }, "Password");
-                
-                if (user.Name == "admin") 
-                    Roles.AddUserToRole(user.Name, "Admin");
-
-                var principal = new ClaimsPrincipal(identity);
-                HttpContext.User = principal;
-                FormsAuthentication.SetAuthCookie(user.Email, rememberMe);
+                _userBl.AuthenticateUser(email, password);
+                var cookie = await _userBl.GetUserCookieAsync(email, rememberMe);
+                Response.Cookies.Add(cookie);
 
                 return Redirect(returnUrl ?? "/");
             }
@@ -118,7 +100,7 @@ namespace ByteCore.Web.Controllers
         }
 
         // GET: Account/Dashboard
-        [Authorize]
+        [CustomAuthorize]
         public ActionResult Dashboard()
         {
             var user = _userBl.GetUserByEmail(User.Identity.Name);
@@ -156,15 +138,8 @@ namespace ByteCore.Web.Controllers
                 try
                 {
                     await _userBl.UpdateUserAsync(User.Identity.Name, model);
-                    var identity = new ClaimsIdentity(new[]
-                    {
-                        new Claim(ClaimTypes.Name, model.Name),
-                        new Claim(ClaimTypes.Email, model.Email),
-                    }, "Password");
-
-                    var principal = new ClaimsPrincipal(identity);
-                    HttpContext.User = principal;
-                    FormsAuthentication.SetAuthCookie(model.Email, true);
+                    var cookie = await _userBl.GetUserCookieAsync(model.Email, false);
+                    Response.Cookies.Add(cookie);
 
                     return RedirectToAction("Dashboard");
                 }

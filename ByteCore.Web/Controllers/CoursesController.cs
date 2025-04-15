@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using ByteCore.BusinessLogic.Attributes;
 using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Domain.CourseScope;
 
@@ -64,7 +65,7 @@ namespace ByteCore.Web.Controllers
         }
 
         // POST: Courses/1/Enroll
-        [Authorize]
+        [CustomAuthorize]
         [Route("{id:int}/Enroll")]
         [HttpPost]
         public async Task<ActionResult> Enroll(int id)
@@ -89,7 +90,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // GET: Courses/Create
-        [Authorize]
+        [CustomAuthorize]
         [HttpGet]
         [Route("Create")]
         public ActionResult Create()
@@ -99,7 +100,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // POST: Courses/Create
-        [Authorize]
+        [CustomAuthorize]
         [HttpPost]
         [Route("Create")]
         [ValidateAntiForgeryToken]

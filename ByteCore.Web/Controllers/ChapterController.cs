@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using ByteCore.BusinessLogic.Attributes;
 using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Web.Models;
 
@@ -17,7 +18,7 @@ namespace ByteCore.Web.Controllers
             _courseBl = courseBl;
         }
 
-        [Authorize]
+        [CustomAuthorize]
         [Route("{chapterId:int}")]
         public ActionResult Index(int courseId, int chapterId)
         {
@@ -28,14 +29,14 @@ namespace ByteCore.Web.Controllers
             return View(chapter);
         }
 
-        [Authorize]
+        [CustomAuthorize]
         [HttpPost]
         public ActionResult UpdateSectionProgress(int sectionId, bool isCompleted)
         {
             return Json(new { success = true });
         }
 
-        [Authorize]
+        [CustomAuthorize]
         [HttpPost]
         public ActionResult CompleteChapter(int courseId, int chapterId)
         {

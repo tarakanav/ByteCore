@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using ByteCore.BusinessLogic.Data;
 using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Domain.CourseScope;
@@ -82,6 +84,47 @@ namespace ByteCore.BusinessLogic.Implementations
             await _db.SaveChangesAsync();
             
             return user;
+        }
+
+        public async Task<HttpCookie> GetUserCookieAsync(string email, bool rememberMe = false)
+        {
+            var cookie = new HttpCookie("X-KEY")
+            {
+                Value = CookieGenerator.Create(email),
+            };
+
+            var session = await _db.UserSessions.FirstOrDefaultAsync(x => x.User.Email == email);
+            var expireTime = rememberMe ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow.AddHours(1);
+            if (session == null)
+            {
+                var user = await _db.Users.FirstOrDefaultAsync(x => x.Email == email);
+                session = new UserSession
+                {
+                    User = user,
+                    CookieString = cookie.Value,
+                    ExpireTime = expireTime
+                };
+                _db.UserSessions.Add(session);
+            }
+            else
+            {
+                session.CookieString = cookie.Value;
+                if (session.ExpireTime < expireTime)
+                    session.ExpireTime = expireTime;
+            }
+            
+            await _db.SaveChangesAsync();
+            cookie.Expires = session.ExpireTime;
+            return cookie;
+        }
+
+        public User GetUserByCookie(string cookie)
+        {
+            var session = _db.UserSessions
+                .Include(x => x.User)
+                .FirstOrDefault(x => x.CookieString == cookie && x.ExpireTime >= DateTime.UtcNow);
+
+            return session?.User;
         }
     }
 }
