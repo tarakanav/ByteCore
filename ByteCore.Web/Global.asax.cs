@@ -39,8 +39,7 @@ namespace ByteCore.Web
             
             var identity = new ClaimsIdentity("CustomCookie");
             identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-            identity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
-            identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+            identity.AddClaim(new Claim(ClaimTypes.Name, user.Email));
             identity.AddClaim(new Claim("http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider", "CustomIdentityProvider"));
             
             HttpContext.Current.User = new ClaimsPrincipal(identity);

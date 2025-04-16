@@ -72,7 +72,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // GET: Quizzes/Create
-        [CustomAuthorize]
+        [CustomAuthorize("Admin")]
         [HttpGet]
         [Route("Create")]
         public ActionResult Create()

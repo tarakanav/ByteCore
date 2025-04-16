@@ -114,7 +114,7 @@ namespace ByteCore.Web.Controllers
         }
 
         // GET: Account/Manage
-        [Authorize]
+        [CustomAuthorize]
         public ActionResult Manage()
         {
             var user = _userBl.GetUserByEmail(User.Identity.Name);
@@ -129,7 +129,7 @@ namespace ByteCore.Web.Controllers
 
         // POST: Account/Manage
         [HttpPost]
-        [Authorize]
+        [CustomAuthorize]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Manage(User model)
         {
@@ -155,8 +155,22 @@ namespace ByteCore.Web.Controllers
         // GET: Account/Logout
         public ActionResult Logout()
         {
-            FormsAuthentication.SignOut();
+            var cookie = Request.Cookies["X-KEY"];
+            if (cookie != null)
+            {
+                cookie.Expires = DateTime.UtcNow.AddDays(-1);
+                Response.Cookies.Add(cookie);
+            }
+    
+            if (Session != null)
+            {
+                Session["User"] = null;
+                Session.Clear();
+                Session.Abandon();
+            }
+            
             return RedirectToAction("Login");
         }
+
     }
 }

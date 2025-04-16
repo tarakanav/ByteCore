@@ -154,6 +154,10 @@
     <Compile Include="Migrations\202504151127121_Initial.Designer.cs">
       <DependentUpon>202504151127121_Initial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202504161138104_Add_Role_Field.cs" />
+    <Compile Include="Migrations\202504161138104_Add_Role_Field.Designer.cs">
+      <DependentUpon>202504161138104_Add_Role_Field.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -174,6 +178,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202504151127121_Initial.resx">
       <DependentUpon>202504151127121_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202504161138104_Add_Role_Field.resx">
+      <DependentUpon>202504161138104_Add_Role_Field.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

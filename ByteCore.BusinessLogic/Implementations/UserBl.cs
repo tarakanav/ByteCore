@@ -29,14 +29,18 @@ namespace ByteCore.BusinessLogic.Implementations
             }
             
             var hashedPassword = PasswordHasher.HashPassword(password);
-
+            
             var newUser = new User
             {
                 Name = name,
                 Email = email,
                 Password = hashedPassword,
+                Role = "User",
                 EnrolledCourses = new List<Course>()
             };
+            
+            if (newUser.Name == "admin")
+                newUser.Role = "Admin";
 
             _db.Users.Add(newUser);
             await _db.SaveChangesAsync();

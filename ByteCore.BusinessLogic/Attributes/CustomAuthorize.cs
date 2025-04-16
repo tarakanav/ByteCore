@@ -1,5 +1,5 @@
 using System;
-using System.Security.Claims;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using ByteCore.BusinessLogic.Interfaces;
@@ -9,18 +9,26 @@ namespace ByteCore.BusinessLogic.Attributes
 {
     public class CustomAuthorize : ActionFilterAttribute
     {
+        public string Roles { get; set; }
+
+        public CustomAuthorize() { }
+
+        public CustomAuthorize(string roles)
+        {
+            Roles = roles;
+        }
+        
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             var httpContext = filterContext.HttpContext;
             var request = httpContext.Request;
             var userBl = DependencyResolver.Current.GetService<IUserBl>();
-
-            var cookie = request.Cookies["X-KEY"];
             User user = null;
 
+            var cookie = request.Cookies["X-KEY"];
             if (cookie != null)
             {
-                if (cookie.Expires != DateTime.MinValue && cookie.Expires < DateTime.Now)
+                if (cookie.Expires != DateTime.MinValue && cookie.Expires < DateTime.UtcNow)
                 {
                     httpContext.Response.Cookies.Remove("X-KEY");
                 }
@@ -41,15 +49,27 @@ namespace ByteCore.BusinessLogic.Attributes
                 }
             }
 
-            if (user != null)
+            if (user == null)
             {
-                base.OnActionExecuting(filterContext);
+                var currentUrl = HttpUtility.UrlEncode(request.RawUrl);
+                var loginUrl = $"/Account/Login?returnUrl={currentUrl}";
+                filterContext.Result = new RedirectResult(loginUrl);
                 return;
             }
+            
+            if (!string.IsNullOrWhiteSpace(Roles))
+            {
+                var allowedRoles = Roles.Split(',')
+                                        .Select(r => r.Trim())
+                                        .ToList();
+                if (!allowedRoles.Any(r => string.Equals(user.Role, r, StringComparison.OrdinalIgnoreCase)))
+                {
+                    filterContext.Result = new RedirectResult("/Error/403");
+                    return;
+                }
+            }
 
-            var currentUrl = HttpUtility.UrlEncode(request.RawUrl);
-            var loginUrl = $"/Account/Login?returnUrl={currentUrl}";
-            filterContext.Result = new RedirectResult(loginUrl);
+            base.OnActionExecuting(filterContext);
         }
     }
 }

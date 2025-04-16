@@ -154,6 +154,7 @@
     </Compile>
     <Compile Include="Models\ContactFormModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="Views\Error\AccessDenied.cshtml" />
     <None Include="Views\Quizzes\Result.cshtml" />
     <None Include="Views\Quizzes\Quiz.cshtml" />
     <None Include="Views\Quizzes\Index.cshtml" />

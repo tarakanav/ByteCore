@@ -1,0 +1,51 @@
+﻿@{
+    ViewBag.Title = "403 Forbidden";
+}
+
+<style>
+    .error-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 80vh;
+        text-align: center;
+    }
+
+    .error-code {
+        font-size: 10rem;
+        font-weight: bold;
+        color: red;
+        text-shadow: 4px 4px 10px rgba(255, 0, 0, 0.5);
+    }
+
+    .error-message {
+        font-size: 2rem;
+        color: #333;
+    }
+
+    .btn-home {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 1.2rem;
+        background-color: #007bff;
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    .btn-home:hover {
+        background-color: #0056b3;
+        color: white;
+    }
+</style>
+
+<div class="error-container">
+    <div class="error-code">403</div>
+    <div class="error-message">Access Denied</div>
+    <p>Sorry, you do not have permission to access this page. Please contact your administrator if you believe this is an error.</p>
+    <a href='@Url.Action("Index", "Home")' class="btn-home">Return to Homepage</a>
+
+
+</div>
