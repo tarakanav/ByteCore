@@ -43,15 +43,6 @@ namespace ByteCore.BusinessLogic.Attributes
 
             if (user != null)
             {
-                var identity = new ClaimsIdentity("CustomCookie");
-                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-                identity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
-                identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
-                identity.AddClaim(new Claim("http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider", "CustomCookie"));
-
-                var principal = new ClaimsPrincipal(identity);
-                httpContext.User = principal;
-
                 base.OnActionExecuting(filterContext);
                 return;
             }
