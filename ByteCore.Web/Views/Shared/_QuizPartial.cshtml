@@ -1,0 +1,50 @@
+﻿@model ByteCore.Domain.QuizScope.Quiz
+
+@{
+    var courseId = ViewContext.RouteData.Values["courseId"];
+    var chapterId = ViewContext.RouteData.Values["chapterId"];
+    var sectionId = ViewBag.SectionId as int?;
+}
+
+<div class="mt-5">
+    <h4 class="text-center mb-3">@Model.Title</h4>
+
+    @using (Html.BeginForm(
+                    actionName: "Index",
+                    controllerName: "Chapter",
+                    routeValues: new { courseId, chapterId },
+                    method: FormMethod.Post))
+    {
+        @Html.Hidden("sectionId", sectionId)
+        @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
+        @Html.AntiForgeryToken()
+
+        for (int i = 0; i < Model.Questions.Count; i++)
+        {
+            <div class="border p-3 mb-4 rounded bg-light">
+                <h5>Q@(i + 1): @Model.Questions[i].QuestionText</h5>
+                @for (int j = 0; j < Model.Questions[i].Options.Count; j++)
+                {
+                    <div class="form-check">
+                        @{
+                            var required = j == 0 ? "required" : "";
+                        }
+                        <input class="form-check-input"
+                               type="radio"
+                               name="userAnswers[@i]"
+                               id="q@sectionId@i@j"
+                               value="@j"
+                               @required/>
+                        <label class="form-check-label" for="q@sectionId@i@j">
+                            @Model.Questions[i].Options[j].OptionText
+                        </label>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success">Submit Quiz</button>
+        </div>
+    }
+</div>

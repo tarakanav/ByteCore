@@ -158,6 +158,14 @@
     <Compile Include="Migrations\202504161138104_Add_Role_Field.Designer.cs">
       <DependentUpon>202504161138104_Add_Role_Field.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202504162319578_Add_Section_QuizId.cs" />
+    <Compile Include="Migrations\202504162319578_Add_Section_QuizId.Designer.cs">
+      <DependentUpon>202504162319578_Add_Section_QuizId.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202504162334382_Section_Quiz_Optional.cs" />
+    <Compile Include="Migrations\202504162334382_Section_Quiz_Optional.Designer.cs">
+      <DependentUpon>202504162334382_Section_Quiz_Optional.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -181,6 +189,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202504161138104_Add_Role_Field.resx">
       <DependentUpon>202504161138104_Add_Role_Field.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202504162319578_Add_Section_QuizId.resx">
+      <DependentUpon>202504162319578_Add_Section_QuizId.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202504162334382_Section_Quiz_Optional.resx">
+      <DependentUpon>202504162334382_Section_Quiz_Optional.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

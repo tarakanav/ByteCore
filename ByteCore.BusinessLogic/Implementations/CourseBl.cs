@@ -29,6 +29,8 @@ namespace ByteCore.BusinessLogic.Implementations
                 .Include(x => x.Chapters)
                 .Include(x => x.Chapters.Select(chapter => chapter.Sections))
                 .Include(x => x.Chapters.Select(chapter => chapter.Sections.Select(section => section.Quiz)))
+                .Include(x => x.Chapters.Select(chapter => chapter.Sections.Select(section => section.Quiz.Questions)))
+                .Include(x => x.Chapters.Select(chapter => chapter.Sections.Select(section => section.Quiz.Questions.Select(question => question.Options))))
                 .FirstOrDefault(x => x.Id == id);
         }
 
@@ -66,7 +68,8 @@ namespace ByteCore.BusinessLogic.Implementations
 
             if (course.Chapters != null)
             {
-                foreach (var section in course.Chapters.Where(chapter => chapter.Sections != null).SelectMany(chapter => chapter.Sections))
+                foreach (var section in course.Chapters.Where(chapter => chapter.Sections != null)
+                             .SelectMany(chapter => chapter.Sections))
                 {
                     switch (section.Type)
                     {
@@ -79,6 +82,13 @@ namespace ByteCore.BusinessLogic.Implementations
                             section.Quiz = null;
                             break;
                         case SectionType.Quiz:
+                            var quiz = await _db.Quizzes.FirstOrDefaultAsync(x => x.Id == section.QuizId);
+                            if (quiz == null)
+                            {
+                                throw new InvalidOperationException("The specified quiz does not exist");
+                            }
+
+                            section.Quiz = quiz;
                             section.TextContent = null;
                             section.VideoUrl = null;
                             break;
@@ -99,6 +109,7 @@ namespace ByteCore.BusinessLogic.Implementations
             {
                 return course.Chapters.OrderBy(x => x.Id).ElementAtOrDefault(chapterNumber - 1);
             }
+
             return null;
         }
 
@@ -121,55 +132,48 @@ namespace ByteCore.BusinessLogic.Implementations
             }
 
             if (course.Chapters == null || !course.Chapters.Any()) return;
+            foreach (var chapter in course.Chapters)
             {
-                foreach (var chapter in course.Chapters)
+                if (string.IsNullOrEmpty(chapter.Title))
                 {
-                    if (string.IsNullOrEmpty(chapter.Title))
+                    throw new InvalidOperationException("Chapter title is required");
+                }
+
+                if (chapter.Sections == null || !chapter.Sections.Any()) continue;
+                
+                foreach (var section in chapter.Sections)
+                {
+                    if (string.IsNullOrEmpty(section.Title))
                     {
-                        throw new InvalidOperationException("Chapter title is required");
+                        throw new InvalidOperationException("Section title is required");
                     }
 
-                    if (chapter.Sections == null || !chapter.Sections.Any()) continue;
-                    foreach (var section in chapter.Sections)
+                    switch (section.Type)
                     {
-                        if (string.IsNullOrEmpty(section.Title))
-                        {
-                            throw new InvalidOperationException("Section title is required");
-                        }
+                        case SectionType.Read:
+                            if (string.IsNullOrEmpty(section.TextContent))
+                            {
+                                throw new InvalidOperationException(
+                                    "Text content is required for reading sections");
+                            }
 
-                        switch (section.Type)
-                        {
-                            case SectionType.Read:
-                                if (string.IsNullOrEmpty(section.TextContent))
-                                {
-                                    throw new InvalidOperationException(
-                                        "Text content is required for reading sections");
-                                }
+                            break;
+                        case SectionType.Video:
+                            if (string.IsNullOrEmpty(section.VideoUrl))
+                            {
+                                throw new InvalidOperationException("Video URL is required for video sections");
+                            }
 
-                                break;
-                            case SectionType.Video:
-                                if (string.IsNullOrEmpty(section.VideoUrl))
-                                {
-                                    throw new InvalidOperationException("Video URL is required for video sections");
-                                }
+                            break;
+                        case SectionType.Quiz:
+                            if (section.Quiz == null && section.QuizId == 0)
+                            {
+                                throw new InvalidOperationException("Quiz ID is required for quiz sections");
+                            }
 
-                                break;
-                            case SectionType.Quiz:
-                                if (section.Quiz == null)
-                                {
-                                    throw new InvalidOperationException("Quiz ID is required for quiz sections");
-                                }
-                                
-                                var quiz = await _db.Quizzes.FirstOrDefaultAsync(x => x.Id == section.Quiz.Id);
-                                if (quiz == null)
-                                {
-                                    throw new InvalidOperationException("The specified quiz does not exist");
-                                }
-
-                                break;
-                            default:
-                                throw new InvalidOperationException("Invalid section type");
-                        }
+                            break;
+                        default:
+                            throw new InvalidOperationException("Invalid section type");
                     }
                 }
             }

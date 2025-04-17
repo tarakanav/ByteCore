@@ -10,6 +10,7 @@ namespace ByteCore.Domain.CourseScope
         public string Description { get; set; }
         public string TextContent { get; set; }
         public string VideoUrl { get; set; }
+        public int? QuizId { get; set; }
         public Quiz Quiz { get; set; }
         public SectionType Type { get; set; } = SectionType.Read;
         public virtual Chapter Chapter { get; set; }

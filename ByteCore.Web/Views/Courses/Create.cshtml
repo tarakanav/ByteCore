@@ -1,4 +1,6 @@
 ﻿@model ByteCore.Domain.CourseScope.Course
+@using System.Linq
+@using ByteCore.Domain.CourseScope
 @{
     ViewBag.Title = "Create New Course";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -26,6 +28,7 @@
 
             <div class="row gx-5">
                 <div class="col-12 col-md-6">
+                    <!-- Course basic fields -->
                     <div class="form-group mb-3">
                         @Html.LabelFor(m => m.Title, new { @class = "form-label" })
                         @Html.TextBoxFor(m => m.Title, new { @class = "form-control", placeholder = "Course Title" })
@@ -61,15 +64,95 @@
                         @Html.TextBoxFor(m => m.ImageUrl, new { @class = "form-control", placeholder = "Image URL" })
                         @Html.ValidationMessageFor(m => m.ImageUrl, "", new { @class = "text-danger" })
                     </div>
+
+                    <!-- Chapters -->
                     <div class="form-group mb-3">
                         <div id="chapterContainer">
                             <h5>Chapters</h5>
                             <button type="button" class="btn btn-primary" id="addChapterButton">Add Chapter</button>
-                            <div id="chapterList"></div>
+                            <div id="chapterList">
+                                @* Render any chapters already in Model.Chapters *@
+                                @if (Model.Chapters != null && Model.Chapters.Any())
+                                {
+                                    for (int ci = 0; ci < Model.Chapters.Count; ci++)
+                                    {
+                                        <div class="chapter-group mb-4" id="chapter_@ci">
+                                            <input type="hidden" name="Chapters.Index" value="@ci" />
+
+                                            <div class="mb-3">
+                                                @Html.LabelFor(m => m.Chapters[ci].Title, new { @class = "form-label" })
+                                                @Html.TextBoxFor(m => m.Chapters[ci].Title, new { @class = "form-control" })
+                                            </div>
+                                            <div class="mb-3">
+                                                @Html.LabelFor(m => m.Chapters[ci].Description, new { @class = "form-label" })
+                                                @Html.TextAreaFor(m => m.Chapters[ci].Description, new { @class = "form-control", rows = 3 })
+                                            </div>
+
+                                            <div id="sectionList_chapter_@ci">
+                                                @for (int si = 0; si < Model.Chapters[ci].Sections.Count; si++)
+                                                {
+                                                    <div class="mb-3 section-group" id="chapter_@(ci)_section_@si">
+                                                        <input type="hidden"
+                                                               name="Chapters[@ci].Sections.Index"
+                                                               value="@si" />
+
+                                                        <div class="form-group mb-2">
+                                                            @Html.LabelFor(m => m.Chapters[ci].Sections[si].Type, "Section Type", new { @class="form-label" })
+                                                            @Html.DropDownListFor(
+                                                                m => m.Chapters[ci].Sections[si].Type,
+                                                                Enum.GetValues(typeof(SectionType))
+                                                                    .Cast<SectionType>()
+                                                                    .Select(t => new SelectListItem {
+                                                                        Text = t.ToString(),
+                                                                        Value = t.ToString(),
+                                                                        Selected = Model.Chapters[ci].Sections[si].Type == t
+                                                                    }),
+                                                                new { @class = "form-control section-type-select" }
+                                                            )
+                                                        </div>
+                                                        <div class="form-group mb-2">
+                                                            @Html.LabelFor(m => m.Chapters[ci].Sections[si].Title, new { @class="form-label" })
+                                                            @Html.TextBoxFor(m => m.Chapters[ci].Sections[si].Title, new { @class="form-control" })
+                                                        </div>
+                                                        <div class="form-group mb-2">
+                                                            @Html.LabelFor(m => m.Chapters[ci].Sections[si].Description, new { @class="form-label" })
+                                                            @Html.TextAreaFor(m => m.Chapters[ci].Sections[si].Description, new { @class="form-control", rows = 2 })
+                                                        </div>
+                                                        <div class="form-group mb-2 section-content" data-type="Read">
+                                                            @Html.LabelFor(m => m.Chapters[ci].Sections[si].TextContent, new { @class="form-label" })
+                                                            @Html.TextAreaFor(m => m.Chapters[ci].Sections[si].TextContent, new { @class="form-control", rows = 5 })
+                                                        </div>
+                                                        <div class="form-group mb-2 section-content" data-type="Video" style="display:none;">
+                                                            @Html.LabelFor(m => m.Chapters[ci].Sections[si].VideoUrl, new { @class="form-label" })
+                                                            @Html.TextBoxFor(m => m.Chapters[ci].Sections[si].VideoUrl, new { @class="form-control" })
+                                                        </div>
+                                                        <div class="form-group mb-2 section-content" data-type="Quiz" style="display:none;">
+                                                            @Html.LabelFor(m => m.Chapters[ci].Sections[si].QuizId, new { @class="form-label" })
+                                                            @Html.TextBoxFor(m => m.Chapters[ci].Sections[si].QuizId, new { @class="form-control", type="number" })
+                                                        </div>
+
+                                                        <button type="button" class="btn btn-danger"
+                                                                onclick="removeSection('chapter_@(ci)_section_@si')">
+                                                            Remove Section
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            <button type="button" class="btn btn-danger removeChapterButton"
+                                                    onclick="removeChapter('chapter_@ci')">
+                                                Remove Chapter
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
+
             <div class="text-center">
                 <button type="submit" class="btn btn-success">Create Course</button>
             </div>
@@ -79,8 +162,15 @@
 
 @section Scripts {
     <script>
-        let chapterCounter = 0;
+        let chapterCounter = @(Model.Chapters?.Count ?? 0);
         let sectionCounters = {};
+            @if (Model.Chapters != null)
+        {
+            for (int ci = 0; ci < Model.Chapters.Count; ci++)
+            {
+                <text>sectionCounters['chapter_@ci'] = @Model.Chapters[ci].Sections.Count();</text>
+            }
+        }
 
         document.getElementById("addChapterButton").addEventListener("click", function () {
             const chapterContainer = document.getElementById("chapterList");
@@ -88,116 +178,102 @@
             const chapterId = 'chapter_' + chapterCounter;
             sectionCounters[chapterId] = 0;
 
-            // Create chapter div
             const chapterDiv = document.createElement('div');
-            chapterDiv.className = 'chapter-group';
+            chapterDiv.className = 'chapter-group mb-4';
             chapterDiv.id = chapterId;
-            
-            // Set chapter HTML
             chapterDiv.innerHTML = `
                 <h6>Chapter</h6>
                 <input type="hidden" name="Chapters.Index" value="${chapterCounter}" />
                 <div class="mb-3">
                     <label class="form-label">Chapter Title</label>
-                    <input type="text" class="form-control" name="Chapters[${chapterCounter}].Title" placeholder="Chapter Title" />
+                    <input type="text" class="form-control" name="Chapters[${chapterCounter}].Title" />
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Chapter Description</label>
-                    <textarea class="form-control" name="Chapters[${chapterCounter}].Description" placeholder="Chapter Description"></textarea>
+                    <textarea class="form-control" name="Chapters[${chapterCounter}].Description" rows="3"></textarea>
                 </div>
-                <div id="sectionContainer_${chapterId}">
-                    <button type="button" class="btn btn-primary" onclick="addSection('${chapterId}')">Add Section</button>
-                    <div id="sectionList_${chapterId}"></div>
-                </div>
-                <div class="mb-3">
-                    <button type="button" class="btn btn-danger removeChapterButton" onclick="removeChapter('${chapterId}')">Remove Chapter</button>
-                </div>
+                <div id="sectionList_${chapterId}"></div>
+                <button type="button" class="btn btn-primary" onclick="addSection('${chapterId}')">Add Section</button>
+                <button type="button" class="btn btn-danger" onclick="removeChapter('${chapterId}')">Remove Chapter</button>
             `;
-            
-            // Append to container
             chapterContainer.appendChild(chapterDiv);
         });
 
         function removeChapter(chapterId) {
-            const chapterElement = document.getElementById(chapterId);
-            chapterElement.remove();
+            document.getElementById(chapterId).remove();
             delete sectionCounters[chapterId];
         }
 
         function addSection(chapterId) {
             const sectionList = document.getElementById(`sectionList_${chapterId}`);
             sectionCounters[chapterId]++;
-            const sectionCounter = sectionCounters[chapterId];
-            const uniqueSectionId = `${chapterId}_section_${sectionCounter}`;
-            
+            const si = sectionCounters[chapterId];
             const chapterIndex = chapterId.split('_')[1];
-            
-            // Create section div
-            const sectionDiv = document.createElement('div');
-            sectionDiv.className = 'mb-3 section-group';
-            sectionDiv.id = uniqueSectionId;
-            
-            // Set section HTML
-            sectionDiv.innerHTML = `
-                <h6>Section ${sectionCounter}</h6>
-                <input type="hidden" name="Chapters[${chapterIndex}].Sections.Index" value="${sectionCounter}" />
+            const sectionId = `${chapterId}_section_${si}`;
+
+            const div = document.createElement('div');
+            div.className = 'mb-3 section-group';
+            div.id = sectionId;
+            div.innerHTML = `
+                <h6>Section ${si}</h6>
+                <input type="hidden" name="Chapters[${chapterIndex}].Sections.Index" value="${si}" />
+
                 <div class="form-group mb-2">
                     <label class="form-label">Section Type</label>
-                    <select class="form-control section-type-select" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].Type">
-                        <option value="Read">TextContent</option>
-                        <option value="Video">VideoUrl</option>
-                        <option value="Quiz">Quiz Id</option>
+                    <select class="form-control section-type-select"
+                            name="Chapters[${chapterIndex}].Sections[${si}].Type">
+                        <option value="Read">Text Content</option>
+                        <option value="Video">Video</option>
+                        <option value="Quiz">Quiz</option>
                     </select>
                 </div>
+
                 <div class="form-group mb-2">
                     <label class="form-label">Section Title</label>
-                    <input type="text" class="form-control" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].Title" placeholder="Section Title" />
+                    <input type="text" class="form-control"
+                           name="Chapters[${chapterIndex}].Sections[${si}].Title" />
                 </div>
+
                 <div class="form-group mb-2">
                     <label class="form-label">Section Description</label>
-                    <textarea class="form-control" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].Description" placeholder="Section Description"></textarea>
+                    <textarea class="form-control"
+                              name="Chapters[${chapterIndex}].Sections[${si}].Description"
+                              rows="2"></textarea>
                 </div>
+
                 <div class="form-group mb-2 section-content" data-type="Read">
                     <label class="form-label">Text Content</label>
-                    <input type="text" class="form-control" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].TextContent" placeholder="Text Content" />
+                    <textarea class="form-control" rows="5"
+                              name="Chapters[${chapterIndex}].Sections[${si}].TextContent"></textarea>
                 </div>
-                <div class="form-group mb-2 section-content" data-type="Video" style="display: none;">
+                <div class="form-group mb-2 section-content" data-type="Video" style="display:none;">
                     <label class="form-label">Video URL</label>
-                    <input type="text" class="form-control" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].VideoUrl" placeholder="Video URL" />
+                    <input type="text" class="form-control"
+                           name="Chapters[${chapterIndex}].Sections[${si}].VideoUrl" />
                 </div>
-                <div class="form-group mb-2 section-content" data-type="Quiz" style="display: none;">
+                <div class="form-group mb-2 section-content" data-type="Quiz" style="display:none;">
                     <label class="form-label">Quiz Id</label>
-                    <input type="number" class="form-control" name="Chapters[${chapterIndex}].Sections[${sectionCounter}].QuizId" placeholder="Quiz Id" />
+                    <input type="number" class="form-control"
+                           name="Chapters[${chapterIndex}].Sections[${si}].QuizId" />
                 </div>
-                <button type="button" class="btn btn-danger" onclick="removeSection('${uniqueSectionId}')">Remove Section</button>
+
+                <button type="button" class="btn btn-danger"
+                        onclick="removeSection('${sectionId}')">
+                    Remove Section
+                </button>
             `;
-            
-            // Append to section list
-            sectionList.appendChild(sectionDiv);
-            
-            // Add event listener for section type change
-            const typeSelect = sectionDiv.querySelector('.section-type-select');
-            typeSelect.addEventListener('change', function() {
-                handleSectionTypeChange(this);
-            });
+            sectionList.appendChild(div);
+
+            div.querySelector(".section-type-select")
+                .addEventListener("change", function () {
+                    const contents = div.querySelectorAll(".section-content");
+                    contents.forEach(c => c.style.display =
+                        c.getAttribute("data-type") === this.value ? "block" : "none");
+                });
         }
 
         function removeSection(sectionId) {
-            const sectionElement = document.getElementById(sectionId);
-            sectionElement.remove();
-        }
-
-        function handleSectionTypeChange(selectElement) {
-            const sectionDiv = selectElement.closest('.section-group');
-            const contentDivs = sectionDiv.querySelectorAll('.section-content');
-            
-            contentDivs.forEach(div => {
-                if (div.getAttribute('data-type') === selectElement.value) {
-                    div.style.display = 'block';
-                } else {
-                    div.style.display = 'none';
-                }
-            });
+            document.getElementById(sectionId).remove();
         }
     </script>
 }

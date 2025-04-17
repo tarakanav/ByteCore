@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using ByteCore.BusinessLogic.Attributes;
 using ByteCore.BusinessLogic.Interfaces;
+using ByteCore.Domain.CourseScope;
+using ByteCore.Domain.QuizScope;
 using ByteCore.Web.Models;
 
 namespace ByteCore.Web.Controllers
@@ -12,10 +15,12 @@ namespace ByteCore.Web.Controllers
     public class ChapterController : Controller
     {
         private readonly ICourseBl _courseBl;
+        private readonly IQuizBl _quizBl;
 
-        public ChapterController(ICourseBl courseBl)
+        public ChapterController(ICourseBl courseBl, IQuizBl quizBl)
         {
             _courseBl = courseBl;
+            _quizBl = quizBl;
         }
 
         [CustomAuthorize]
@@ -26,7 +31,56 @@ namespace ByteCore.Web.Controllers
             if (chapter == null)
                 return HttpNotFound();
 
-            return View(chapter);
+            var vm = new ChapterModel
+            {
+                Chapter = chapter,
+                QuizResults = new Dictionary<int, QuizResult>()
+            };
+
+            return View(vm);
+        }
+
+        [CustomAuthorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("{chapterId:int}")]
+        public async Task<ActionResult> Index(
+            int courseId,
+            int chapterId,
+            int sectionId,
+            List<int> userAnswers)
+        {
+            try
+            {
+                var chapter = _courseBl.GetChapter(courseId, chapterId);
+                if (chapter == null) return HttpNotFound();
+
+                var section = chapter.Sections
+                    .FirstOrDefault(s => s.Id == sectionId && s.Type == SectionType.Quiz);
+                if (section?.Quiz == null)
+                    return HttpNotFound();
+
+                var results = new Dictionary<int, QuizResult>();
+
+                if (ModelState.IsValid)
+                {
+                    var result = await _quizBl
+                        .SubmitQuizResultAsync(section.Quiz.Id, userAnswers, User.Identity.Name);
+                    results[sectionId] = result;
+                }
+
+                var vm = new ChapterModel
+                {
+                    Chapter = chapter,
+                    QuizResults = results
+                };
+                return View(vm);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return RedirectToAction("Index", new { courseId, chapterId });
+            }
         }
 
         [CustomAuthorize]
@@ -51,7 +105,7 @@ namespace ByteCore.Web.Controllers
             {
                 return HttpNotFound();
             }
-            
+
             var nextChapter = course.Chapters.OrderBy(c => c.GetChapterNumber()).FirstOrDefault(c =>
                 c.GetChapterNumber() > chapter.GetChapterNumber());
             return nextChapter != null

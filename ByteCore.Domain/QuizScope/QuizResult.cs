@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ByteCore.Domain.UserScope;
 
 namespace ByteCore.Domain.QuizScope

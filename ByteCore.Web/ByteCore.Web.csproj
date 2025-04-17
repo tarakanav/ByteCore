@@ -133,6 +133,7 @@
     <Content Include="Views\Privacy\Index.cshtml" />
     <Content Include="Views\Quizzes\Create.cshtml" />
     <Content Include="Views\Quizzes\Edit.cshtml" />
+    <Content Include="Views\Shared\_QuizPartial.cshtml" />
     <Content Include="Views\Terms\Index.cshtml" />
     <Content Include="Views\Shared\_EnrollButton.cshtml" />
     <Content Include="Web.config" />
@@ -152,6 +153,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ChapterModel.cs" />
     <Compile Include="Models\ContactFormModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Views\Error\AccessDenied.cshtml" />
