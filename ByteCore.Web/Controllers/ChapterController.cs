@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using ByteCore.BusinessLogic.Attributes;
@@ -85,13 +86,6 @@ namespace ByteCore.Web.Controllers
 
         [CustomAuthorize]
         [HttpPost]
-        public ActionResult UpdateSectionProgress(int sectionId, bool isCompleted)
-        {
-            return Json(new { success = true });
-        }
-
-        [CustomAuthorize]
-        [HttpPost]
         public ActionResult CompleteChapter(int courseId, int chapterId)
         {
             var course = _courseBl.GetCourse(courseId);
@@ -106,11 +100,35 @@ namespace ByteCore.Web.Controllers
                 return HttpNotFound();
             }
 
+            _courseBl.MarkChapterAsCompleted(courseId, chapterId, User.Identity.Name);
             var nextChapter = course.Chapters.OrderBy(c => c.GetChapterNumber()).FirstOrDefault(c =>
                 c.GetChapterNumber() > chapter.GetChapterNumber());
             return nextChapter != null
                 ? RedirectToAction("Index", new { courseId = course.Id, chapterId = nextChapter.GetChapterNumber() })
                 : RedirectToAction("Course", "Courses", new { id = course.Id });
+        }
+
+        [CustomAuthorize]
+        [HttpPost]
+        public JsonResult MarkChapterComplete(int courseId, int chapterId)
+        {
+            var course = _courseBl.GetCourse(courseId);
+            if (course == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.NotFound;
+                return Json(new { success = false, error = "Course not found" });
+            }
+
+            var chapter = course.Chapters.OrderBy(x => x.GetChapterNumber()).ElementAtOrDefault(chapterId - 1);
+            if (chapter == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.NotFound;
+                return Json(new { success = false, error = "Chapter not found" });
+            }
+            
+            _courseBl.MarkChapterAsCompleted(courseId, chapterId, User.Identity.Name);
+            
+            return Json(new { success = true });
         }
     }
 }

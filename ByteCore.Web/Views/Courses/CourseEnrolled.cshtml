@@ -17,11 +17,7 @@
                     <li><strong>Start Date:</strong> @Model.StartDate.ToString("MMMM dd, yyyy")</li>
                 </ul>
                 <div class="mt-4">
-                    @using (Html.BeginForm("Pass", "Courses", new { id = Model.Id }, FormMethod.Post, new { @class = "d-inline" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-success btn-lg">Pass Course</button>
-                    }
+                    <a href="@Url.Action("Index", "Chapter", new { courseId = Model.Id, chapterId = 1 })" class="btn btn-success btn-lg d-inline">To The Course</a>
                     @if (TempData["PassMessage"] != null)
                     {
                         <div class="alert alert-success mt-4">
@@ -41,6 +37,16 @@
     <div class="container px-5">
         <div class="row">
             <div class="col-md-3">
+                @{
+                    var completedChapters = Model.Chapters.Count(c => c.UsersCompleted.Select(x => x.Email).Contains(User.Identity.Name));
+                    var totalChapters = Model.Chapters.Count;
+                    var progressPercentage = (double)completedChapters / totalChapters * 100;
+                }
+                <div class="progress mt-4">
+                    <div class="progress-bar" role="progressbar" style="width: @progressPercentage%;" aria-valuenow="@progressPercentage" aria-valuemin="0" aria-valuemax="100">
+                        @progressPercentage% Complete
+                    </div>
+                </div>
                 <nav id="course-nav" class="nav flex-column sticky-top" style="top: 100px;">
                     @foreach (var chapter in Model.Chapters)
                     {
@@ -52,29 +58,18 @@
                 <div data-bs-spy="scroll" data-bs-target="#course-nav" data-bs-offset="100" class="scrollspy-example" tabindex="0">
                     @foreach (var chapter in Model.Chapters)
                     {
-                        <section id="chapter-@chapter.GetChapterNumber()" class="mb-5">
+                        <section id="chapter-@chapter.GetChapterNumber()" class="chapter-item mb-5">
                             <h2>@chapter.Title</h2>
+                            <button class="btn btn-sm btn-outline-success mark-complete" data-chapter-id="@(chapter.Id)">
+                                @(chapter.UsersCompleted.Select(x => x.Email).Contains(User.Identity.Name) ? "Completed" : "Mark as Complete")
+                            </button>
                             @foreach (var section in chapter.Sections)
                             {
-                                <div class="section-item mb-3">
+                                <div class="mb-3">
                                     <h3>@(section.Title)</h3>
-                                    @* Make clickable *@
                                     <p>@(section.Description)</p>
-                                    <button class="btn btn-sm btn-outline-success mark-complete" data-section-id="@(section.Id)">
-                                        @(section.Id % 3 == 0 ? "Completed" : "Mark as Complete")
-                                    </button>
                                 </div>
                             }
-                            @{
-                                var completedSections = chapter.Sections.Count(s => s.Id % 3 == 0);
-                                var totalSections = chapter.Sections.Count;
-                                var progressPercentage = (double)completedSections / totalSections * 100;
-                            }
-                            <div class="progress mt-4">
-                                <div class="progress-bar" role="progressbar" style="width: @progressPercentage%;" aria-valuenow="@progressPercentage" aria-valuemin="0" aria-valuemax="100">
-                                    @progressPercentage% Complete
-                                </div>
-                            </div>
                         </section>
                     }
                 </div>
@@ -88,7 +83,7 @@
         font-weight: bold;
         color: #e21e80;
     }
-    .section-item.completed {
+    .chapter-item.completed {
         background-color: #e0ffe0;
     }
 </style>
@@ -98,10 +93,10 @@
         $(document).ready(function () {
             $('.mark-complete').click(function () {
                 var button = $(this);
-                var sectionId = button.data('section-id');
-                $.post('@Url.Action("MarkSectionComplete", "Courses")', { sectionId: sectionId }, function (response) {
+                var chapterId = button.data('chapter-id');
+                $.post('@Url.Action("MarkChapterComplete", "Chapter")', { courseId: @Model.Id, chapterId: chapterId }, function (response) {
                     if (response.success) {
-                        button.closest('.section-item').addClass('completed');
+                        button.closest('.chapter-item').addClass('completed');
                         button.text('Completed');
                     }
                 });

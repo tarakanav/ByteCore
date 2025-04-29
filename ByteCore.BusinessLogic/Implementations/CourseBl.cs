@@ -113,6 +113,18 @@ namespace ByteCore.BusinessLogic.Implementations
             return null;
         }
 
+        public void MarkChapterAsCompleted(int courseId, int chapterId, string userEmail)
+        {
+            var course = GetCourse(courseId);
+            var user = _db.Users.FirstOrDefault(x => x.Email == userEmail);
+            if (course?.Chapters == null || course.Chapters.Count < chapterId) return;
+            {
+                var chapter = course.Chapters.OrderBy(x => x.Id).ElementAtOrDefault(chapterId - 1);
+                if (chapter == null) return;
+                chapter.UsersCompleted.Add(user);
+            }
+        }
+
 
         private async Task ValidateCourseAsync(Course course)
         {
