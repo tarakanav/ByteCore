@@ -11,5 +11,6 @@ namespace ByteCore.Domain.UserScope
         public string Password { get; set; }
         public string Role { get; set; } = "User";
         public virtual List<Course> EnrolledCourses { get; set; }
+        public virtual List<Chapter> CompletedChapters { get; set; }
     }
 }

@@ -26,11 +26,12 @@ namespace ByteCore.BusinessLogic.Implementations
         public Course GetCourse(int id)
         {
             return _db.Courses
-                .Include(x => x.Chapters)
+                .Include(c => c.Chapters.Select(ch => ch.UsersCompleted))
                 .Include(x => x.Chapters.Select(chapter => chapter.Sections))
                 .Include(x => x.Chapters.Select(chapter => chapter.Sections.Select(section => section.Quiz)))
                 .Include(x => x.Chapters.Select(chapter => chapter.Sections.Select(section => section.Quiz.Questions)))
-                .Include(x => x.Chapters.Select(chapter => chapter.Sections.Select(section => section.Quiz.Questions.Select(question => question.Options))))
+                .Include(x => x.Chapters.Select(chapter =>
+                    chapter.Sections.Select(section => section.Quiz.Questions.Select(question => question.Options))))
                 .FirstOrDefault(x => x.Id == id);
         }
 
@@ -115,16 +116,31 @@ namespace ByteCore.BusinessLogic.Implementations
 
         public void MarkChapterAsCompleted(int courseId, int chapterId, string userEmail)
         {
-            var course = GetCourse(courseId);
+            var course = _db.Courses
+                .Include(c => c.Chapters.Select(ch => ch.UsersCompleted))
+                .FirstOrDefault(c => c.Id == courseId);
             var user = _db.Users.FirstOrDefault(x => x.Email == userEmail);
             if (course?.Chapters == null || course.Chapters.Count < chapterId) return;
-            {
-                var chapter = course.Chapters.OrderBy(x => x.Id).ElementAtOrDefault(chapterId - 1);
-                if (chapter == null) return;
-                chapter.UsersCompleted.Add(user);
-            }
+            var chapter = course.Chapters.OrderBy(x => x.Id).ElementAtOrDefault(chapterId - 1);
+            if (chapter == null) return;
+            if (chapter.UsersCompleted.Contains(user)) return;
+            course.Chapters.FirstOrDefault(x => x.Id == chapter.Id)?.UsersCompleted.Add(user);
+            _db.SaveChanges();
         }
 
+        public void MarkChapterAsIncompleted(int courseId, int chapterId, string userEmail)
+        {
+            var course = _db.Courses
+                .Include(c => c.Chapters.Select(ch => ch.UsersCompleted))
+                .FirstOrDefault(c => c.Id == courseId);
+            var user = _db.Users.FirstOrDefault(x => x.Email == userEmail);
+            if (course?.Chapters == null || course.Chapters.Count < chapterId) return;
+            var chapter = course.Chapters.OrderBy(x => x.Id).ElementAtOrDefault(chapterId - 1);
+            if (chapter == null) return;
+            if (!chapter.UsersCompleted.Contains(user)) return;
+            chapter.UsersCompleted.Remove(user);
+            _db.SaveChanges();
+        }
 
         private async Task ValidateCourseAsync(Course course)
         {
@@ -152,7 +168,7 @@ namespace ByteCore.BusinessLogic.Implementations
                 }
 
                 if (chapter.Sections == null || !chapter.Sections.Any()) continue;
-                
+
                 foreach (var section in chapter.Sections)
                 {
                     if (string.IsNullOrEmpty(section.Title))

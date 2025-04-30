@@ -166,6 +166,14 @@
     <Compile Include="Migrations\202504162334382_Section_Quiz_Optional.Designer.cs">
       <DependentUpon>202504162334382_Section_Quiz_Optional.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202504301033123_Added_Chapter_Completion.cs" />
+    <Compile Include="Migrations\202504301033123_Added_Chapter_Completion.Designer.cs">
+      <DependentUpon>202504301033123_Added_Chapter_Completion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202504301131300_Added_User_Complete_Chapters.cs" />
+    <Compile Include="Migrations\202504301131300_Added_User_Complete_Chapters.Designer.cs">
+      <DependentUpon>202504301131300_Added_User_Complete_Chapters.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -195,6 +203,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202504162334382_Section_Quiz_Optional.resx">
       <DependentUpon>202504162334382_Section_Quiz_Optional.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202504301033123_Added_Chapter_Completion.resx">
+      <DependentUpon>202504301033123_Added_Chapter_Completion.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202504301131300_Added_User_Complete_Chapters.resx">
+      <DependentUpon>202504301131300_Added_User_Complete_Chapters.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

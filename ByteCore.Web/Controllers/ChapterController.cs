@@ -86,6 +86,8 @@ namespace ByteCore.Web.Controllers
 
         [CustomAuthorize]
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("{chapterId:int}/Complete")]
         public ActionResult CompleteChapter(int courseId, int chapterId)
         {
             var course = _courseBl.GetCourse(courseId);
@@ -110,6 +112,32 @@ namespace ByteCore.Web.Controllers
 
         [CustomAuthorize]
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("{chapterId:int}/Uncomplete", Name = "UncompleteChapterRoute")]
+        public ActionResult UncompleteChapter(int courseId, int chapterId)
+        {
+            var course = _courseBl.GetCourse(courseId);
+            if (course == null)
+            {
+                return HttpNotFound();
+            }
+
+            var chapter = course.Chapters.OrderBy(x => x.GetChapterNumber()).ElementAtOrDefault(chapterId - 1);
+            if (chapter == null)
+            {
+                return HttpNotFound();
+            }
+
+            _courseBl.MarkChapterAsIncompleted(courseId, chapterId, User.Identity.Name);
+
+            return RedirectToAction("Index", new { courseId, chapterId });
+        }
+
+
+        [CustomAuthorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("{chapterId:int}/MarkComplete")]
         public JsonResult MarkChapterComplete(int courseId, int chapterId)
         {
             var course = _courseBl.GetCourse(courseId);
@@ -125,9 +153,9 @@ namespace ByteCore.Web.Controllers
                 Response.StatusCode = (int)HttpStatusCode.NotFound;
                 return Json(new { success = false, error = "Chapter not found" });
             }
-            
+
             _courseBl.MarkChapterAsCompleted(courseId, chapterId, User.Identity.Name);
-            
+
             return Json(new { success = true });
         }
     }
