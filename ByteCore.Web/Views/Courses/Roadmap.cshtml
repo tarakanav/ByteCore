@@ -46,7 +46,7 @@
                                                 data-bs-target="#collapse-@chapterId"
                                                 aria-expanded="@(i == 0 ? "true" : "false")"
                                                 aria-controls="collapse-@chapterId">
-                                            Chapter @chapter.GetChapterNumber(): @chapter.Title
+                                            Chapter @chapter.ChapterNumber: @chapter.Title
                                         </button>
                                     </h2>
                                     <div id="collapse-@chapterId" class="accordion-collapse collapse @(i == 0 ? "show" : "")" aria-labelledby="heading-@chapterId">
@@ -57,7 +57,7 @@
                                                     @foreach (var section in chapter.Sections)
                                                     {
                                                         <div class="list-group-item">
-                                                            <h5 class="mb-2">@(chapter.GetChapterNumber() + "." + section.GetSectionNumber()): @(section.Title)</h5>
+                                                            <h5 class="mb-2">@(chapter.ChapterNumber + "." + section.GetSectionNumber()): @(section.Title)</h5>
                                                             @if (section.Description != null)
                                                             {
                                                                 <ul class="mb-0">

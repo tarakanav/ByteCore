@@ -11,7 +11,9 @@
             <div class="col-md-6">
                 <h1 class="display-4 fw-bold">@Model.Title</h1>
                 <p class="lead">@Model.ShortDescription</p>
-                <ul class="list-unstyled">
+                <p class="text-muted mb-4">@Model.Description</p>
+
+                <ul class="list-unstyled small">
                     <li><strong>Instructor:</strong> @Model.Instructor</li>
                     <li><strong>Duration:</strong> @Model.Duration</li>
                     <li><strong>Start Date:</strong> @Model.StartDate.ToString("MMMM dd, yyyy")</li>
@@ -19,6 +21,7 @@
                 <div class="mt-4">
                     <a href="@Url.Action("Index", "Chapter", new { courseId = Model.Id, chapterId = 1 })"
                        class="btn btn-success btn-lg d-inline">To The Course</a>
+                    <a href="@Url.Action("Edit", "Courses")" class="btn btn-primary btn-lg d-inline ms-2">Edit Course</a>
                     @if (TempData["PassMessage"] != null)
                     {
                         <div class="alert alert-success mt-4">
@@ -52,7 +55,7 @@
                 <nav id="course-nav" class="nav flex-column sticky-top" style="top: 100px;">
                     @foreach (var chapter in Model.Chapters)
                     {
-                        <a class="nav-link" href="#chapter-@chapter.GetChapterNumber()">@chapter.Title</a>
+                        <a class="nav-link" href="#chapter-@chapter.ChapterNumber">@chapter.Title</a>
                     }
                 </nav>
             </div>
@@ -65,7 +68,7 @@
                         var isCompleted = chapter.UsersCompleted
                             .Select(x => x.Email)
                             .Contains(User.Identity.Name);
-                        var chapterNum = chapter.GetChapterNumber();
+                        var chapterNum = chapter.ChapterNumber;
                         <section id="chapter-@chapterNum"
                                  class="chapter-item mb-5 @(isCompleted ? "completed" : "")">
                             <h2 class="chapter-title">@chapter.Title</h2>
@@ -92,6 +95,18 @@
 </section>
 
 <style>
+    .lead {
+        font-size: 1.1rem;
+        font-weight: 400;
+        line-height: 1.6;
+        color: #555;
+    }
+
+    ul.list-unstyled.small li {
+        margin-bottom: 0.25rem;
+    }
+
+
     .chapter-title {
         font-size: 2rem;
         font-weight: 700;

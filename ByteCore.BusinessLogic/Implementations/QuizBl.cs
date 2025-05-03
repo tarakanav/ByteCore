@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ByteCore.BusinessLogic.Data;
 using ByteCore.BusinessLogic.Interfaces;
+using ByteCore.Domain.CourseScope;
 using ByteCore.Domain.QuizScope;
 
 namespace ByteCore.BusinessLogic.Implementations
@@ -110,24 +111,29 @@ namespace ByteCore.BusinessLogic.Implementations
         public async Task DeleteQuizAsync(int id)
         {
             var quiz = _db.Quizzes
-                .Include(quizModel => quizModel.Questions)
+                .Include(q => q.Questions)
                 .FirstOrDefault(q => q.Id == id);
-            
+
             if (quiz == null)
-            {
                 throw new InvalidOperationException("Quiz not found.");
+
+            var sections = _db.Set<Section>()
+                .Where(s => s.QuizId == id)
+                .ToList();
+            if (sections.Any())
+            {
+                _db.Set<Section>().RemoveRange(sections);
             }
-            
+
             var relatedResults = _db.QuizResults
                 .Where(r => r.Quiz.Id == id)
-                .Include(quizResultModel => quizResultModel.Answers)
+                .Include(r => r.Answers)
                 .ToList();
-    
+
             foreach (var result in relatedResults)
             {
                 _db.QuizResultAnswers.RemoveRange(result.Answers);
             }
-
             _db.QuizResults.RemoveRange(relatedResults);
             _db.Questions.RemoveRange(quiz.Questions);
             _db.Quizzes.Remove(quiz);

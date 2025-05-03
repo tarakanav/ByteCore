@@ -12,7 +12,12 @@ namespace ByteCore.BusinessLogic.Interfaces
         Task EnrollUserAsync(int id, string email);
         Task CreateCourseAsync(Course course);
         Chapter GetChapter(int courseId, int chapterNumber);
-        void MarkChapterAsCompleted(int courseId, int chapterId, string userEmail);
-        void MarkChapterAsIncompleted(int courseId, int chapterId, string userEmail);
+        void MarkChapterAsCompleted(int courseId, int chapterNumber, string userEmail);
+        void MarkChapterAsIncompleted(int courseId, int chapterNumber, string userEmail);
+        Task UpdateCourseAsync(Course course);
+        Task UpdateChapterAsync(Chapter chapter);
+        Task DeleteCourseAsync(int id);
+        Task DeleteChapterAsync(int courseId, int chapterId);
+        Task AddChapterAsync(Chapter chapter);
     }
 }

@@ -1,0 +1,159 @@
+﻿@model ByteCore.Domain.CourseScope.Course
+@using System.Linq
+@{
+    ViewBag.Title = "Edit Course";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="py-5">
+    <div class="container px-5 mb-5">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bolder mb-0">
+                <span class="text-gradient d-inline">Edit Course</span>
+            </h1>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                <h4>Please correct the following errors:</h4>
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            </div>
+        }
+
+        @using (Html.BeginForm("Edit", "Courses", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Id)
+
+            <div class="row gx-5">
+                <div class="col-12 col-md-6">
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.Title, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Title, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.ShortDescription, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.ShortDescription, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.ShortDescription, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.Description, new { @class = "form-label" })
+                        @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = 5 })
+                        @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.Instructor, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Instructor, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Instructor, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.Duration, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Duration, new { @class = "form-control", placeholder = "hh:mm:ss" })
+                        @Html.ValidationMessageFor(m => m.Duration, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.StartDate, new { @class = "form-label" })
+                        @Html.TextBoxFor(
+                            m => m.StartDate,
+                            "{0:yyyy-MM-dd}",
+                            new
+                            {
+                                @class = "form-control",
+                                type = "date"
+                            }
+                        )
+                        @Html.ValidationMessageFor(m => m.StartDate, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(m => m.ImageUrl, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.ImageUrl, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.ImageUrl, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <h5 class="d-flex justify-content-between align-items-center">
+                        Chapters
+                        <a
+                            href="@Url.Action("Create", "Chapter", new { courseId = Model.Id })"
+                            class="btn btn-sm btn-primary">
+                            + Add Chapter
+                        </a>
+                    </h5>
+
+                    @if (Model.Chapters != null && Model.Chapters.Any())
+                    {
+                        <div class="list-group">
+                            @for (int i = 0; i < Model.Chapters.Count; i++)
+                            {
+                                var ch = Model.Chapters.OrderBy(x => x.ChapterNumber).ElementAt(i);
+                                <div class="list-group-item d-flex align-items-center">
+                                    @Html.HiddenFor(m => m.Chapters[i].Id)
+
+                                    <div class="me-3" style="width: 4rem;">
+                                        <label class="form-label visually-hidden" for="ChapNum_@i">#</label>
+                                        <input
+                                            type="number"
+                                            id="ChapNum_@i"
+                                            name="Chapters[@i].ChapterNumber"
+                                            value="@ch.ChapterNumber"
+                                            class="form-control form-control-sm text-center"
+                                            min="1" />
+                                    </div>
+
+                                    <div class="flex-grow-1">
+                                        <label class="form-label visually-hidden" for="ChapTitle_@i">Title</label>
+                                        <input
+                                            type="text"
+                                            id="ChapTitle_@i"
+                                            name="Chapters[@i].Title"
+                                            value="@ch.Title"
+                                            class="form-control form-control-sm"
+                                            placeholder="Chapter title" />
+                                    </div>
+
+                                    <div class="ms-3">
+                                        <a
+                                            href="@Url.Action("Index", "Chapter", new { courseId = Model.Id, chapterId = ch.ChapterNumber })"
+                                            class="btn btn-sm btn-outline-primary me-1">
+                                            View
+                                        </a>
+                                        <a
+                                            href="@Url.Action("Edit", "Chapter", new { courseId = Model.Id, chapterId = ch.ChapterNumber })"
+                                            class="btn btn-sm btn-outline-secondary">
+                                            Edit
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">
+                            No chapters yet. Click “Add Chapter” to begin.
+                        </p>
+                    }
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success">Save Changes</button>
+                <a href="@Url.Action("Index", "Courses")" class="btn btn-secondary ms-2">Back to List</a>
+            </div>
+        }
+
+        @using (Html.BeginForm("Delete", "Courses", new { id = Model.Id }, FormMethod.Post, new { id = "delete-form" }))
+        {
+            @Html.AntiForgeryToken()
+            <button
+                type="submit"
+                class="btn btn-danger mt-4"
+                onclick="return confirm('Are you sure you want to delete this course?');">
+                Delete Course
+            </button>
+        }
+    </div>
+</section>

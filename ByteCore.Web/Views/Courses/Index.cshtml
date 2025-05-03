@@ -18,14 +18,11 @@
             @foreach (var course in Model)
             {
                 <div class="col-12 col-md-6 col-lg-4 mb-5">
-                    <!-- Wrap the whole card in a link to make it clickable -->
                     <a href="@Url.Action("Course", "Courses", new { id = course.Id })" class="card overflow-hidden shadow rounded-4 border-0 h-100 text-decoration-none course-card">
                         <div class="card-body p-0">
                             <div class="d-flex flex-column h-100">
-                                <!-- Course image that is clickable -->
                                 <img class="img-fluid w-100" src="@course.ImageUrl" alt="@course.Title" />
 
-                                <!-- Course details with reduced gap between image and title -->
                                 <div class="p-4 d-flex flex-column justify-content-between flex-grow-1">
                                     <h2 class="fw-bolder text-dark mb-6">@course.Title</h2>
                                     <p class="text-muted">@course.ShortDescription</p>

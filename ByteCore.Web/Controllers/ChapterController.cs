@@ -28,6 +28,11 @@ namespace ByteCore.Web.Controllers
         [Route("{chapterId:int}")]
         public ActionResult Index(int courseId, int chapterId)
         {
+            if (!_courseBl.IsUserEnrolled(courseId, User.Identity.Name))
+            {
+                return RedirectToAction("Course", "Courses", new { id = courseId });
+            }
+            
             var chapter = _courseBl.GetChapter(courseId, chapterId);
             if (chapter == null)
                 return HttpNotFound();
@@ -53,9 +58,14 @@ namespace ByteCore.Web.Controllers
         {
             try
             {
+                if (!_courseBl.IsUserEnrolled(courseId, User.Identity.Name))
+                {
+                    return RedirectToAction("Course", "Courses", new { id = courseId });
+                }
+                
                 var chapter = _courseBl.GetChapter(courseId, chapterId);
                 if (chapter == null) return HttpNotFound();
-
+                
                 var section = chapter.Sections
                     .FirstOrDefault(s => s.Id == sectionId && s.Type == SectionType.Quiz);
                 if (section?.Quiz == null)
@@ -87,34 +97,39 @@ namespace ByteCore.Web.Controllers
         [CustomAuthorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("{chapterId:int}/Complete")]
-        public ActionResult CompleteChapter(int courseId, int chapterId)
+        [Route("{chapterNumber:int}/Complete")]
+        public ActionResult CompleteChapter(int courseId, int chapterNumber)
         {
+            if (!_courseBl.IsUserEnrolled(courseId, User.Identity.Name))
+            {
+                return RedirectToAction("Course", "Courses", new { id = courseId });
+            }
+            
             var course = _courseBl.GetCourse(courseId);
             if (course == null)
             {
                 return HttpNotFound();
             }
 
-            var chapter = course.Chapters.OrderBy(x => x.GetChapterNumber()).ElementAtOrDefault(chapterId - 1);
+            var chapter = course.Chapters.FirstOrDefault(x => x.ChapterNumber == chapterNumber);
             if (chapter == null)
             {
                 return HttpNotFound();
             }
 
-            _courseBl.MarkChapterAsCompleted(courseId, chapterId, User.Identity.Name);
-            var nextChapter = course.Chapters.OrderBy(c => c.GetChapterNumber()).FirstOrDefault(c =>
-                c.GetChapterNumber() > chapter.GetChapterNumber());
+            _courseBl.MarkChapterAsCompleted(courseId, chapterNumber, User.Identity.Name);
+            var nextChapter = course.Chapters.OrderBy(c => c.ChapterNumber).FirstOrDefault(c =>
+                c.ChapterNumber > chapter.ChapterNumber);
             return nextChapter != null
-                ? RedirectToAction("Index", new { courseId = course.Id, chapterId = nextChapter.GetChapterNumber() })
+                ? RedirectToAction("Index", new { courseId = course.Id, chapterId = nextChapter.ChapterNumber })
                 : RedirectToAction("Course", "Courses", new { id = course.Id });
         }
 
         [CustomAuthorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("{chapterId:int}/Uncomplete", Name = "UncompleteChapterRoute")]
-        public ActionResult UncompleteChapter(int courseId, int chapterId)
+        [Route("{chapterNumber:int}/Uncomplete", Name = "UncompleteChapterRoute")]
+        public ActionResult UncompleteChapter(int courseId, int chapterNumber)
         {
             var course = _courseBl.GetCourse(courseId);
             if (course == null)
@@ -122,24 +137,29 @@ namespace ByteCore.Web.Controllers
                 return HttpNotFound();
             }
 
-            var chapter = course.Chapters.OrderBy(x => x.GetChapterNumber()).ElementAtOrDefault(chapterId - 1);
+            var chapter = course.Chapters.FirstOrDefault(x => x.ChapterNumber == chapterNumber);
             if (chapter == null)
             {
                 return HttpNotFound();
             }
 
-            _courseBl.MarkChapterAsIncompleted(courseId, chapterId, User.Identity.Name);
+            _courseBl.MarkChapterAsIncompleted(courseId, chapterNumber, User.Identity.Name);
 
-            return RedirectToAction("Index", new { courseId, chapterId });
+            return RedirectToAction("Index", new { courseId, chapterId = chapterNumber });
         }
 
 
         [CustomAuthorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("{chapterId:int}/MarkComplete")]
-        public JsonResult MarkChapterComplete(int courseId, int chapterId)
+        [Route("{chapterNumber:int}/MarkComplete")]
+        public JsonResult MarkChapterComplete(int courseId, int chapterNumber)
         {
+            if (!_courseBl.IsUserEnrolled(courseId, User.Identity.Name))
+            {
+                return Json(new { success = false, error = "User not enrolled" });
+            }
+            
             var course = _courseBl.GetCourse(courseId);
             if (course == null)
             {
@@ -147,16 +167,105 @@ namespace ByteCore.Web.Controllers
                 return Json(new { success = false, error = "Course not found" });
             }
 
-            var chapter = course.Chapters.OrderBy(x => x.GetChapterNumber()).ElementAtOrDefault(chapterId - 1);
+            var chapter = course.Chapters.FirstOrDefault(x => x.Id == chapterNumber);
             if (chapter == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.NotFound;
                 return Json(new { success = false, error = "Chapter not found" });
             }
 
-            _courseBl.MarkChapterAsCompleted(courseId, chapterId, User.Identity.Name);
+            _courseBl.MarkChapterAsCompleted(courseId, chapterNumber, User.Identity.Name);
 
             return Json(new { success = true });
+        }
+
+        // GET: /Courses/{courseId}/Chapters/{chapterId}/Edit
+        [CustomAuthorize("Admin")]
+        [HttpGet]
+        [Route("{chapterId:int}/Edit")]
+        public ActionResult Edit(int courseId, int chapterId)
+        {
+            var chapter = _courseBl.GetChapter(courseId, chapterId);
+            if (chapter == null)
+                return HttpNotFound();
+
+            return View(chapter);
+        }
+
+        // POST: /Courses/{courseId}/Chapters/{chapterId}/Edit
+        [CustomAuthorize("Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("{chapterId:int}/Edit")]
+        public async Task<ActionResult> Edit(Chapter model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                await _courseBl.UpdateChapterAsync(model);
+                return RedirectToAction("Edit", "Courses", new { id = model.CourseId });
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(model);
+            }
+        }
+        
+        // POST: /Courses/{courseId}/Chapters/{chapterId}/Delete
+        [CustomAuthorize("Admin")]
+        [HttpPost]
+        [Route("{chapterId:int}/Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Delete(int courseId, int chapterId)
+        {
+            var quiz = _courseBl.GetChapter(courseId, chapterId);
+            if (quiz == null)
+            {
+                return HttpNotFound();
+            }
+
+            await _courseBl.DeleteChapterAsync(courseId, chapterId);
+            return RedirectToAction("Index");
+        }
+        
+        // GET: /Courses/5/Chapters/Create
+        [CustomAuthorize("Admin")]
+        [HttpGet]
+        [Route("Create")]
+        public ActionResult Create(int courseId)
+        {
+            var course = _courseBl.GetCourse(courseId);
+            if (course == null) return HttpNotFound();
+
+            var chapter = new Chapter { CourseId = courseId };
+            return View(chapter);
+        }
+
+        // POST: /Courses/5/Chapters/Create
+        [CustomAuthorize("Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("Create")]
+        public async Task<ActionResult> Create(Chapter model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                await _courseBl.AddChapterAsync(model);
+                return RedirectToAction("Edit", "Courses", new { id = model.CourseId });
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(model);
+            }
         }
     }
 }

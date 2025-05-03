@@ -1,0 +1,198 @@
+﻿@model ByteCore.Domain.CourseScope.Chapter
+@using ByteCore.Domain.CourseScope
+@{
+    ViewBag.Title = $"Edit Chapter {Model.ChapterNumber}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="py-5">
+    <div class="container px-5 mb-5">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">
+                Edit Chapter @Model.ChapterNumber: @Model.Title
+            </h2>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                <h5>Please fix the errors below:</h5>
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            </div>
+        }
+
+        @using (Html.BeginForm("Edit", "Chapter",
+                        new { courseId = Model.CourseId, chapterId = Model.Id },
+                        FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Id)
+            @Html.HiddenFor(m => m.CourseId)
+
+            <div class="form-group mb-3">
+                @Html.LabelFor(m => m.Title, new { @class = "form-label" })
+                @Html.TextBoxFor(m => m.Title, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+            </div>
+            <div class="form-group mb-3">
+                @Html.LabelFor(m => m.Description, new { @class = "form-label" })
+                @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = 4 })
+                @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
+            </div>
+
+            <h5 class="mt-4">Sections</h5>
+            <div id="sectionContainer">
+                @for (int si = 0; si < Model.Sections.Count; si++)
+                {
+                    var s = Model.Sections[si];
+                    <div class="border rounded p-3 mb-3" id="section_@si">
+                        @* Tell MVC which indexes we have *@
+                        <input type="hidden" name="Sections.Index" value="@si" />
+                        @Html.HiddenFor(_ => s.Id)
+
+                        <div class="mb-2">
+                            <label class="form-label">Type</label>
+                            @Html.DropDownList(
+                                $"Sections[{si}].Type",
+                                Enum.GetValues(typeof(SectionType))
+                                    .Cast<SectionType>()
+                                    .Select(t => new SelectListItem {
+                                        Text = t.ToString(),
+                                        Value = t.ToString(),
+                                        Selected = s.Type == t
+                                    }),
+                                new { @class = "form-control section-type" }
+                            )
+                        </div>
+                        <div class="mb-2">
+                            @Html.Label($"Sections[{si}].Title", "Title", new { @class = "form-label" })
+                            <input name="Sections[@si].Title"
+                                   class="form-control"
+                                   value="@s.Title" />
+                        </div>
+                        <div class="mb-2">
+                            @Html.Label($"Sections[{si}].Description", "Description", new { @class = "form-label" })
+                            <textarea name="Sections[@si].Description"
+                                      class="form-control"
+                                      rows="2">@s.Description</textarea>
+                        </div>
+
+                        <div class="mb-2 section-content" data-type="Read"
+                             style="display:@(s.Type == SectionType.Read ? "block" : "none")">
+                            @Html.Label($"Sections[{si}].TextContent", "Text Content", new { @class = "form-label" })
+                            <textarea name="Sections[@si].TextContent"
+                                      class="form-control"
+                                      rows="4">@s.TextContent</textarea>
+                        </div>
+                        <div class="mb-2 section-content" data-type="Video"
+                             style="display:@(s.Type == SectionType.Video ? "block" : "none")">
+                            @Html.Label($"Sections[{si}].VideoUrl", "Video URL", new { @class = "form-label" })
+                            <input name="Sections[@si].VideoUrl"
+                                   class="form-control"
+                                   value="@s.VideoUrl" />
+                        </div>
+                        <div class="mb-2 section-content" data-type="Quiz"
+                             style="display:@(s.Type == SectionType.Quiz ? "block" : "none")">
+                            @Html.Label($"Sections[{si}].QuizId", "Quiz Id", new { @class = "form-label" })
+                            <input name="Sections[@si].QuizId"
+                                   type="number"
+                                   class="form-control"
+                                   value="@s.QuizId" />
+                        </div>
+
+                        <button type="button" class="btn btn-danger"
+                                onclick="removeSection('section_@si')">
+                            Remove Section
+                        </button>
+                    </div>
+                }
+            </div>
+
+            <button type="button" id="addSectionBtn" class="btn btn-primary mb-4">Add Section</button>
+            <br/>
+            <button type="submit" class="btn btn-success">Save Chapter</button>
+            <a href="@Url.Action("Edit", "Courses", new { id = Model.CourseId })"
+               class="btn btn-secondary ms-2">
+                Back to Course
+            </a>
+        }
+        @using (Html.BeginForm("Delete", "Chapter", FormMethod.Post, new { id = "delete-form" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Are you sure you want to delete this chapter? This action cannot be undone.');">
+                Delete Chapter
+            </button>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        var secCount = @Model.Sections.Count;
+        document.getElementById('addSectionBtn').addEventListener('click', function () {
+            var container = document.getElementById('sectionContainer');
+            var idx = secCount++;
+            var html = ''
+                + '<div class="border rounded p-3 mb-3" id="section_' + idx + '">'
+                + '  <input type="hidden" name="Sections.Index" value="' + idx + '" />'
+                + '  <div class="mb-2">'
+                + '    <label class="form-label">Type</label>'
+                + '    <select name="Sections['+idx+'].Type" class="form-control section-type">'
+                + '      <option value="Read">Text</option>'
+                + '      <option value="Video">Video</option>'
+                + '      <option value="Quiz">Quiz</option>'
+                + '    </select>'
+                + '  </div>'
+                + '  <div class="mb-2">'
+                + '    <label class="form-label">Title</label>'
+                + '    <input name="Sections['+idx+'].Title" class="form-control" />'
+                + '  </div>'
+                + '  <div class="mb-2">'
+                + '    <label class="form-label">Description</label>'
+                + '    <textarea name="Sections['+idx+'].Description" class="form-control" rows="2"></textarea>'
+                + '  </div>'
+                + '  <div class="mb-2 section-content" data-type="Read">'
+                + '    <label class="form-label">Text Content</label>'
+                + '    <textarea name="Sections['+idx+'].TextContent" class="form-control" rows="4"></textarea>'
+                + '  </div>'
+                + '  <div class="mb-2 section-content" data-type="Video" style="display:none;">'
+                + '    <label class="form-label">Video URL</label>'
+                + '    <input name="Sections['+idx+'].VideoUrl" class="form-control" />'
+                + '  </div>'
+                + '  <div class="mb-2 section-content" data-type="Quiz" style="display:none;">'
+                + '    <label class="form-label">Quiz Id</label>'
+                + '    <input type="number" name="Sections['+idx+'].QuizId" class="form-control" />'
+                + '  </div>'
+                + '  <button type="button" class="btn btn-danger" onclick="removeSection(\'section_' + idx + '\')">'
+                + '    Remove Section'
+                + '  </button>'
+                + '</div>';
+
+            container.insertAdjacentHTML('beforeend', html);
+            attachSectionLogic(idx);
+        });
+
+        function removeSection(id) {
+            var el = document.getElementById(id);
+            if (el) el.parentNode.removeChild(el);
+        }
+
+        function attachSectionLogic(idx) {
+            var sel = document.querySelector('#section_' + idx + ' .section-type');
+            sel.addEventListener('change', function () {
+                var items = document.querySelectorAll('#section_' + idx + ' .section-content');
+                items.forEach(function (div) {
+                    div.style.display = div.getAttribute('data-type') === sel.value
+                        ? 'block' : 'none';
+                });
+            });
+        }
+
+        // wire up existing
+        document.querySelectorAll('.section-type').forEach(function (sel, i) {
+            attachSectionLogic(i);
+        });
+    </script>
+}

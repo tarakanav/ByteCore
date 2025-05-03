@@ -174,6 +174,10 @@
     <Compile Include="Migrations\202504301131300_Added_User_Complete_Chapters.Designer.cs">
       <DependentUpon>202504301131300_Added_User_Complete_Chapters.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202505011451267_Added_Chapter_Numbers.cs" />
+    <Compile Include="Migrations\202505011451267_Added_Chapter_Numbers.Designer.cs">
+      <DependentUpon>202505011451267_Added_Chapter_Numbers.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -209,6 +213,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202504301131300_Added_User_Complete_Chapters.resx">
       <DependentUpon>202504301131300_Added_User_Complete_Chapters.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505011451267_Added_Chapter_Numbers.resx">
+      <DependentUpon>202505011451267_Added_Chapter_Numbers.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -82,7 +82,7 @@ namespace ByteCore.Web.Controllers
         }
 
         // POST: Quizzes/Create
-        [CustomAuthorize]
+        [CustomAuthorize("Admin")]
         [HttpPost]
         [Route("Create")]
         [ValidateAntiForgeryToken]
@@ -132,7 +132,7 @@ namespace ByteCore.Web.Controllers
         }
 
         // GET: Quizzes/1/Edit
-        [CustomAuthorize]
+        [CustomAuthorize("Admin")]
         [Route("{id:int}/Edit")]
         public ActionResult Edit(int id)
         {
@@ -147,7 +147,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // POST: Quizzes/1/Edit
-        [CustomAuthorize]
+        [CustomAuthorize("Admin")]
         [HttpPost]
         [Route("{id:int}/Edit")]
         [ValidateAntiForgeryToken]
@@ -197,7 +197,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // POST: Quizzes/1/Delete
-        [CustomAuthorize]
+        [CustomAuthorize("Admin")]
         [HttpPost]
         [Route("{id:int}/Delete")]
         [ValidateAntiForgeryToken]

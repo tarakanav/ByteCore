@@ -1,4 +1,5 @@
-﻿@model ByteCore.Web.Models.ChapterModel
+﻿@using ByteCore.Domain.CourseScope
+@model ByteCore.Web.Models.ChapterModel
 
 @{
     ViewBag.Title = Model.Chapter.Title;
@@ -7,9 +8,9 @@
     var completedChapterNums = Model.Chapter.Course.Chapters
         .Where(c => c.UsersCompleted.Select(u => u.Email)
             .Contains(User.Identity.Name))
-        .Select(c => c.GetChapterNumber())
+        .Select(c => c.ChapterNumber)
         .ToHashSet();
-    var currentChapterNum = Model.Chapter.GetChapterNumber();
+    var currentChapterNum = Model.Chapter.ChapterNumber;
 }
 <section class="py-5">
     <div class="container px-5">
@@ -18,7 +19,7 @@
                 <nav id="course-nav" class="nav flex-column sticky-top" style="top: 100px;">
                     @foreach (var chapter in Model.Chapter.Course.Chapters)
                     {
-                        var chapNum = chapter.GetChapterNumber();
+                        var chapNum = chapter.ChapterNumber;
                         var isDone = completedChapterNums.Contains(chapNum);
                         var isCurrent = chapNum == currentChapterNum;
                         <a class="nav-link @(isCurrent ? "selected" : "") @(isDone ? "completed-nav" : "")"
@@ -67,7 +68,39 @@
                                         <h5 class="card-title">@(section.Title)</h5>
                                         <p class="text-muted">@(section.Description)</p>
                                         <p>@(section.TextContent)</p>
-                                        @* … video / quiz blocks … *@
+                                        @if (section.Type == SectionType.Video && !string.IsNullOrEmpty(section.VideoUrl))
+                                        {
+                                            <div class="custom-video-wrapper">
+                                                <iframe src="@(section.VideoUrl)"
+                                                        allowfullscreen></iframe>
+                                            </div>
+                                        }
+                                        else if (section.Type == SectionType.Quiz && section.Quiz != null)
+                                        {
+                                            ViewBag.SectionId = section.Id;
+                                            @Html.Partial("_QuizPartial", section.Quiz)
+                                            if (Model.QuizResults.TryGetValue(section.Id, out var result))
+                                            {
+                                                <div class="mt-3">
+                                                    @if (result.Quiz.PassingPercentage <=
+                                                         result.Answers.Count(x => x.IsCorrect) * 100 / section.Quiz.Questions.Count)
+                                                    {
+                                                        <div class="alert alert-success text-center">
+                                                            🎉 Passed
+                                                            (@result.Answers.Count(x => x.IsCorrect)/@(section.Quiz.Questions.Count))
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="alert alert-danger text-center">
+                                                            😞 You
+                                                            scored @result.Answers.Count(x => x.IsCorrect)/@(section.Quiz.Questions.Count) —
+                                                            try again!
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -91,10 +124,7 @@
                             }
                             else
                             {
-                                <!-- Show “Completed” and an Uncomplete button -->
-                                <span class="btn btn-outline-secondary disabled me-2">
-            ✔ Completed
-        </span>
+                                <span class="btn btn-outline-secondary disabled me-2">✔ Completed</span>
                                 <form method="post"
                                       action="@Url.RouteUrl("UncompleteChapterRoute",
                                                   new { courseId = Model.Chapter.Course.Id, chapterId = currentChapterNum })"
@@ -127,4 +157,21 @@
         font-size: 0.75rem;
         vertical-align: middle;
     }
+
+    .custom-video-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 1000px; /* Set desired width */
+        padding-top: 56.25%; /* 16:9 ratio */
+        margin: auto;
+    }
+
+    .custom-video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
 </style>

@@ -61,7 +61,10 @@ namespace ByteCore.BusinessLogic.Implementations
 
         public User GetUserByEmail(string email)
         {
-            return _db.Users.FirstOrDefault(u => u.Email == email);
+            return _db.Users
+                .Include(u => u.EnrolledCourses.Select(c => c.Chapters))
+                .Include(u => u.CompletedChapters)
+                .FirstOrDefault(u => u.Email == email);
         }
 
         public async Task<User> UpdateUserAsync(string currentEmail, User updatedUser)

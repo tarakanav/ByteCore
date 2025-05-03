@@ -1,0 +1,42 @@
+﻿@model ByteCore.Domain.CourseScope.Chapter
+@{
+    ViewBag.Title = "Add Chapter";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="py-5">
+    <div class="container px-5 mb-5">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Add Chapter to Course @Model.CourseId</h2>
+        </div>
+
+        @using (Html.BeginForm("Create", "Chapter",
+                        new { courseId = Model.CourseId },
+                        FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.CourseId)
+
+            <div class="form-group mb-3">
+                @Html.LabelFor(m => m.Title, new { @class = "form-label" })
+                @Html.TextBoxFor(m => m.Title, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group mb-3">
+                @Html.LabelFor(m => m.Description, new { @class = "form-label" })
+                @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = 4 })
+                @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-success">Create Chapter</button>
+                @* Back to course edit *@
+                <a href="@Url.Action("Edit", "Courses", new { id = Model.CourseId })"
+                   class="btn btn-secondary ms-2">
+                    Cancel
+                </a>
+            </div>
+        }
+    </div>
+</section>

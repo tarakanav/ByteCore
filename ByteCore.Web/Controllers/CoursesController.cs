@@ -90,7 +90,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // GET: Courses/Create
-        [CustomAuthorize]
+        [CustomAuthorize("Admin")]
         [HttpGet]
         [Route("Create")]
         public ActionResult Create()
@@ -99,8 +99,24 @@ namespace ByteCore.Web.Controllers
             return View(course);
         }
         
+        // GET: Courses/1/Edit
+        [CustomAuthorize("Admin")]
+        [HttpGet]
+        [Route("{id:int}/Edit")]
+        public ActionResult Edit(int id)
+        {
+            var course = _courseBl.GetCourse(id);
+            
+            if (course == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View(course);
+        }
+        
         // POST: Courses/Create
-        [CustomAuthorize]
+        [CustomAuthorize("Admin")]
         [HttpPost]
         [Route("Create")]
         [ValidateAntiForgeryToken]
@@ -117,6 +133,48 @@ namespace ByteCore.Web.Controllers
             }
 
             return View(model);
+        }
+        
+        [CustomAuthorize("Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("{id:int}/Edit")]
+        public async Task<ActionResult> Edit(Course model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model = _courseBl.GetCourse(model.Id);
+                return View(model);
+            }
+
+            try
+            {
+                await _courseBl.UpdateCourseAsync(model);
+                return RedirectToAction("Index");
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                model = _courseBl.GetCourse(model.Id);
+                return View(model);
+            }
+        }
+        
+        // POST: /Courses/{id}/Delete
+        [CustomAuthorize("Admin")]
+        [HttpPost]
+        [Route("{id:int}/Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var quiz = _courseBl.GetCourse(id);
+            if (quiz == null)
+            {
+                return HttpNotFound();
+            }
+
+            await _courseBl.DeleteCourseAsync(id);
+            return RedirectToAction("Index");
         }
     }
 }

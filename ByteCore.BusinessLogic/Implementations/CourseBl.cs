@@ -69,6 +69,11 @@ namespace ByteCore.BusinessLogic.Implementations
 
             if (course.Chapters != null)
             {
+                for (var i = 1; i <= course.Chapters.Count; i++)
+                {
+                    course.Chapters[i - 1].ChapterNumber = i;
+                }
+
                 foreach (var section in course.Chapters.Where(chapter => chapter.Sections != null)
                              .SelectMany(chapter => chapter.Sections))
                 {
@@ -108,100 +113,273 @@ namespace ByteCore.BusinessLogic.Implementations
             var course = GetCourse(courseId);
             if (course?.Chapters != null && course.Chapters.Count >= chapterNumber)
             {
-                return course.Chapters.OrderBy(x => x.Id).ElementAtOrDefault(chapterNumber - 1);
+                return course.Chapters.FirstOrDefault(x => x.ChapterNumber == chapterNumber);
             }
 
             return null;
         }
 
-        public void MarkChapterAsCompleted(int courseId, int chapterId, string userEmail)
+        public void MarkChapterAsCompleted(int courseId, int chapterNumber, string userEmail)
         {
             var course = _db.Courses
                 .Include(c => c.Chapters.Select(ch => ch.UsersCompleted))
                 .FirstOrDefault(c => c.Id == courseId);
             var user = _db.Users.FirstOrDefault(x => x.Email == userEmail);
-            if (course?.Chapters == null || course.Chapters.Count < chapterId) return;
-            var chapter = course.Chapters.OrderBy(x => x.Id).ElementAtOrDefault(chapterId - 1);
+            if (course?.Chapters == null || course.Chapters.Count < chapterNumber) return;
+            var chapter = course.Chapters.FirstOrDefault(x => x.ChapterNumber == chapterNumber);
             if (chapter == null) return;
             if (chapter.UsersCompleted.Contains(user)) return;
             course.Chapters.FirstOrDefault(x => x.Id == chapter.Id)?.UsersCompleted.Add(user);
             _db.SaveChanges();
         }
 
-        public void MarkChapterAsIncompleted(int courseId, int chapterId, string userEmail)
+        public void MarkChapterAsIncompleted(int courseId, int chapterNumber, string userEmail)
         {
             var course = _db.Courses
                 .Include(c => c.Chapters.Select(ch => ch.UsersCompleted))
                 .FirstOrDefault(c => c.Id == courseId);
             var user = _db.Users.FirstOrDefault(x => x.Email == userEmail);
-            if (course?.Chapters == null || course.Chapters.Count < chapterId) return;
-            var chapter = course.Chapters.OrderBy(x => x.Id).ElementAtOrDefault(chapterId - 1);
+            if (course?.Chapters == null || course.Chapters.Count < chapterNumber) return;
+            var chapter = course.Chapters.FirstOrDefault(x => x.ChapterNumber == chapterNumber);
             if (chapter == null) return;
             if (!chapter.UsersCompleted.Contains(user)) return;
             chapter.UsersCompleted.Remove(user);
             _db.SaveChanges();
         }
 
-        private async Task ValidateCourseAsync(Course course)
+        public async Task UpdateCourseAsync(Course course)
         {
-            if (await _db.Courses.AnyAsync(x => x.Title == course.Title))
-            {
-                throw new InvalidOperationException("A course with this title already exists");
-            }
+            await ValidateCourseAsync(course, isUpdate: true);
 
-            if (string.IsNullOrEmpty(course.Title))
-            {
-                throw new InvalidOperationException("Course title is required");
-            }
+            var existing = await _db.Courses
+                .Include(c => c.Chapters)
+                .FirstOrDefaultAsync(c => c.Id == course.Id);
 
-            if (string.IsNullOrEmpty(course.Description))
-            {
-                throw new InvalidOperationException("Course description is required");
-            }
+            if (existing == null)
+                throw new InvalidOperationException("Course not found");
 
-            if (course.Chapters == null || !course.Chapters.Any()) return;
-            foreach (var chapter in course.Chapters)
+            existing.Title = course.Title;
+            existing.ShortDescription = course.ShortDescription;
+            existing.Description = course.Description;
+            existing.Instructor = course.Instructor;
+            existing.Duration = course.Duration;
+            existing.StartDate = course.StartDate;
+            existing.ImageUrl = course.ImageUrl;
+
+            foreach (var updatedChapter in course.Chapters)
             {
-                if (string.IsNullOrEmpty(chapter.Title))
+                var existingChapter = existing.Chapters
+                    .FirstOrDefault(c => c.Id == updatedChapter.Id);
+
+                if (existingChapter != null)
                 {
-                    throw new InvalidOperationException("Chapter title is required");
+                    existingChapter.ChapterNumber = updatedChapter.ChapterNumber;
+                    existingChapter.Title = updatedChapter.Title;
                 }
+            }
 
-                if (chapter.Sections == null || !chapter.Sections.Any()) continue;
+            var duplicateNumbers = existing.Chapters
+                .GroupBy(c => c.ChapterNumber)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
 
-                foreach (var section in chapter.Sections)
+            if (duplicateNumbers.Any())
+                throw new InvalidOperationException("Chapter numbers must be unique.");
+
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task UpdateChapterAsync(Chapter chapter)
+        {
+            if (string.IsNullOrWhiteSpace(chapter.Title))
+                throw new InvalidOperationException("Chapter title is required");
+
+            var course = await _db.Courses
+                .Include(c => c.Chapters.Select(ch => ch.Sections))
+                .FirstOrDefaultAsync(c => c.Id == chapter.CourseId);
+
+            if (course == null)
+                throw new InvalidOperationException("Course not found");
+
+            var existingChapter = course.Chapters
+                .FirstOrDefault(ch => ch.Id == chapter.Id);
+
+            if (existingChapter == null)
+                throw new InvalidOperationException("Chapter not found");
+
+            existingChapter.Title = chapter.Title;
+            existingChapter.Description = chapter.Description;
+
+            var toRemove = existingChapter.Sections
+                .Where(es => chapter.Sections.All(ns => ns.Id != es.Id))
+                .ToList();
+            foreach (var rem in toRemove)
+            {
+                existingChapter.Sections.Remove(rem);
+                _db.Set<Section>().Remove(rem);
+            }
+
+            foreach (var incoming in chapter.Sections)
+            {
+                if (incoming.Id != 0)
                 {
-                    if (string.IsNullOrEmpty(section.Title))
-                    {
-                        throw new InvalidOperationException("Section title is required");
-                    }
+                    var sec = existingChapter.Sections.First(es => es.Id == incoming.Id);
+                    sec.Title = incoming.Title;
+                    sec.Description = incoming.Description;
+                    sec.Type = incoming.Type;
 
-                    switch (section.Type)
+                    sec.TextContent = null;
+                    sec.VideoUrl = null;
+                    sec.QuizId = null;
+                    sec.Quiz = null;
+
+                    switch (incoming.Type)
                     {
                         case SectionType.Read:
-                            if (string.IsNullOrEmpty(section.TextContent))
-                            {
-                                throw new InvalidOperationException(
-                                    "Text content is required for reading sections");
-                            }
-
+                            if (string.IsNullOrWhiteSpace(incoming.TextContent))
+                                throw new InvalidOperationException("Text content is required");
+                            sec.TextContent = incoming.TextContent;
                             break;
                         case SectionType.Video:
-                            if (string.IsNullOrEmpty(section.VideoUrl))
-                            {
-                                throw new InvalidOperationException("Video URL is required for video sections");
-                            }
-
+                            if (string.IsNullOrWhiteSpace(incoming.VideoUrl))
+                                throw new InvalidOperationException("Video URL is required");
+                            sec.VideoUrl = incoming.VideoUrl;
                             break;
                         case SectionType.Quiz:
-                            if (section.Quiz == null && section.QuizId == 0)
-                            {
-                                throw new InvalidOperationException("Quiz ID is required for quiz sections");
-                            }
-
+                            if (incoming.QuizId == null)
+                                throw new InvalidOperationException("Quiz ID is required");
+                            sec.QuizId = incoming.QuizId;
                             break;
-                        default:
-                            throw new InvalidOperationException("Invalid section type");
+                    }
+                }
+                else
+                {
+                    incoming.Chapter = existingChapter;
+                    switch (incoming.Type)
+                    {
+                        case SectionType.Read:
+                            if (string.IsNullOrWhiteSpace(incoming.TextContent))
+                                throw new InvalidOperationException("Text content is required");
+                            incoming.VideoUrl = null;
+                            incoming.Quiz = null;
+                            break;
+                        case SectionType.Video:
+                            if (string.IsNullOrWhiteSpace(incoming.VideoUrl))
+                                throw new InvalidOperationException("Video URL is required");
+                            incoming.TextContent = null;
+                            incoming.Quiz = null;
+                            break;
+                        case SectionType.Quiz:
+                            if (incoming.QuizId == null)
+                                throw new InvalidOperationException("Quiz ID is required");
+                            incoming.TextContent = null;
+                            incoming.VideoUrl = null;
+                            break;
+                    }
+
+                    existingChapter.Sections.Add(incoming);
+                }
+            }
+
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task DeleteCourseAsync(int id)
+        {
+            var course = await _db.Courses
+                .Include(c => c.Chapters.Select(ch => ch.Sections))
+                .Include(c => c.EnrolledUsers)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (course == null)
+                throw new InvalidOperationException("Course not found.");
+
+            foreach (var ch in course.Chapters)
+            {
+                if (ch.Sections.Any())
+                    _db.Set<Section>().RemoveRange(ch.Sections);
+            }
+
+            _db.Set<Chapter>().RemoveRange(course.Chapters);
+            course.EnrolledUsers.Clear();
+            _db.Courses.Remove(course);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task DeleteChapterAsync(int courseId, int chapterId)
+        {
+            var course = await _db.Courses
+                .Include(c => c.Chapters.Select(ch => ch.Sections))
+                .FirstOrDefaultAsync(c => c.Id == courseId);
+
+            if (course == null)
+                throw new InvalidOperationException("Course not found.");
+
+            var chapter = course.Chapters
+                .FirstOrDefault(ch => ch.ChapterNumber == chapterId);
+
+            if (chapter == null)
+                throw new InvalidOperationException("Chapter not found.");
+
+            if (chapter.Sections.Any())
+                _db.Set<Section>().RemoveRange(chapter.Sections);
+            _db.Set<Chapter>().Remove(chapter);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task AddChapterAsync(Chapter chapter)
+        {
+            if (string.IsNullOrWhiteSpace(chapter.Title))
+                throw new InvalidOperationException("Chapter title is required.");
+
+            var course = await _db.Courses
+                .Include(c => c.Chapters)
+                .FirstOrDefaultAsync(c => c.Id == chapter.CourseId);
+
+            if (course == null)
+                throw new InvalidOperationException("Course not found.");
+
+            chapter.Id = 0;
+            chapter.Sections = new List<Section>();
+
+            course.Chapters.Add(chapter);
+            await _db.SaveChangesAsync();
+        }
+
+        private async Task ValidateCourseAsync(Course course, bool isUpdate = false)
+        {
+            if (!isUpdate && await _db.Courses.AnyAsync(x => x.Title == course.Title))
+                throw new InvalidOperationException("A course with this title already exists");
+            if (string.IsNullOrWhiteSpace(course.Title))
+                throw new InvalidOperationException("Course title is required");
+            if (string.IsNullOrWhiteSpace(course.Description))
+                throw new InvalidOperationException("Course description is required");
+
+            if (!isUpdate && course.Chapters != null)
+            {
+                foreach (var chapter in course.Chapters)
+                {
+                    if (chapter.ChapterNumber <= 0)
+                        throw new InvalidOperationException("Chapter number must be greater than 0");
+                    if (chapter.ChapterNumber > course.Chapters.Count)
+                        throw new InvalidOperationException("Chapter number exceeds the total number of chapters");
+                    if (string.IsNullOrWhiteSpace(chapter.Title))
+                        throw new InvalidOperationException("Chapter title is required");
+                    if (chapter.Sections == null) continue;
+                    foreach (var section in chapter.Sections)
+                    {
+                        if (string.IsNullOrWhiteSpace(section.Title))
+                            throw new InvalidOperationException("Section title is required");
+                        switch (section.Type)
+                        {
+                            case SectionType.Read when string.IsNullOrWhiteSpace(section.TextContent):
+                                throw new InvalidOperationException("Text content is required");
+                            case SectionType.Video when string.IsNullOrWhiteSpace(section.VideoUrl):
+                                throw new InvalidOperationException("Video URL is required");
+                            case SectionType.Quiz when section.QuizId == null:
+                                throw new InvalidOperationException("Quiz ID is required");
+                        }
                     }
                 }
             }

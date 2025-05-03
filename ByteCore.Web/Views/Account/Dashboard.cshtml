@@ -1,43 +1,92 @@
 @model ByteCore.Domain.UserScope.User
 @{
-    ViewBag.Title = "User Dashboard";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+  ViewBag.Title = "User Dashboard";
+  Layout = "~/Views/Shared/_Layout.cshtml";
+  var completedCourses = Model.EnrolledCourses?
+                           .Where(c => c.Chapters != null
+                                       && c.Chapters.All(ch => Model.CompletedChapters.Any(cc => cc.Id == ch.Id)))
+                           .ToList()
+                         ?? new List<ByteCore.Domain.CourseScope.Course>();
+
+  var inProgressCourses = Model.EnrolledCourses?
+                            .Where(c => c.Chapters != null
+                                        && c.Chapters.Any(ch => Model.CompletedChapters.All(cc => cc.Id != ch.Id)))
+                            .ToList()
+                          ?? new List<ByteCore.Domain.CourseScope.Course>();
 }
+
 <section class="py-5">
-    <div class="container px-5">
-        <div class="text-center mb-5">
-            <h1 class="display-5 fw-bolder">User Dashboard</h1>
+  <div class="container px-5">
+    <div class="row mb-5">
+      <div class="col-md-4">
+        <div class="card shadow rounded-4 mb-4">
+          <div class="card-body text-center">
+            <h5 class="fw-bolder">@Model.Name</h5>
+            <p class="text-muted mb-2">@Model.Email</p>
+            <a href="@Url.Action("Manage", "Account")" class="btn btn-outline-primary me-2">Manage Account</a>
+            <a href="@Url.Action("Logout", "Account")" class="btn btn-outline-danger">Logout</a>
+          </div>
         </div>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card shadow rounded-4 mb-4">
-                    <div class="card-body text-center">
-                        <h5 class="fw-bolder">@Model.Name</h5>
-                        <p>Email: @Model.Email</p>
-                        <a href="@Url.Action("Manage", "Account")" class="btn btn-primary">Manage Account</a>
-                        <a href="@Url.Action("Logout", "Account")" class="btn btn-danger">Logout</a>
+      </div>
+
+      <div class="col-md-8">
+        <h3 class="fw-bolder mb-4">My Courses</h3>
+
+        @if (!inProgressCourses.Any() && !completedCourses.Any())
+        {
+          <div class="alert alert-info">
+            You are not enrolled in any courses.
+          </div>
+        }
+        else
+        {
+          if (inProgressCourses.Any())
+          {
+            <h5 class="mb-3">In Progress</h5>
+            <div class="row gx-4 gy-4 mb-5">
+              @foreach (var course in inProgressCourses)
+              {
+                <div class="col-sm-6 col-lg-4">
+                  <div class="card h-100 shadow-sm rounded-4">
+                    <img src="@course.ImageUrl" class="card-img-top rounded-top-4" alt="@course.Title">
+                    <div class="card-body d-flex flex-column">
+                      <h6 class="card-title fw-bold">@course.Title</h6>
+                      <p class="card-text text-truncate">@course.ShortDescription</p>
+                      <a href="@Url.Action("Course", "Courses", new { id = course.Id })"
+                         class="mt-auto btn btn-primary">
+                        Continue &rarr;
+                      </a>
                     </div>
+                  </div>
                 </div>
+              }
             </div>
-            <div class="col-md-8">
-                <h3 class="fw-bolder">My Courses</h3>
-                @if (Model.EnrolledCourses != null && Model.EnrolledCourses.Any())
-                {
-                    <div class="list-group">
-                        @foreach (var course in Model.EnrolledCourses)
-                        {
-                            <a href="@Url.Action("Course", "Courses", new { id = course.Id })" class="list-group-item list-group-item-action">
-                                <h5 class="fw-bolder">@course.Title</h5>
-                                <p>@course.ShortDescription</p>
-                            </a>
-                        }
+          }
+
+          if (completedCourses.Any())
+          {
+            <h5 class="mb-3">Completed</h5>
+            <div class="row gx-4 gy-4">
+              @foreach (var course in completedCourses)
+              {
+                <div class="col-sm-6 col-lg-4">
+                  <div class="card h-100 border-success shadow-sm rounded-4">
+                    <img src="@course.ImageUrl" class="card-img-top rounded-top-4" alt="@course.Title">
+                    <div class="card-body d-flex flex-column">
+                      <h6 class="card-title fw-bold">@course.Title</h6>
+                      <p class="card-text text-truncate">@course.ShortDescription</p>
+                      <a href="@Url.Action("Course", "Courses", new { id = course.Id })"
+                         class="mt-auto btn btn-outline-success">
+                        Review &rarr;
+                      </a>
                     </div>
-                }
-                else
-                {
-                    <p>You are not enrolled in any courses.</p>
-                }
+                  </div>
+                </div>
+              }
             </div>
-        </div>
+          }
+        }
+      </div>
     </div>
+  </div>
 </section>

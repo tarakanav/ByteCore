@@ -127,9 +127,12 @@
     <Content Include="Views\Account\Dashboard.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Manage.cshtml" />
+    <Content Include="Views\Chapter\Create.cshtml" />
+    <Content Include="Views\Chapter\Edit.cshtml" />
     <Content Include="Views\Chapter\Index.cshtml" />
     <Content Include="Views\Courses\CourseEnrolled.cshtml" />
     <Content Include="Views\Courses\Create.cshtml" />
+    <Content Include="Views\Courses\Edit.cshtml" />
     <Content Include="Views\Privacy\Index.cshtml" />
     <Content Include="Views\Quizzes\Create.cshtml" />
     <Content Include="Views\Quizzes\Edit.cshtml" />
