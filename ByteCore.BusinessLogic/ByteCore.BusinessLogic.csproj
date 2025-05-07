@@ -144,9 +144,11 @@
   <ItemGroup>
     <Compile Include="Attributes\CustomAuthorize.cs" />
     <Compile Include="Data\ApplicationDbContext.cs" />
+    <Compile Include="Implementations\AuditLogBl.cs" />
     <Compile Include="Implementations\CourseBl.cs" />
     <Compile Include="Implementations\QuizBl.cs" />
     <Compile Include="Implementations\UserBl.cs" />
+    <Compile Include="Interfaces\IAuditLogBl.cs" />
     <Compile Include="Interfaces\ICourseBl.cs" />
     <Compile Include="Interfaces\IQuizBl.cs" />
     <Compile Include="Interfaces\IUserBl.cs" />

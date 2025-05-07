@@ -13,12 +13,12 @@ using ByteCore.Web.Models;
 namespace ByteCore.Web.Controllers
 {
     [RoutePrefix("Courses/{courseId:int}/Chapters")]
-    public class ChapterController : Controller
+    public class ChapterController : BaseController
     {
         private readonly ICourseBl _courseBl;
         private readonly IQuizBl _quizBl;
 
-        public ChapterController(ICourseBl courseBl, IQuizBl quizBl)
+        public ChapterController(ICourseBl courseBl, IQuizBl quizBl, IAuditLogBl auditLogBl) : base(auditLogBl)
         {
             _courseBl = courseBl;
             _quizBl = quizBl;
