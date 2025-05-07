@@ -11,11 +11,11 @@ namespace ByteCore.Web.Controllers
 {
     [CustomAuthorize]
     [RoutePrefix("Quizzes")]
-    public class QuizzesController : Controller
+    public class QuizzesController : BaseController
     {
         private readonly IQuizBl _quizBl;
 
-        public QuizzesController(IQuizBl quizBl)
+        public QuizzesController(IQuizBl quizBl, IAuditLogBl auditLogBl) : base(auditLogBl)
         {
             _quizBl = quizBl;
         }

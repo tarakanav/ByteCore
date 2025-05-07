@@ -1,9 +1,14 @@
 using System.Web.Mvc;
+using ByteCore.BusinessLogic.Interfaces;
 
 namespace ByteCore.Web.Controllers
 {
-    public class TermsController : Controller
+    public class TermsController : BaseController
     {
+        public TermsController(IAuditLogBl auditLogBl) : base(auditLogBl)
+        {
+        }
+        
         // GET: /Terms/
         public ActionResult Index()
         {

@@ -10,11 +10,11 @@ using ByteCore.Web.Models;
 
 namespace ByteCore.Web.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private readonly IUserBl _userBl;
 
-        public AccountController(IUserBl userBl)
+        public AccountController(IUserBl userBl, IAuditLogBl auditLogBl) : base(auditLogBl)
         {
             _userBl = userBl;
         }

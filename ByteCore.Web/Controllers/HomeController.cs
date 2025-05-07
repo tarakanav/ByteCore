@@ -1,9 +1,14 @@
 ﻿using System.Web.Mvc;
+using ByteCore.BusinessLogic.Interfaces;
 
 namespace ByteCore.Web.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
+        public HomeController(IAuditLogBl auditLogBl) : base(auditLogBl)
+        {
+        }
+
         // GET: Home
         public ActionResult Index()
         {

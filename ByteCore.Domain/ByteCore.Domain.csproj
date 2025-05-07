@@ -56,6 +56,9 @@
         <Compile Include="UserScope\User.cs" />
         <Compile Include="UserScope\UserCourse.cs" />
         <Compile Include="UserScope\UserLastSeen.cs" />
+        <Compile Include="UserScope\AuditLog.cs" />
+        <Compile Include="UserScope\LoginLog.cs" />
+        <Compile Include="UserScope\UserLastSeen.cs" />
         <Compile Include="UserScope\UserSession.cs" />
     </ItemGroup>
     <ItemGroup>

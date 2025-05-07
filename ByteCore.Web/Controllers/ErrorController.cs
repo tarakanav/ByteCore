@@ -1,9 +1,14 @@
 ﻿using System.Web.Mvc;
+using ByteCore.BusinessLogic.Interfaces;
 
 namespace ByteCore.Web.Controllers
 {
-    public class ErrorController : Controller
+    public class ErrorController : BaseController
     {
+        public ErrorController(IAuditLogBl auditLogBl) : base(auditLogBl)
+        {
+        }
+
         // GET: Error/403
         [Route("Error/403")]
         public ActionResult AccessDenied()

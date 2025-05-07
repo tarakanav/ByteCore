@@ -8,11 +8,11 @@ using ByteCore.Domain.CourseScope;
 namespace ByteCore.Web.Controllers
 {
     [RoutePrefix("Courses")]
-    public class CoursesController : Controller
+    public class CoursesController : BaseController
     {
         private readonly ICourseBl _courseBl;
 
-        public CoursesController(ICourseBl courseBl)
+        public CoursesController(ICourseBl courseBl, IAuditLogBl auditLogBl) : base(auditLogBl)
         {
             _courseBl = courseBl;
         }
