@@ -144,9 +144,11 @@
   <ItemGroup>
     <Compile Include="Attributes\CustomAuthorize.cs" />
     <Compile Include="Data\ApplicationDbContext.cs" />
+    <Compile Include="Implementations\AdminBl.cs" />
     <Compile Include="Implementations\CourseBl.cs" />
     <Compile Include="Implementations\QuizBl.cs" />
     <Compile Include="Implementations\UserBl.cs" />
+    <Compile Include="Interfaces\IAdminBl.cs" />
     <Compile Include="Interfaces\ICourseBl.cs" />
     <Compile Include="Interfaces\IQuizBl.cs" />
     <Compile Include="Interfaces\IUserBl.cs" />
@@ -177,6 +179,14 @@
     <Compile Include="Migrations\202505011451267_Added_Chapter_Numbers.cs" />
     <Compile Include="Migrations\202505011451267_Added_Chapter_Numbers.Designer.cs">
       <DependentUpon>202505011451267_Added_Chapter_Numbers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202505062059047_User_Browser_LastSeen.cs" />
+    <Compile Include="Migrations\202505062059047_User_Browser_LastSeen.Designer.cs">
+      <DependentUpon>202505062059047_User_Browser_LastSeen.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202505062221326_User_Last_Seen_History.cs" />
+    <Compile Include="Migrations\202505062221326_User_Last_Seen_History.Designer.cs">
+      <DependentUpon>202505062221326_User_Last_Seen_History.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -216,6 +226,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202505011451267_Added_Chapter_Numbers.resx">
       <DependentUpon>202505011451267_Added_Chapter_Numbers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505062059047_User_Browser_LastSeen.resx">
+      <DependentUpon>202505062059047_User_Browser_LastSeen.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505062221326_User_Last_Seen_History.resx">
+      <DependentUpon>202505062221326_User_Last_Seen_History.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

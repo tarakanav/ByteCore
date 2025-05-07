@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ByteCore.BusinessLogic.Data;
 using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Domain.CourseScope;
+using ByteCore.Domain.UserScope;
 
 namespace ByteCore.BusinessLogic.Implementations
 {
@@ -38,7 +39,7 @@ namespace ByteCore.BusinessLogic.Implementations
         public bool IsUserEnrolled(int courseId, string email)
         {
             var course = _db.Courses
-                .Include(courseModel => courseModel.EnrolledUsers)
+                .Include(courseModel => courseModel.EnrolledUsers.Select(userCourse => userCourse.User))
                 .FirstOrDefault(x => x.Id == courseId);
 
             if (course == null)
@@ -46,7 +47,7 @@ namespace ByteCore.BusinessLogic.Implementations
                 return false;
             }
 
-            return course.EnrolledUsers.Any(x => x.Email == email);
+            return course.EnrolledUsers.Any(x => x.User.Email == email);
         }
 
         public Task EnrollUserAsync(int id, string email)
@@ -59,21 +60,27 @@ namespace ByteCore.BusinessLogic.Implementations
                 throw new KeyNotFoundException("User or course not found.");
             }
 
-            course.EnrolledUsers.Add(user);
+            var userCourse = new UserCourse
+            {
+                Course = course,
+                User = user
+            };
+
+            _db.UserCourses.Add(userCourse);
             return _db.SaveChangesAsync();
         }
 
         public async Task CreateCourseAsync(Course course)
         {
+            for (var i = 1; i <= course.Chapters.Count; i++)
+            {
+                course.Chapters[i - 1].ChapterNumber = i;
+            }
+
             await ValidateCourseAsync(course);
 
             if (course.Chapters != null)
             {
-                for (var i = 1; i <= course.Chapters.Count; i++)
-                {
-                    course.Chapters[i - 1].ChapterNumber = i;
-                }
-
                 foreach (var section in course.Chapters.Where(chapter => chapter.Sections != null)
                              .SelectMany(chapter => chapter.Sections))
                 {
@@ -288,24 +295,34 @@ namespace ByteCore.BusinessLogic.Implementations
         public async Task DeleteCourseAsync(int id)
         {
             var course = await _db.Courses
-                .Include(c => c.Chapters.Select(ch => ch.Sections))
                 .Include(c => c.EnrolledUsers)
+                .Include(c => c.Chapters.Select(ch => ch.UsersCompleted))
+                .Include(c => c.Chapters.Select(ch => ch.Sections))
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (course == null)
                 throw new InvalidOperationException("Course not found.");
 
-            foreach (var ch in course.Chapters)
+            if (course.EnrolledUsers.Any())
+                _db.UserCourses.RemoveRange(course.EnrolledUsers);
+
+            foreach (var chapter in course.Chapters)
             {
-                if (ch.Sections.Any())
-                    _db.Set<Section>().RemoveRange(ch.Sections);
+                if (chapter.UsersCompleted != null && chapter.UsersCompleted.Any())
+                    chapter.UsersCompleted.Clear();
             }
 
+            var allSections = course.Chapters.SelectMany(ch => ch.Sections).ToList();
+            if (allSections.Any())
+                _db.Set<Section>().RemoveRange(allSections);
+
             _db.Set<Chapter>().RemoveRange(course.Chapters);
-            course.EnrolledUsers.Clear();
+
             _db.Courses.Remove(course);
+
             await _db.SaveChangesAsync();
         }
+
 
         public async Task DeleteChapterAsync(int courseId, int chapterId)
         {
@@ -346,6 +363,52 @@ namespace ByteCore.BusinessLogic.Implementations
             course.Chapters.Add(chapter);
             await _db.SaveChangesAsync();
         }
+
+        public int GetCourseCount()
+        {
+            return _db.Courses.Count();
+        }
+
+        public int GetEnrollmentCount()
+        {
+            return _db.UserCourses.Count();
+        }
+
+        public UserCourse GetLatestEnrollment()
+        {
+            return _db.UserCourses
+                .OrderByDescending(uc => uc.EnrolledDate)
+                .ThenByDescending(uc => uc.Id)
+                .FirstOrDefault();
+        }
+
+        public List<int> GetEnrollmentCountByDate(DateTime fromDate, DateTime toDate)
+        {
+            var start = fromDate.Date;
+            var endExclusive = toDate.Date.AddDays(1);
+            var days = (toDate.Date - start).Days + 1;
+
+            var enrollsByDate = _db.UserCourses
+                .Where(uc => uc.EnrolledDate >= start && uc.EnrolledDate < endExclusive)
+                .GroupBy(uc => DbFunctions.TruncateTime(uc.EnrolledDate))
+                .Select(g => new
+                {
+                    Date = g.Key.Value,
+                    Count = g.Count()
+                })
+                .ToDictionary(g => g.Date, g => g.Count);
+
+            var result = new List<int>(days);
+            for (int i = 0; i < days; i++)
+            {
+                var day = start.AddDays(i);
+                enrollsByDate.TryGetValue(day, out int count);
+                result.Add(count);
+            }
+
+            return result;
+        }
+
 
         private async Task ValidateCourseAsync(Course course, bool isUpdate = false)
         {

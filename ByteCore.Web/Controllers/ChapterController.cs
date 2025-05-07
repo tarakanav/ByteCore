@@ -67,7 +67,7 @@ namespace ByteCore.Web.Controllers
                 if (chapter == null) return HttpNotFound();
                 
                 var section = chapter.Sections
-                    .FirstOrDefault(s => s.Id == sectionId && s.Type == SectionType.Quiz);
+                    .FirstOrDefault(s => s.GetSectionNumber() == sectionId && s.Type == SectionType.Quiz);
                 if (section?.Quiz == null)
                     return HttpNotFound();
 
@@ -128,7 +128,7 @@ namespace ByteCore.Web.Controllers
         [CustomAuthorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("{chapterNumber:int}/Uncomplete", Name = "UncompleteChapterRoute")]
+        [Route("{chapterNumber:int}/Uncomplete")]
         public ActionResult UncompleteChapter(int courseId, int chapterNumber)
         {
             var course = _courseBl.GetCourse(courseId);
@@ -167,7 +167,7 @@ namespace ByteCore.Web.Controllers
                 return Json(new { success = false, error = "Course not found" });
             }
 
-            var chapter = course.Chapters.FirstOrDefault(x => x.Id == chapterNumber);
+            var chapter = course.Chapters.FirstOrDefault(x => x.ChapterNumber == chapterNumber);
             if (chapter == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.NotFound;

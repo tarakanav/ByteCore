@@ -13,5 +13,7 @@ namespace ByteCore.BusinessLogic.Interfaces
         Task AddQuizAsync(Quiz quiz);
         Task UpdateQuizAsync(int id, Quiz quiz);
         Task DeleteQuizAsync(int id);
+        int GetQuizCount();
+        int GetQuizResultCount();
     }
 }

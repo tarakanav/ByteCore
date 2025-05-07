@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ByteCore.Domain.CourseScope;
+using ByteCore.Domain.UserScope;
 
 namespace ByteCore.BusinessLogic.Interfaces
 {
@@ -19,5 +21,9 @@ namespace ByteCore.BusinessLogic.Interfaces
         Task DeleteCourseAsync(int id);
         Task DeleteChapterAsync(int courseId, int chapterId);
         Task AddChapterAsync(Chapter chapter);
+        int GetCourseCount();
+        int GetEnrollmentCount();
+        UserCourse GetLatestEnrollment();
+        List<int> GetEnrollmentCountByDate(DateTime fromDate, DateTime toDate);
     }
 }

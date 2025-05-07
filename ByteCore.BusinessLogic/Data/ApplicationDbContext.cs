@@ -9,6 +9,7 @@ namespace ByteCore.BusinessLogic.Data
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Course> Courses { get; set; }
+        public DbSet<UserCourse> UserCourses { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<QuizResult> QuizResults { get; set; }

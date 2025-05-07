@@ -15,6 +15,6 @@ namespace ByteCore.Domain.CourseScope
 		public DateTime StartDate { get; set; }
 		public string ImageUrl { get; set; }
 		public List<Chapter> Chapters { get; set; } = new List<Chapter>();
-		public List<User> EnrolledUsers { get; set; }
+		public List<UserCourse> EnrolledUsers { get; set; }
 	}
 }

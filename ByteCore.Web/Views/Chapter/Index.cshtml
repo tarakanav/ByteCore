@@ -113,8 +113,7 @@
                             {
                                 <!-- Mark as Completed -->
                                 <form method="post"
-                                      action="@Url.Action("CompleteChapter", "Chapter",
-                                                  new { courseId = Model.Chapter.Course.Id, chapterId = currentChapterNum })"
+                                      action="/Courses/@Model.Chapter.Course.Id/Chapters/@currentChapterNum/Complete"
                                       class="d-inline">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="btn btn-success">
@@ -126,8 +125,7 @@
                             {
                                 <span class="btn btn-outline-secondary disabled me-2">✔ Completed</span>
                                 <form method="post"
-                                      action="@Url.RouteUrl("UncompleteChapterRoute",
-                                                  new { courseId = Model.Chapter.Course.Id, chapterId = currentChapterNum })"
+                                      action="/Courses/@Model.Chapter.Course.Id/Chapters/@currentChapterNum/Uncomplete"
                                       class="d-inline">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="btn btn-danger">

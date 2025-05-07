@@ -53,8 +53,9 @@
         <Compile Include="QuizScope\Quiz.cs" />
         <Compile Include="QuizScope\QuizResultAnswer.cs" />
         <Compile Include="QuizScope\QuizResult.cs" />
-        <Compile Include="UserScope\UserCourse.cs" />
         <Compile Include="UserScope\User.cs" />
+        <Compile Include="UserScope\UserCourse.cs" />
+        <Compile Include="UserScope\UserLastSeen.cs" />
         <Compile Include="UserScope\UserSession.cs" />
     </ItemGroup>
     <ItemGroup>

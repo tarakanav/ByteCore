@@ -47,7 +47,7 @@ namespace ByteCore.Web.Controllers
 
             try
             {
-                await _userBl.RegisterUserAsync(username, email, password);
+                await _userBl.RegisterUserAsync(username, email, password, Request.Browser.Browser);
                 var cookie = await _userBl.GetUserCookieAsync(email, true);
                 Response.Cookies.Add(cookie);
                 
@@ -86,7 +86,7 @@ namespace ByteCore.Web.Controllers
 
             try
             {
-                _userBl.AuthenticateUser(email, password);
+                _userBl.AuthenticateUser(email, password, Request.Browser.Browser);
                 var cookie = await _userBl.GetUserCookieAsync(email, rememberMe);
                 Response.Cookies.Add(cookie);
 

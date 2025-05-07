@@ -139,5 +139,15 @@ namespace ByteCore.BusinessLogic.Implementations
             _db.Quizzes.Remove(quiz);
             await _db.SaveChangesAsync();
         }
+
+        public int GetQuizCount()
+        {
+            return _db.Quizzes.Count();
+        }
+
+        public int GetQuizResultCount()
+        {
+            return _db.QuizResults.Count();
+        }
     }
 }
