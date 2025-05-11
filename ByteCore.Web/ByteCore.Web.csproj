@@ -10465,13 +10465,9 @@
     <Content Include="Views\Account\Dashboard.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Manage.cshtml" />
-    <Content Include="Views\Admin\Index.cshtml" />
-    <Content Include="Views\Chapter\Create.cshtml" />
-    <Content Include="Views\Chapter\Edit.cshtml" />
     <Content Include="Views\Chapter\Index.cshtml" />
     <Content Include="Views\Courses\CourseEnrolled.cshtml" />
     <Content Include="Views\Courses\Create.cshtml" />
-    <Content Include="Views\Courses\Edit.cshtml" />
     <Content Include="Views\Privacy\Index.cshtml" />
     <Content Include="Views\Quizzes\Create.cshtml" />
     <Content Include="Views\Quizzes\Edit.cshtml" />
@@ -10555,10 +10551,6 @@
     <Content Include="Views\Chapter\Create.cshtml" />
     <Content Include="Views\Chapter\Edit.cshtml" />
     <Content Include="Views\Courses\Edit.cshtml" />
-    <Compile Include="App_Start\BundleConfig.cs" />
-    <Compile Include="Controllers\BaseController.cs" />
-    <Compile Include="Controllers\AdminController.cs" />
-    <Compile Include="Models\AdminDashboardModel.cs" />
     <Folder Include="Content\assets\pages\ckeditor\samples\toolbarconfigurator\lib\" />
     <Folder Include="Content\assets\pages\j-pro\form_files\" />
   </ItemGroup>

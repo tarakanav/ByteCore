@@ -17,5 +17,7 @@ namespace ByteCore.Domain.UserScope
         public virtual List<UserLastSeen> LastSeenHistory { get; set; }
         public virtual List<UserCourse> EnrolledCourses { get; set; }
         public virtual List<Chapter> CompletedChapters { get; set; }
+        public virtual List<AuditLog> AuditLogs { get; set; }
+        public virtual List<LoginLog> LoginLogs { get; set; }
     }
 }

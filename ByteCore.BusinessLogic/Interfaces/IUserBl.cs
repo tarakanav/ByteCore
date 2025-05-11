@@ -8,8 +8,8 @@ namespace ByteCore.BusinessLogic.Interfaces
 {
     public interface IUserBl
     {
-        Task<User> RegisterUserAsync(string name, string email, string password, string browser = null);
-        User AuthenticateUser(string email, string password, string browser = null);
+        Task<User> RegisterUserAsync(string name, string email, string password, string browser = null, string ip = null, string userAgent = null);
+        User AuthenticateUser(string email, string password, string browser = null, string ip = null, string userAgent = null);
         User GetUserByEmail(string email);
         Task<User> UpdateUserAsync(string currentEmail, User updatedUser);
         Task<HttpCookie> GetUserCookieAsync(string email, bool rememberMe);

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using System.Web.Security;
 using ByteCore.BusinessLogic.Attributes;
 using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Domain.UserScope;
-using ByteCore.Web.Models;
 
 namespace ByteCore.Web.Controllers
 {
@@ -47,7 +44,13 @@ namespace ByteCore.Web.Controllers
 
             try
             {
-                await _userBl.RegisterUserAsync(username, email, password, Request.Browser.Browser);
+                await _userBl.RegisterUserAsync(
+                    username, 
+                    email, 
+                    password, 
+                    Request.Browser.Browser,
+                    Request.UserHostAddress,
+                    Request.UserAgent);
                 var cookie = await _userBl.GetUserCookieAsync(email, true);
                 Response.Cookies.Add(cookie);
                 
@@ -86,7 +89,7 @@ namespace ByteCore.Web.Controllers
 
             try
             {
-                _userBl.AuthenticateUser(email, password, Request.Browser.Browser);
+                _userBl.AuthenticateUser(email, password, Request.Browser.Browser, Request.UserHostAddress, Request.UserAgent);
                 var cookie = await _userBl.GetUserCookieAsync(email, rememberMe);
                 Response.Cookies.Add(cookie);
 

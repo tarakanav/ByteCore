@@ -146,18 +146,10 @@
     <Compile Include="Data\ApplicationDbContext.cs" />
     <Compile Include="Implementations\AdminBl.cs" />
     <Compile Include="Implementations\AuditLogBl.cs" />
-    <Compile Include="Implementations\AdminBl.cs" />
-    <Compile Include="Implementations\CourseBl.cs" />
-    <Compile Include="Implementations\QuizBl.cs" />
-    <Compile Include="Implementations\UserBl.cs" />
-    <Compile Include="Interfaces\IAdminBl.cs" />
-
-    <Compile Include="Implementations\AuditLogBl.cs" />
     <Compile Include="Implementations\CourseBl.cs" />
     <Compile Include="Implementations\QuizBl.cs" />
     <Compile Include="Implementations\UserBl.cs" />
     <Compile Include="Interfaces\IAuditLogBl.cs" />
-
     <Compile Include="Interfaces\ICourseBl.cs" />
     <Compile Include="Interfaces\IQuizBl.cs" />
     <Compile Include="Interfaces\IUserBl.cs" />
@@ -197,8 +189,25 @@
     <Compile Include="Migrations\202505062221326_User_Last_Seen_History.Designer.cs">
       <DependentUpon>202505062221326_User_Last_Seen_History.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202505072045519_Audit_Login_Logging.cs" />
+    <Compile Include="Migrations\202505072045519_Audit_Login_Logging.Designer.cs">
+      <DependentUpon>202505072045519_Audit_Login_Logging.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202505072121473_User_Logging_Relation.cs" />
+    <Compile Include="Migrations\202505072121473_User_Logging_Relation.Designer.cs">
+      <DependentUpon>202505072121473_User_Logging_Relation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202505072124098_User_Logging_Id_Fix.cs" />
+    <Compile Include="Migrations\202505072124098_User_Logging_Id_Fix.Designer.cs">
+      <DependentUpon>202505072124098_User_Logging_Id_Fix.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202505072126404_User_Logging_Id_Fix2.cs" />
+    <Compile Include="Migrations\202505072126404_User_Logging_Id_Fix2.Designer.cs">
+      <DependentUpon>202505072126404_User_Logging_Id_Fix2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Interfaces\IAdminBl.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ByteCore.Domain\ByteCore.Domain.csproj">
@@ -241,8 +250,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202505062221326_User_Last_Seen_History.resx">
       <DependentUpon>202505062221326_User_Last_Seen_History.cs</DependentUpon>
-    <Compile Include="Interfaces\IAuditLogBl.cs" />
-    <Compile Include="Interfaces\IAdminBl.cs" />
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505072045519_Audit_Login_Logging.resx">
+      <DependentUpon>202505072045519_Audit_Login_Logging.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505072121473_User_Logging_Relation.resx">
+      <DependentUpon>202505072121473_User_Logging_Relation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505072124098_User_Logging_Id_Fix.resx">
+      <DependentUpon>202505072124098_User_Logging_Id_Fix.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505072126404_User_Logging_Id_Fix2.resx">
+      <DependentUpon>202505072126404_User_Logging_Id_Fix2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

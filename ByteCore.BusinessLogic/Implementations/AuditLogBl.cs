@@ -1,5 +1,4 @@
-using System.Threading.Tasks;
-using ByteCore.BusinessLogic.Data;
+﻿using ByteCore.BusinessLogic.Data;
 using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Domain.UserScope;
 

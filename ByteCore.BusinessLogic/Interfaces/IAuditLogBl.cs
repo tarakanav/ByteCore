@@ -1,5 +1,4 @@
-using System.Threading.Tasks;
-using ByteCore.Domain.UserScope;
+﻿using ByteCore.Domain.UserScope;
 
 namespace ByteCore.BusinessLogic.Interfaces
 {

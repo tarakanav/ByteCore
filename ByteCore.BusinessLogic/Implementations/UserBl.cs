@@ -21,7 +21,13 @@ namespace ByteCore.BusinessLogic.Implementations
             _db = db;
         }
 
-        public async Task<User> RegisterUserAsync(string name, string email, string password, string browser = null)
+        public async Task<User> RegisterUserAsync(
+            string name,
+            string email,
+            string password,
+            string browser = null,
+            string ip = null,
+            string userAgent = null)
         {
             if (_db.Users.Any(u => u.Email == email || u.Name == name))
             {
@@ -46,12 +52,19 @@ namespace ByteCore.BusinessLogic.Implementations
                 newUser.Role = "Admin";
 
             _db.Users.Add(newUser);
+            var loginLog = CreateLoginLog(newUser, ip, userAgent);
+            newUser.LoginLogs.Add(loginLog);
             await _db.SaveChangesAsync();
 
             return newUser;
         }
 
-        public User AuthenticateUser(string email, string password, string browser = null)
+        public User AuthenticateUser(
+            string email, 
+            string password, 
+            string browser = null,
+            string ip = null,
+            string userAgent = null)
         {
             var user = _db.Users.FirstOrDefault(u => u.Email == email);
             if (user == null || !PasswordHasher.VerifyPassword(password, user.Password))
@@ -62,10 +75,25 @@ namespace ByteCore.BusinessLogic.Implementations
             if (browser != null)
             {
                 user.LatestBrowserUsed = browser;
-                _db.SaveChanges();
             }
+            
+            var loginLog = CreateLoginLog(user, ip, userAgent);
+            user.LoginLogs.Add(loginLog);
+            _db.SaveChanges();
 
             return user;
+        }
+        
+        private LoginLog CreateLoginLog(User user, string ip, string userAgent)
+        {
+            var log = new LoginLog
+            {
+                User = user,
+                IpAddress = ip,
+                UserAgent = userAgent
+            };
+
+            return log;
         }
 
         public User GetUserByEmail(string email)

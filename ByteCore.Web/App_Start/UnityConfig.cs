@@ -24,6 +24,7 @@ namespace ByteCore.Web
             container.RegisterType<IQuizBl, QuizBl>();
             container.RegisterType<ICourseBl, CourseBl>();
             container.RegisterType<IAdminBl, AdminBl>();
+            container.RegisterType<IAuditLogBl, AuditLogBl>();
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
         }
     }

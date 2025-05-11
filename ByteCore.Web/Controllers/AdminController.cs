@@ -8,14 +8,20 @@ using ByteCore.Web.Models;
 
 namespace ByteCore.Web.Controllers
 {
-    public class AdminController : Controller
+    public class AdminController : BaseController
     {
         private readonly IUserBl _userBl;
         private readonly ICourseBl _courseBl;
         private readonly IQuizBl _quizBl;
         private readonly IAdminBl _adminBl;
 
-        public AdminController(IUserBl userBl, ICourseBl courseBl, IQuizBl quizBl, IAdminBl adminBl)
+        public AdminController(
+            IUserBl userBl,
+            ICourseBl courseBl,
+            IQuizBl quizBl,
+            IAdminBl adminBl,
+            IAuditLogBl auditLogBl) 
+            : base(auditLogBl)
         {
             _userBl = userBl;
             _courseBl = courseBl;
@@ -27,21 +33,22 @@ namespace ByteCore.Web.Controllers
         [CustomAuthorize("Admin")]
         public ActionResult Index()
         {
-            var model = new AdminDashboardModel();
-            model.TotalUsers = _userBl.GetUserCount();
-            model.TotalCourses = _courseBl.GetCourseCount();
-            model.TotalQuizzes = _quizBl.GetQuizCount();
-            model.TotalEnrollments = _courseBl.GetEnrollmentCount();
-            model.TotalQuizResults = _quizBl.GetQuizResultCount();
-            model.ProjectStartDate = _userBl.GetFirstUser().RegistrationTime;
-            var latestEnrollment = _courseBl.GetLatestEnrollment();
-            model.LastEnrollmentDate = latestEnrollment?.EnrolledDate ?? DateTime.MinValue;
-            model.ActiveUsers = _userBl.GetActiveUserCount(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date);
-            model.NewUsers = _userBl.GetUserCountByRegistrationDate(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date);
-            model.NewEnrollments = _courseBl.GetEnrollmentCountByDate(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date);
-            model.CelsiusTemperature = _adminBl.GetCurrentTemperature();
-            model.LastUser = _userBl.GetLastUser();
-            model.BrowserUsages = _userBl.GetBrowserUsages();
+            var model = new AdminDashboardModel
+            {
+                TotalUsers = _userBl.GetUserCount(),
+                TotalCourses = _courseBl.GetCourseCount(),
+                TotalQuizzes = _quizBl.GetQuizCount(),
+                TotalEnrollments = _courseBl.GetEnrollmentCount(),
+                TotalQuizResults = _quizBl.GetQuizResultCount(),
+                ProjectStartDate = _userBl.GetFirstUser().RegistrationTime,
+                ActiveUsers = _userBl.GetActiveUserCount(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date),
+                NewUsers = _userBl.GetUserCountByRegistrationDate(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date),
+                NewEnrollments = _courseBl.GetEnrollmentCountByDate(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date),
+                CelsiusTemperature = _adminBl.GetCurrentTemperature(),
+                LastUser = _userBl.GetLastUser(),
+                BrowserUsages = _userBl.GetBrowserUsages(),
+                LastEnrollmentDate = _courseBl.GetLatestEnrollment()?.EnrolledDate ?? DateTime.MinValue
+            };
             return View(model);
         }
     }
