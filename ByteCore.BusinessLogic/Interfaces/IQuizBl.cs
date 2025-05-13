@@ -6,7 +6,7 @@ namespace ByteCore.BusinessLogic.Interfaces
 {
     public interface IQuizBl
     {
-        IEnumerable<Quiz> GetQuizzes();
+        IEnumerable<Quiz> GetQuizzes(int page = 1, int pageSize = 20);
         Quiz GetQuiz(int id);
         QuizResult GetQuizResult(int id, int resultId);
         Task<QuizResult> SubmitQuizResultAsync(int id, List<int> userAnswers, string email);

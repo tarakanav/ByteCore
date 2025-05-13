@@ -20,5 +20,7 @@ namespace ByteCore.BusinessLogic.Interfaces
         Dictionary<string, int> GetBrowserUsages();
         List<int> GetActiveUserCount(DateTime fromDate, DateTime toDate);
         List<int> GetUserCountByRegistrationDate(DateTime fromDate, DateTime toDate);
+        List<LoginLog> GetLoginLogs(int page = 1, int pageSize = 20);
+        int GetLoginLogCount();
     }
 }

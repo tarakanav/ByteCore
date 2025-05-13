@@ -18,9 +18,16 @@ namespace ByteCore.Web.Controllers
         }
 
         // GET: Courses
-        public ActionResult Index()
+        public ActionResult Index(int page = 1)
         {
-            var courses = _courseBl.GetCourses();
+            if (page < 1)
+            {
+                page = 1;
+            }
+            const int pageSize = 6;
+            var courses = _courseBl.GetCourses(page, pageSize);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)_courseBl.GetCourseCount() / pageSize);
             return View(courses);
         }
 

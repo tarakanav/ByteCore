@@ -77,9 +77,9 @@
                                         }
                                         else if (section.Type == SectionType.Quiz && section.Quiz != null)
                                         {
-                                            ViewBag.SectionId = section.Id;
+                                            ViewBag.SectionId = section.GetSectionNumber();
                                             @Html.Partial("_QuizPartial", section.Quiz)
-                                            if (Model.QuizResults.TryGetValue(section.Id, out var result))
+                                            if (Model.QuizResults.TryGetValue(section.GetSectionNumber(), out var result))
                                             {
                                                 <div class="mt-3">
                                                     @if (result.Quiz.PassingPercentage <=

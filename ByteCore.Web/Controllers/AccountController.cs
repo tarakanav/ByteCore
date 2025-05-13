@@ -174,6 +174,5 @@ namespace ByteCore.Web.Controllers
             
             return RedirectToAction("Login");
         }
-
     }
 }

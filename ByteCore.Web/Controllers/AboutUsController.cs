@@ -15,18 +15,5 @@ namespace ByteCore.Web.Controllers
         {
             return View();
         }
-
-      
-        [HttpPost]
-        public ActionResult SubmitForm(ContactFormModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                TempData["Message"] = "Thank you for reaching out! We'll get back to you soon.";
-                return RedirectToAction("Index");
-            }
-            
-            return View("Index");
-        }
     }
 }

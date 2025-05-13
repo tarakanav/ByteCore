@@ -8,7 +8,7 @@ namespace ByteCore.BusinessLogic.Interfaces
 {
     public interface ICourseBl
     {
-        IEnumerable<Course> GetCourses();
+        IEnumerable<Course> GetCourses(int page = 1, int pageSize = 20);
         Course GetCourse(int id);
         bool IsUserEnrolled(int courseId, string email);
         Task EnrollUserAsync(int id, string email);
@@ -24,6 +24,6 @@ namespace ByteCore.BusinessLogic.Interfaces
         int GetCourseCount();
         int GetEnrollmentCount();
         UserCourse GetLatestEnrollment();
-        List<int> GetEnrollmentCountByDate(DateTime fromDate, DateTime toDate);
+        IEnumerable<int> GetEnrollmentCountByDate(DateTime fromDate, DateTime toDate);
     }
 }

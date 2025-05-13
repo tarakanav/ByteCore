@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Web;
 using ByteCore.BusinessLogic.Data;
 using ByteCore.BusinessLogic.Interfaces;
-using ByteCore.Domain.CourseScope;
 using ByteCore.Domain.UserScope;
 using ByteCore.Helpers;
 
@@ -279,6 +278,21 @@ namespace ByteCore.BusinessLogic.Implementations
             }
 
             return result;
+        }
+
+        public List<LoginLog> GetLoginLogs(int page = 1, int pageSize = 20)
+        {
+            return _db.LoginLogs
+                .Include(x => x.User)
+                .OrderByDescending(x => x.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        public int GetLoginLogCount()
+        {
+            return _db.LoginLogs.Count();
         }
     }
 }

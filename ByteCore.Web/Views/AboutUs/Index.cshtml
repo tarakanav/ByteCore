@@ -14,7 +14,7 @@
                 <div class="card overflow-hidden shadow rounded-4 border-0 mb-5">
                     <div class="card-body p-5">
                         <h2 class="fw-bolder">Who We Are</h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.</p>
+                        <p>At ByteCore, we believe that learning should be accessible, engaging, and directly applicable to the challenges of today’s technology-driven world. Founded by a team of industry veterans and academic experts, we are committed to empowering learners with the knowledge and skills needed to excel in software development, data science, cybersecurity, and more.</p>
                         <p>ByteCore is an innovative platform focused on providing high-quality courses in the field of technology, offering students an opportunity to stay ahead in the ever-evolving tech landscape. Our expert instructors guide students toward mastering complex topics, helping them to successfully navigate the professional world.</p>
                     </div>
                 </div>
@@ -30,7 +30,7 @@
                 <div class="card overflow-hidden shadow rounded-4 border-0">
                     <div class="card-body p-5">
                         <h2 class="fw-bolder">Send Us a Message</h2>
-                        <form action="@Url.Action("SubmitForm", "AboutUs")" method="POST">
+                        <form action="mailto:teamlead@bytecore.com" method="POST" enctype="text/plain">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Full Name</label>
                                 <input type="text" class="form-control" id="name" name="name" required>
@@ -44,10 +44,6 @@
                                 <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
                             </div>
                             <button type="submit" class="btn btn-primary">Send Message</button>
-                            @if (TempData["Message"] != null)
-                            {
-                                <p class="mt-3">@TempData["Message"]</p>
-                            }
                         </form>
                     </div>
                 </div>

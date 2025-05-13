@@ -13,6 +13,7 @@ namespace ByteCore.Web.Controllers
         private readonly IUserBl _userBl;
         private readonly ICourseBl _courseBl;
         private readonly IQuizBl _quizBl;
+        private readonly IAuditLogBl _auditLogBl;
         private readonly IAdminBl _adminBl;
 
         public AdminController(
@@ -27,6 +28,7 @@ namespace ByteCore.Web.Controllers
             _courseBl = courseBl;
             _quizBl = quizBl;
             _adminBl = adminBl;
+            _auditLogBl = auditLogBl;
         }
 
         // GET: Admin
@@ -43,13 +45,45 @@ namespace ByteCore.Web.Controllers
                 ProjectStartDate = _userBl.GetFirstUser().RegistrationTime,
                 ActiveUsers = _userBl.GetActiveUserCount(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date),
                 NewUsers = _userBl.GetUserCountByRegistrationDate(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date),
-                NewEnrollments = _courseBl.GetEnrollmentCountByDate(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date),
+                NewEnrollments = _courseBl.GetEnrollmentCountByDate(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date).ToList(),
                 CelsiusTemperature = _adminBl.GetCurrentTemperature(),
                 LastUser = _userBl.GetLastUser(),
                 BrowserUsages = _userBl.GetBrowserUsages(),
                 LastEnrollmentDate = _courseBl.GetLatestEnrollment()?.EnrolledDate ?? DateTime.MinValue
             };
             return View(model);
+        }
+        
+        // GET: Admin/LogsAudit
+        [CustomAuthorize("Admin")]
+        [Route("LogsAudit")]
+        public ActionResult Audit(int page = 1)
+        {
+            if (page < 1)
+            {
+                page = 1;
+            }
+            const int pageSize = 20;
+            var users = _auditLogBl.GetAll(page, pageSize);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)_auditLogBl.GetLogCount() / pageSize);
+            return View("AuditLog", users);
+        }
+        
+        // GET: Admin/LogsLogin
+        [CustomAuthorize("Admin")]
+        [Route("LogsLogin")]
+        public ActionResult Login(int page = 1)
+        {
+            if (page < 1)
+            {
+                page = 1;
+            }
+            const int pageSize = 20;
+            var loginLogs = _userBl.GetLoginLogs(page, pageSize);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)_userBl.GetLoginLogCount() / pageSize);
+            return View("LoginLog", loginLogs);
         }
     }
 }

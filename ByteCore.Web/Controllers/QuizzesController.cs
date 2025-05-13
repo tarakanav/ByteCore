@@ -21,9 +21,16 @@ namespace ByteCore.Web.Controllers
         }
 
         // GET: Quizzes
-        public ActionResult Index()
+        public ActionResult Index(int page = 1)
         {
-            var quizzes = _quizBl.GetQuizzes();
+            if (page < 1)
+            {
+                page = 1;
+            }
+            const int pageSize = 10;
+            var quizzes = _quizBl.GetQuizzes(page, pageSize);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)_quizBl.GetQuizCount() / pageSize);
             return View(quizzes);
         }
 
@@ -53,7 +60,9 @@ namespace ByteCore.Web.Controllers
             }
             catch (InvalidOperationException)
             {
-                return RedirectToAction("NotFound", "Error");
+                ModelState.AddModelError("", "An error occurred while submitting the quiz. Please try again.");
+                var quiz = _quizBl.GetQuiz(id);
+                return View("Quiz", quiz);
             }
         }
 
@@ -88,47 +97,12 @@ namespace ByteCore.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(Quiz quiz)
         {
-            if (quiz.Questions.Count > 25 || quiz.Questions.Count == 0)
-            {
-                ModelState.AddModelError("Questions", "A quiz can have a maximum of 25 questions and a minimum of 1 question.");
-            }
-            
-            if (quiz.Questions.Any(q => q.Options.Count > 16 || q.Options.Count == 0))
-            {
-                ModelState.AddModelError("Questions", "A question can have a maximum of 16 options and a minimum of 1 option.");
-            }
-            
-            if (string.IsNullOrWhiteSpace(quiz.Title) || quiz.Title.Length > 100)
-            {
-                ModelState.AddModelError("Title", "Title is required and must be less than 100 characters.");
-            }
-            
-            if (quiz.Questions.Any(q => string.IsNullOrWhiteSpace(q.QuestionText)))
-            {
-                ModelState.AddModelError("Questions", "Question text is required.");
-            }
-            
-            if (quiz.Questions.Any(q => q.Options.Any(o => string.IsNullOrWhiteSpace(o.OptionText))))
-            {
-                ModelState.AddModelError("Questions", "Option text is required.");
-            }
+            ValidateQuiz(quiz);
+            if (!ModelState.IsValid)
+                return View(quiz);
 
-            if (quiz.RewardPoints < 0)
-            {
-                ModelState.AddModelError("RewardPoints", "Reward points must be greater than or equal to 0.");
-            }
-            
-            if (quiz.PassingPercentage < 0 || quiz.PassingPercentage > 100)
-            {
-                ModelState.AddModelError("PassingPercentage", "Passing percentage must be between 0 and 100.");
-            }
-            
-            if (ModelState.IsValid)
-            {
-                await _quizBl.AddQuizAsync(quiz);
-                return RedirectToAction("Quiz", new { id = quiz.Id });
-            }
-            return View(quiz);
+            await _quizBl.AddQuizAsync(quiz);
+            return RedirectToAction("Quiz", new { id = quiz.Id });
         }
 
         // GET: Quizzes/1/Edit
@@ -153,47 +127,12 @@ namespace ByteCore.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int id, Quiz quiz)
         {
-            if (quiz.Questions.Count > 25 || quiz.Questions.Count == 0)
-            {
-                ModelState.AddModelError("Questions", "A quiz can have a maximum of 25 questions and a minimum of 1 question.");
-            }
-            
-            if (quiz.Questions.Any(q => q.Options.Count > 16 || q.Options.Count == 0))
-            {
-                ModelState.AddModelError("Questions", "A question can have a maximum of 16 options and a minimum of 1 option.");
-            }
-            
-            if (string.IsNullOrWhiteSpace(quiz.Title) || quiz.Title.Length > 100)
-            {
-                ModelState.AddModelError("Title", "Title is required and must be less than 100 characters.");
-            }
-            
-            if (quiz.Questions.Any(q => string.IsNullOrWhiteSpace(q.QuestionText)))
-            {
-                ModelState.AddModelError("Questions", "Question text is required.");
-            }
-            
-            if (quiz.Questions.Any(q => q.Options.Any(o => string.IsNullOrWhiteSpace(o.OptionText))))
-            {
-                ModelState.AddModelError("Questions", "Option text is required.");
-            }
+            ValidateQuiz(quiz);
+            if (!ModelState.IsValid)
+                return View(quiz);
 
-            if (quiz.RewardPoints < 0)
-            {
-                ModelState.AddModelError("RewardPoints", "Reward points must be greater than or equal to 0.");
-            }
-            
-            if (quiz.PassingPercentage < 0 || quiz.PassingPercentage > 100)
-            {
-                ModelState.AddModelError("PassingPercentage", "Passing percentage must be between 0 and 100.");
-            }
-            
-            if (ModelState.IsValid)
-            {
-                await _quizBl.UpdateQuizAsync(id, quiz);
-                return RedirectToAction("Quiz", new { id });
-            }
-            return View(quiz);
+            await _quizBl.UpdateQuizAsync(id, quiz);
+            return RedirectToAction("Quiz", new { id });
         }
         
         // POST: Quizzes/1/Delete
@@ -211,6 +150,47 @@ namespace ByteCore.Web.Controllers
 
             await _quizBl.DeleteQuizAsync(id);
             return RedirectToAction("Index");
+        }
+        
+        private void ValidateQuiz(Quiz quiz)
+        {
+            if (quiz.Questions.Count < 1 || quiz.Questions.Count > 25)
+                ModelState.AddModelError("Questions",
+                    "A quiz must have between 1 and 25 questions.");
+
+            if (string.IsNullOrWhiteSpace(quiz.Title) || quiz.Title.Length > 100)
+                ModelState.AddModelError("Title",
+                    "Title is required and must be under 100 characters.");
+
+            if (quiz.RewardPoints < 0)
+                ModelState.AddModelError("RewardPoints",
+                    "Reward points must be 0 or more.");
+
+            if (quiz.PassingPercentage < 0 || quiz.PassingPercentage > 100)
+                ModelState.AddModelError("PassingPercentage",
+                    "Passing percentage must be between 0 and 100.");
+
+            for (int qi = 0; qi < quiz.Questions.Count; qi++)
+            {
+                var q = quiz.Questions[qi];
+                var qKey = $"Questions[{qi}]";
+
+                if (string.IsNullOrWhiteSpace(q.QuestionText))
+                    ModelState.AddModelError($"{qKey}.QuestionText",
+                        $"Question #{qi+1}: text is required.");
+
+                if (q.Options.Count < 1 || q.Options.Count > 16)
+                    ModelState.AddModelError($"{qKey}.Options",
+                        $"Question #{qi+1}: must have 1–16 options.");
+
+                for (int oi = 0; oi < q.Options.Count; oi++)
+                {
+                    if (string.IsNullOrWhiteSpace(q.Options[oi].OptionText))
+                        ModelState.AddModelError(
+                            $"{qKey}.Options[{oi}].OptionText",
+                            $"Question #{qi+1}, option #{oi+1}: text is required.");
+                }
+            }
         }
     }
 }

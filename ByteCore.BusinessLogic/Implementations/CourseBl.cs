@@ -19,9 +19,13 @@ namespace ByteCore.BusinessLogic.Implementations
             _db = db;
         }
 
-        public IEnumerable<Course> GetCourses()
+        public IEnumerable<Course> GetCourses(int page = 1, int pageSize = 20)
         {
-            return _db.Courses.ToList();
+            return _db.Courses
+                .OrderByDescending(x => x.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
         }
 
         public Course GetCourse(int id)
@@ -382,7 +386,7 @@ namespace ByteCore.BusinessLogic.Implementations
                 .FirstOrDefault();
         }
 
-        public List<int> GetEnrollmentCountByDate(DateTime fromDate, DateTime toDate)
+        public IEnumerable<int> GetEnrollmentCountByDate(DateTime fromDate, DateTime toDate)
         {
             var start = fromDate.Date;
             var endExclusive = toDate.Date.AddDays(1);

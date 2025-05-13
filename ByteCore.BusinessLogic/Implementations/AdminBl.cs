@@ -2,7 +2,6 @@
 using System.Net;
 using System.Web.Configuration;
 using ByteCore.BusinessLogic.Interfaces;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace ByteCore.BusinessLogic.Implementations

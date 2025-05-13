@@ -19,9 +19,13 @@ namespace ByteCore.BusinessLogic.Implementations
             _db = db;
         }
 
-        public IEnumerable<Quiz> GetQuizzes()
+        public IEnumerable<Quiz> GetQuizzes(int page = 1, int pageSize = 20)
         {
-            return _db.Quizzes.ToList();
+            return _db.Quizzes
+                .OrderByDescending(x => x.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
         }
 
         public Quiz GetQuiz(int id)
@@ -51,7 +55,7 @@ namespace ByteCore.BusinessLogic.Implementations
                 return null;
             }
 
-            if (quiz.Questions.Count != userAnswers.Count)
+            if (quiz.Questions.Count != userAnswers?.Count)
             {
                 throw new InvalidOperationException("Invalid number of answers.");
             }

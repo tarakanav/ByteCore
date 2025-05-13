@@ -13,7 +13,7 @@ namespace ByteCore.Web.Controllers
         private readonly IAuditLogBl _auditLogBl;
         private DateTime? _actionStart;
 
-        public BaseController(IAuditLogBl auditLogBl)
+        protected BaseController(IAuditLogBl auditLogBl)
         {
             _auditLogBl = auditLogBl;
         }
