@@ -22,5 +22,7 @@ namespace ByteCore.BusinessLogic.Interfaces
         List<int> GetUserCountByRegistrationDate(DateTime fromDate, DateTime toDate);
         List<LoginLog> GetLoginLogs(int page = 1, int pageSize = 20);
         int GetLoginLogCount();
+        IEnumerable<User> GetAll(int page = 1, int pageSize = 20);
+        void UpdateUserRange(IEnumerable<User> users);
     }
 }

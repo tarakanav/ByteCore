@@ -1,0 +1,77 @@
+﻿@model List<ByteCore.Domain.UserScope.User>
+
+@{
+    ViewBag.Title = "Manage Users";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Manage Users</h2>
+
+@using (Html.BeginForm("ManageUsers", "Admin", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Browser</th>
+                <th>Registered</th>
+                <th>Last Seen</th>
+            </tr>
+        </thead>
+        <tbody>
+        @for (var i = 0; i < Model.Count; i++)
+        {
+            <tr>
+                @Html.HiddenFor(m => m[i].Id)
+
+                <td>@Model[i].Id</td>
+
+                <td>
+                    @Html.TextBoxFor(m => m[i].Name, new { @class = "form-control", style = "min-width:150px" })
+                    @Html.ValidationMessageFor(m => m[i].Name, "", new { @class = "text-danger" })
+                </td>
+
+                <td>
+                    @Html.TextBoxFor(m => m[i].Email, new { @class = "form-control", style = "min-width:200px" })
+                    @Html.ValidationMessageFor(m => m[i].Email, "", new { @class = "text-danger" })
+                </td>
+
+                <td>
+                    @Html.DropDownListFor(m => m[i].Role, 
+                        new SelectList(new[] { "User", "Moderator", "Admin" }, Model[i].Role),
+                        new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m[i].Role, "", new { @class = "text-danger" })
+                </td>
+
+                <td>
+                    <input type="text" class="form-control" value="@Model[i].LatestBrowserUsed" readonly />
+                </td>
+
+                <td>
+                    <input type="text" class="form-control" 
+                           value="@Model[i].RegistrationTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm")" readonly />
+                </td>
+
+                <td>
+                    <input type="text" class="form-control" 
+                           value="@Model[i].LastSeen.ToLocalTime().ToString("yyyy-MM-dd HH:mm")" readonly />
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <div class="form-group">
+        <div class="col-md-offset-0 col-md-12">
+            <button type="submit" class="btn btn-success">Save All Changes</button>
+        </div>
+    </div>
+}
+
+@Html.Partial("_Pager")

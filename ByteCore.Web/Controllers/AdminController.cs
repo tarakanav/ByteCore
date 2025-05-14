@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web.Mvc;
 using ByteCore.BusinessLogic.Attributes;
 using ByteCore.BusinessLogic.Interfaces;
+using ByteCore.Domain.UserScope;
 using ByteCore.Web.Models;
 
 namespace ByteCore.Web.Controllers
@@ -21,7 +22,7 @@ namespace ByteCore.Web.Controllers
             ICourseBl courseBl,
             IQuizBl quizBl,
             IAdminBl adminBl,
-            IAuditLogBl auditLogBl) 
+            IAuditLogBl auditLogBl)
             : base(auditLogBl)
         {
             _userBl = userBl;
@@ -44,8 +45,10 @@ namespace ByteCore.Web.Controllers
                 TotalQuizResults = _quizBl.GetQuizResultCount(),
                 ProjectStartDate = _userBl.GetFirstUser().RegistrationTime,
                 ActiveUsers = _userBl.GetActiveUserCount(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date),
-                NewUsers = _userBl.GetUserCountByRegistrationDate(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date),
-                NewEnrollments = _courseBl.GetEnrollmentCountByDate(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date).ToList(),
+                NewUsers = _userBl.GetUserCountByRegistrationDate(DateTime.UtcNow.AddDays(-6).Date,
+                    DateTime.UtcNow.Date),
+                NewEnrollments = _courseBl
+                    .GetEnrollmentCountByDate(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date).ToList(),
                 CelsiusTemperature = _adminBl.GetCurrentTemperature(),
                 LastUser = _userBl.GetLastUser(),
                 BrowserUsages = _userBl.GetBrowserUsages(),
@@ -53,7 +56,7 @@ namespace ByteCore.Web.Controllers
             };
             return View(model);
         }
-        
+
         // GET: Admin/LogsAudit
         [CustomAuthorize("Admin")]
         [Route("LogsAudit")]
@@ -63,13 +66,14 @@ namespace ByteCore.Web.Controllers
             {
                 page = 1;
             }
+
             const int pageSize = 20;
             var users = _auditLogBl.GetAll(page, pageSize);
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)_auditLogBl.GetLogCount() / pageSize);
             return View("AuditLog", users);
         }
-        
+
         // GET: Admin/LogsLogin
         [CustomAuthorize("Admin")]
         [Route("LogsLogin")]
@@ -79,11 +83,56 @@ namespace ByteCore.Web.Controllers
             {
                 page = 1;
             }
+
             const int pageSize = 20;
             var loginLogs = _userBl.GetLoginLogs(page, pageSize);
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)_userBl.GetLoginLogCount() / pageSize);
             return View("LoginLog", loginLogs);
+        }
+
+        // GET: Admin/ManageUsers
+        [CustomAuthorize("Admin")]
+        [Route("ManageUsers")]
+        public ActionResult ManageUsers(int page = 1)
+        {
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            const int pageSize = 20;
+            var users = _userBl.GetAll(page, pageSize);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)_userBl.GetUserCount() / pageSize);
+            return View(users.ToList());
+        }
+
+        // POST: Admin/ManageUsers
+        [CustomAuthorize("Admin")]
+        [Route("ManageUsers")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ManageUsers(List<User> users)
+        {
+            if (users == null || users.Count == 0 || !ModelState.IsValid)
+            {
+                ModelState.AddModelError("", "Invalid data provided.");
+                users = _userBl.GetAll(1, 20).ToList();
+                return View(users);
+            }
+
+            var currentAdmin = users.FirstOrDefault(x => x.Email == User.Identity.Name);
+            if (currentAdmin != null &&
+                !string.Equals(currentAdmin.Role, "Admin", StringComparison.CurrentCultureIgnoreCase))
+            {
+                ModelState.AddModelError("", "You cannot modify your own role.");
+                users = _userBl.GetAll(1, 20).ToList();
+                return View(users);
+            }
+
+            _userBl.UpdateUserRange(users);
+            return RedirectToAction("ManageUsers");
         }
     }
 }

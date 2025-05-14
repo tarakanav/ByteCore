@@ -294,5 +294,32 @@ namespace ByteCore.BusinessLogic.Implementations
         {
             return _db.LoginLogs.Count();
         }
+
+        public IEnumerable<User> GetAll(int page = 1, int pageSize = 20)
+        {
+            return _db.Users
+                .Include(x => x.EnrolledCourses.Select(c => c.Course.Chapters))
+                .Include(x => x.CompletedChapters)
+                .OrderByDescending(x => x.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        public void UpdateUserRange(IEnumerable<User> users)
+        {
+            foreach (var user in users)
+            {
+                var existingUser = _db.Users.FirstOrDefault(u => u.Id == user.Id);
+                if (existingUser != null)
+                {
+                    existingUser.Name = user.Name;
+                    existingUser.Email = user.Email;
+                    existingUser.Role = user.Role;
+                }
+            }
+
+            _db.SaveChanges();
+        }
     }
 }

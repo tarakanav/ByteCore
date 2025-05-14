@@ -11,9 +11,12 @@
                 <span class="text-gradient d-inline">Courses</span>
             </h1>
         </div>
-        <div class="text-center mb-4">
-            <a href="@Url.Action("Create", "Courses")" class="btn btn-success">Create Course</a>
-        </div>
+        @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+        {
+            <div class="text-center mb-4">
+                <a href="@Url.Action("Create", "Courses")" class="btn btn-success">Create Course</a>
+            </div>
+        }
         <div class="row gx-5 justify-content-center">
             @foreach (var course in Model)
             {

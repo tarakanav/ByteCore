@@ -180,7 +180,7 @@ namespace ByteCore.Web.Controllers
         }
 
         // GET: /Courses/{courseId}/Chapters/{chapterId}/Edit
-        [CustomAuthorize("Admin")]
+        [CustomAuthorize("Moderator,Admin")]
         [HttpGet]
         [Route("{chapterId:int}/Edit")]
         public ActionResult Edit(int courseId, int chapterId)
@@ -193,7 +193,7 @@ namespace ByteCore.Web.Controllers
         }
 
         // POST: /Courses/{courseId}/Chapters/{chapterId}/Edit
-        [CustomAuthorize("Admin")]
+        [CustomAuthorize("Moderator,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("{chapterId:int}/Edit")]
@@ -217,7 +217,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // POST: /Courses/{courseId}/Chapters/{chapterId}/Delete
-        [CustomAuthorize("Admin")]
+        [CustomAuthorize("Moderator,Admin")]
         [HttpPost]
         [Route("{chapterId:int}/Delete")]
         [ValidateAntiForgeryToken]
@@ -234,7 +234,7 @@ namespace ByteCore.Web.Controllers
         }
         
         // GET: /Courses/5/Chapters/Create
-        [CustomAuthorize("Admin")]
+        [CustomAuthorize("Moderator,Admin")]
         [HttpGet]
         [Route("Create")]
         public ActionResult Create(int courseId)
@@ -247,7 +247,7 @@ namespace ByteCore.Web.Controllers
         }
 
         // POST: /Courses/5/Chapters/Create
-        [CustomAuthorize("Admin")]
+        [CustomAuthorize("Moderator,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("Create")]

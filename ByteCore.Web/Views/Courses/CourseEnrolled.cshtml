@@ -21,7 +21,11 @@
                 <div class="mt-4">
                     <a href="@Url.Action("Index", "Chapter", new { courseId = Model.Id, chapterId = 1 })"
                        class="btn btn-success btn-lg d-inline">To The Course</a>
-                    <a href="@Url.Action("Edit", "Courses")" class="btn btn-primary btn-lg d-inline ms-2">Edit Course</a>
+                    @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                    {
+                        <a href="@Url.Action("Edit", "Courses")" class="btn btn-primary btn-lg d-inline ms-2">Edit
+                            Course</a>
+                    }
                     @if (TempData["PassMessage"] != null)
                     {
                         <div class="alert alert-success mt-4">

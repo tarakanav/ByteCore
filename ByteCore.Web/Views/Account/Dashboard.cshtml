@@ -23,6 +23,10 @@
           <div class="card-body text-center">
             <h5 class="fw-bolder">@Model.Name</h5>
             <p class="text-muted mb-2">@Model.Email</p>
+            @if (User.IsInRole("Admin"))
+            {
+              <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-success me-6">Admin Panel</a>
+            }
             <a href="@Url.Action("Manage", "Account")" class="btn btn-outline-primary me-2">Manage Account</a>
             <a href="@Url.Action("Logout", "Account")" class="btn btn-outline-danger">Logout</a>
           </div>

@@ -1,19 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Optimization;
 using System.Web.Routing;
-using System.Web.Security;
-using System.Web.SessionState;
 using ByteCore.BusinessLogic.Interfaces;
-using ByteCore.Web.Controllers;
-using Unity;
-using Unity.Lifetime;
-using Unity.Mvc5;
 
 namespace ByteCore.Web
 {
@@ -43,8 +33,10 @@ namespace ByteCore.Web
             identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
             identity.AddClaim(new Claim(ClaimTypes.Name, user.Email));
             identity.AddClaim(new Claim("http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider", "CustomIdentityProvider"));
-            
-            HttpContext.Current.User = new ClaimsPrincipal(identity);
+
+            identity.AddClaim(new Claim(ClaimTypes.Role, user.Role));
+            var userClaims = new ClaimsPrincipal(identity);
+            HttpContext.Current.User = userClaims;
         }
     }
 }

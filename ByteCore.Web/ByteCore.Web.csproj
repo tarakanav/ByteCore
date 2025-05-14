@@ -10467,6 +10467,7 @@
     <Content Include="Views\Account\Manage.cshtml" />
     <Content Include="Views\Admin\AuditLog.cshtml" />
     <Content Include="Views\Admin\LoginLog.cshtml" />
+    <Content Include="Views\Admin\ManageUsers.cshtml" />
     <Content Include="Views\Chapter\Index.cshtml" />
     <Content Include="Views\Courses\CourseEnrolled.cshtml" />
     <Content Include="Views\Courses\Create.cshtml" />

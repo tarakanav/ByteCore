@@ -13,7 +13,7 @@ Layout = "~/Views/Shared/_Layout.cshtml";
                     <h2>Test Results</h2>
                 </div>
                 <div class="card-body text-center">
-                    @if (User.Identity.Name != Model.User.Email && !User.IsInRole("Admin"))
+                    @if (User.Identity.Name != Model.User.Email && !(Model.User.Role.ToLower() == "Admin".ToLower() || Model.User.Role.ToLower() == "Moderator".ToLower()))
                     {
                     <div class="alert alert-danger">
                         <h3 class="mb-3">Access Denied</h3>
