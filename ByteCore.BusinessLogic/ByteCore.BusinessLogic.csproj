@@ -205,6 +205,18 @@
     <Compile Include="Migrations\202505072126404_User_Logging_Id_Fix2.Designer.cs">
       <DependentUpon>202505072126404_User_Logging_Id_Fix2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202505141120309_Added_Data_Annotations.cs" />
+    <Compile Include="Migrations\202505141120309_Added_Data_Annotations.Designer.cs">
+      <DependentUpon>202505141120309_Added_Data_Annotations.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202505141201170_Added_Data_Annotations_2.cs" />
+    <Compile Include="Migrations\202505141201170_Added_Data_Annotations_2.Designer.cs">
+      <DependentUpon>202505141201170_Added_Data_Annotations_2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202505141211351_Added_Data_Annotations_3.cs" />
+    <Compile Include="Migrations\202505141211351_Added_Data_Annotations_3.Designer.cs">
+      <DependentUpon>202505141211351_Added_Data_Annotations_3.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interfaces\IAdminBl.cs" />
@@ -262,6 +274,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202505072126404_User_Logging_Id_Fix2.resx">
       <DependentUpon>202505072126404_User_Logging_Id_Fix2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505141120309_Added_Data_Annotations.resx">
+      <DependentUpon>202505141120309_Added_Data_Annotations.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505141201170_Added_Data_Annotations_2.resx">
+      <DependentUpon>202505141201170_Added_Data_Annotations_2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505141211351_Added_Data_Annotations_3.resx">
+      <DependentUpon>202505141211351_Added_Data_Annotations_3.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -48,7 +48,7 @@ namespace ByteCore.Web.Controllers
 
                 var log = new AuditLog
                 {
-                    UserId = parseResult ? userId : 0,
+                    UserId = parseResult ? (int?)userId : null,
                     ActionTime = _actionStart.Value,
 
                     ControllerName = filterContext.ActionDescriptor.ControllerDescriptor.ControllerName,

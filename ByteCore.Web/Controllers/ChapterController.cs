@@ -230,7 +230,7 @@ namespace ByteCore.Web.Controllers
             }
 
             await _courseBl.DeleteChapterAsync(courseId, chapterId);
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Courses");
         }
         
         // GET: /Courses/5/Chapters/Create

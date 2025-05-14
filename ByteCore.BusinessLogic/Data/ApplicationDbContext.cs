@@ -20,5 +20,17 @@ namespace ByteCore.BusinessLogic.Data
         public DbSet<LoginLog> LoginLogs { get; set; }
 
         public ApplicationDbContext() : base("name=DefaultConnection") { }
+        
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<AuditLog>()
+                .HasOptional(a => a.User)         // ← “optional” nav property
+                .WithMany(u => u.AuditLogs)
+                .HasForeignKey(a => a.UserId)     // ← points at your nullable int?
+                .WillCascadeOnDelete(false);      // ← prevents cascade delete
+        }
+
     }
 }

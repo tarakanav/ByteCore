@@ -9,6 +9,7 @@ namespace ByteCore.Domain.UserScope
         [Key]
         public int Id { get; set; }
         [ForeignKey(nameof(User))]
+        public int UserId { get; set; }
         public User User { get; set; }
         public string CookieString { get; set; }
         public DateTime ExpireTime { get; set; }

@@ -8,10 +8,10 @@ namespace ByteCore.Domain.UserScope
     {
         [Key]
         public int Id { get; set; }
-        
+
         public virtual User User { get; set; }
         [ForeignKey(nameof(User))]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public DateTime ActionTime { get; set; }
 
         [MaxLength(100)]

@@ -16,7 +16,6 @@ namespace ByteCore.Domain.QuizScope
         [ForeignKey(nameof(User))]
         public int UserId { get; set; }
         public User User { get; set; }
-        [InverseProperty(nameof(QuizResultAnswer.QuizResult))]
         public List<QuizResultAnswer> Answers { get; set; } = new List<QuizResultAnswer>();
     }
 }

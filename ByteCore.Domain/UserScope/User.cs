@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ByteCore.Domain.CourseScope;
+using ByteCore.Domain.QuizScope;
 
 namespace ByteCore.Domain.UserScope
 {
@@ -26,9 +27,8 @@ namespace ByteCore.Domain.UserScope
         public virtual List<UserLastSeen> LastSeenHistory { get; set; } = new List<UserLastSeen>();
         [InverseProperty(nameof(UserCourse.User))]
         public virtual List<UserCourse> EnrolledCourses { get; set; } = new List<UserCourse>();
-        [InverseProperty(nameof(CourseScope.Chapter.UsersCompleted))]
+        [InverseProperty(nameof(Chapter.UsersCompleted))]
         public virtual List<Chapter> CompletedChapters { get; set; } = new List<Chapter>();
-        [InverseProperty(nameof(AuditLog.User))]
         public virtual List<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
         [InverseProperty(nameof(LoginLog.User))]
         public virtual List<LoginLog> LoginLogs { get; set; } = new List<LoginLog>();

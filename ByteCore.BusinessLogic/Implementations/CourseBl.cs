@@ -30,7 +30,7 @@ namespace ByteCore.BusinessLogic.Implementations
 
         public Course GetCourse(int id)
         {
-            return _db.Courses
+            var course = _db.Courses
                 .Include(c => c.Chapters.Select(ch => ch.UsersCompleted))
                 .Include(x => x.Chapters.Select(chapter => chapter.Sections))
                 .Include(x => x.Chapters.Select(chapter => chapter.Sections.Select(section => section.Quiz)))
@@ -38,6 +38,10 @@ namespace ByteCore.BusinessLogic.Implementations
                 .Include(x => x.Chapters.Select(chapter =>
                     chapter.Sections.Select(section => section.Quiz.Questions.Select(question => question.Options))))
                 .FirstOrDefault(x => x.Id == id);
+
+            if (course == null) return null;
+            course.Chapters = course.Chapters.OrderBy(x => x.ChapterNumber).ToList();
+            return course;
         }
 
         public bool IsUserEnrolled(int courseId, string email)
