@@ -15,7 +15,6 @@ namespace ByteCore.Domain.UserScope
         public string Name { get; set; }
         [Required, MaxLength(200)]
         public string Email { get; set; }
-        [Required]
         public string Password { get; set; }
         [MaxLength(50)]
         public string Role { get; set; } = "User";

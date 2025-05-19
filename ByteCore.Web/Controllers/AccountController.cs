@@ -100,6 +100,11 @@ namespace ByteCore.Web.Controllers
                 ModelState.AddModelError("", ex.Message);
                 return View();
             }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View();
+            }
         }
 
         // GET: Account/Dashboard

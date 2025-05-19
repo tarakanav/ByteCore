@@ -13,6 +13,7 @@ namespace ByteCore.BusinessLogic.Data
         public DbSet<UserCourse> UserCourses { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Question> Questions { get; set; }
+        public DbSet<QuestionOption> QuestionOptions { get; set; }
         public DbSet<QuizResult> QuizResults { get; set; }
         public DbSet<QuizResultAnswer> QuizResultAnswers { get; set; }
         public DbSet<UserSession> UserSessions { get; set; }

@@ -49,7 +49,7 @@ namespace ByteCore.BusinessLogic.Implementations
         {
             var quiz = _db.Quizzes.Include(quizModel => quizModel.Questions).FirstOrDefault(q => q.Id == id);
             var user = _db.Users.FirstOrDefault(u => u.Email == email);
-            
+
             if (quiz == null || user == null)
             {
                 return null;
@@ -59,7 +59,7 @@ namespace ByteCore.BusinessLogic.Implementations
             {
                 throw new InvalidOperationException("Invalid number of answers.");
             }
-            
+
             var answers = new List<QuizResultAnswer>();
 
             for (var i = 0; i < quiz.Questions.Count; i++)
@@ -67,7 +67,7 @@ namespace ByteCore.BusinessLogic.Implementations
                 var question = quiz.Questions[i];
                 var answer = userAnswers[i];
                 var correct = question.CorrectOption == answer;
-                
+
                 answers.Add(new QuizResultAnswer
                 {
                     Question = question,
@@ -75,17 +75,17 @@ namespace ByteCore.BusinessLogic.Implementations
                     IsCorrect = correct,
                 });
             }
-            
+
             var quizResult = new QuizResult
             {
                 Quiz = quiz,
                 Answers = answers,
                 User = user
             };
-            
+
             _db.QuizResults.Add(quizResult);
             await _db.SaveChangesAsync();
-            
+
             return quizResult;
         }
 
@@ -95,21 +95,89 @@ namespace ByteCore.BusinessLogic.Implementations
             await _db.SaveChangesAsync();
         }
 
-        public Task UpdateQuizAsync(int id, Quiz quiz)
+        public async Task UpdateQuizAsync(int id, Quiz quiz)
         {
-            var existingQuiz = _db.Quizzes.Include(quizModel => quizModel.Questions).FirstOrDefault(q => q.Id == id);
-            
+            var existingQuiz = await _db.Quizzes
+                .Include(quizModel => quizModel.Questions)
+                .Include(quizModel => quizModel.Questions.Select(q => q.Options))
+                .FirstOrDefaultAsync(q => q.Id == id);
+
             if (existingQuiz == null)
             {
                 throw new InvalidOperationException("Quiz not found.");
             }
-            
+
             existingQuiz.Title = quiz.Title;
             existingQuiz.PassingPercentage = quiz.PassingPercentage;
             existingQuiz.RewardPoints = quiz.RewardPoints;
-            existingQuiz.Questions = quiz.Questions;
-            
-            return _db.SaveChangesAsync();
+
+            var incomingQuestionIds = quiz.Questions.Where(q => q.Id != 0).Select(q => q.Id).ToList();
+            var questionsToDelete = existingQuiz.Questions
+                .Where(q => !incomingQuestionIds.Contains(q.Id))
+                .ToList();
+
+            foreach (var question in questionsToDelete)
+            {
+                _db.Questions.Remove(question);
+            }
+
+            foreach (var incomingQuestion in quiz.Questions)
+            {
+                if (incomingQuestion.Id == 0)
+                {
+                    incomingQuestion.QuizId = existingQuiz.Id;
+                    existingQuiz.Questions.Add(incomingQuestion);
+                    foreach (var newOption in incomingQuestion.Options)
+                    {
+                        newOption.QuestionId =
+                            incomingQuestion.Id;
+                    }
+                }
+                else
+                {
+                    var existingQuestion = existingQuiz.Questions
+                        .FirstOrDefault(q => q.Id == incomingQuestion.Id);
+
+                    if (existingQuestion != null)
+                    {
+                        existingQuestion.QuestionText = incomingQuestion.QuestionText;
+                        existingQuestion.CorrectOption = incomingQuestion.CorrectOption;
+
+                        var incomingOptionIds =
+                            incomingQuestion.Options.Where(o => o.Id != 0).Select(o => o.Id).ToList();
+                        
+                        var optionsToDelete = existingQuestion.Options
+                            .Where(o => !incomingOptionIds.Contains(o.Id))
+                            .ToList();
+
+                        foreach (var option in optionsToDelete)
+                        {
+                            _db.QuestionOptions.Remove(option);
+                        }
+                        
+                        foreach (var incomingOption in incomingQuestion.Options)
+                        {
+                            if (incomingOption.Id == 0)
+                            {
+                                incomingOption.QuestionId = existingQuestion.Id; 
+                                existingQuestion.Options.Add(incomingOption); 
+                            }
+                            else
+                            {
+                                var existingOption = existingQuestion.Options
+                                    .FirstOrDefault(o => o.Id == incomingOption.Id);
+
+                                if (existingOption != null)
+                                {
+                                    existingOption.OptionText = incomingOption.OptionText;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            await _db.SaveChangesAsync();
         }
 
         public async Task DeleteQuizAsync(int id)
@@ -138,6 +206,7 @@ namespace ByteCore.BusinessLogic.Implementations
             {
                 _db.QuizResultAnswers.RemoveRange(result.Answers);
             }
+
             _db.QuizResults.RemoveRange(relatedResults);
             _db.Questions.RemoveRange(quiz.Questions);
             _db.Quizzes.Remove(quiz);

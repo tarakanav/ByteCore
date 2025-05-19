@@ -30,14 +30,16 @@
             @Html.ValidationMessageFor(model => model.PassingPercentage, "", new { @class = "text-danger" })
         </div>
 
-
-    <h3>Questions</h3>
+        <h3>Questions</h3>
         <div id="questions-container">
             @for (var i = 0; i < Model.Questions.Count; i++)
             {
                 <div class="question-item border rounded p-3 mb-3" data-index="@i">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h4>Question @(i + 1)</h4>
+                        @Html.HiddenFor(model => model.Questions[i].Id)
+                        @* ADDED: Remove Question button for initially loaded questions *@
+                        <button type="button" class="btn btn-danger btn-sm remove-question">Remove Question</button>
                     </div>
 
                     <div class="form-group">
@@ -46,17 +48,22 @@
                         @Html.ValidationMessageFor(model => model.Questions[i].QuestionText, "", new { @class = "text-danger" })
                     </div>
 
-
                     <div class="form-group">
                         <label>Options</label>
                         <div class="options-container">
                             @for (var j = 0; j < Model.Questions[i].Options.Count; j++)
                             {
                                 <div class="input-group mb-2 option-item">
+                                    @Html.HiddenFor(model => model.Questions[i].Options[j].Id)
                                     @Html.TextBoxFor(model => model.Questions[i].Options[j].OptionText, new { @class = "form-control", placeholder = "Option " + (j + 1) })
                                     @Html.ValidationMessageFor(model => model.Questions[i].Options[j].OptionText, "", new { @class = "text-danger" })
                                 </div>
                             }
+                        </div>
+                        @* ADDED: Add/Remove Option buttons for initially loaded questions *@
+                        <div class="options-buttons mt-2">
+                            <button type="button" class="btn btn-secondary add-option">Add Option</button>
+                            <button type="button" class="btn btn-secondary remove-last-option">Remove Latest Option</button>
                         </div>
                     </div>
 
@@ -88,13 +95,23 @@
 
 @section Scripts {
     <script>
-        function reindexOptions(questionDiv, qIndex) {
+        function reindexOptions(questionDiv, oIndex) {
             const optionItems = questionDiv.querySelectorAll('.options-container .option-item');
             optionItems.forEach((optionDiv, oIndex) => {
                 optionDiv.setAttribute('data-index', oIndex);
-                const optionInput = optionDiv.querySelector('input');
-                optionInput.name = `Questions[${qIndex}].Options[${oIndex}].OptionText`;
-                optionInput.placeholder = 'Option ' + (oIndex + 1);
+                const qIndex = questionDiv.getAttribute('data-index'); // Get qIndex from parent
+
+                const optionIdInput = optionDiv.querySelector('input[type="hidden"][name^="Questions"][name$=".Id"]');
+                if (optionIdInput) {
+                    optionIdInput.name = `Questions[${qIndex}].Options[${oIndex}].Id`;
+                }
+
+                const optionTextInput = optionDiv.querySelector('input[type="text"][name^="Questions"]');
+                if (optionTextInput) {
+                    optionTextInput.name = `Questions[${qIndex}].Options[${oIndex}].OptionText`;
+                    optionTextInput.id = `Questions_${qIndex}__Options_${oIndex}__OptionText`;
+                    optionTextInput.placeholder = 'Option ' + (oIndex + 1);
+                }
             });
         }
 
@@ -103,7 +120,13 @@
             questionItems.forEach((questionDiv, qIndex) => {
                 questionDiv.setAttribute('data-index', qIndex);
                 questionDiv.querySelector('h4').textContent = 'Question ' + (qIndex + 1);
-                const qText = questionDiv.querySelector('input[name^="Questions"]');
+
+                const questionIdInput = questionDiv.querySelector('input[type="hidden"][name^="Questions"][name$=".Id"]');
+                if (questionIdInput) {
+                    questionIdInput.name = `Questions[${qIndex}].Id`;
+                }
+
+                const qText = questionDiv.querySelector('input[name^="Questions"][name$=".QuestionText"]');
                 if (qText) {
                     qText.name = `Questions[${qIndex}].QuestionText`;
                     qText.id = `Questions_${qIndex}__QuestionText`;
@@ -112,7 +135,7 @@
                         label.setAttribute('for', `Questions_${qIndex}__QuestionText`);
                     }
                 }
-                const correctInput = questionDiv.querySelector('input[name^="Questions"][name$="CorrectOption"]');
+                const correctInput = questionDiv.querySelector('input[name^="Questions"][name$=".CorrectOption"]');
                 if (correctInput) {
                     correctInput.name = `Questions[${qIndex}].CorrectOption`;
                     correctInput.id = `Questions_${qIndex}__CorrectOption`;
@@ -121,7 +144,7 @@
                         correctLabel.setAttribute('for', `Questions_${qIndex}__CorrectOption`);
                     }
                 }
-                reindexOptions(questionDiv, qIndex);
+                reindexOptions(questionDiv, qIndex); // Pass qIndex to reindexOptions
             });
         }
 
@@ -136,6 +159,7 @@
                 <div class="question-item border rounded p-3 mb-3" data-index="${index}">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h4>Question ${index + 1}</h4>
+                        <input type="hidden" name="Questions[${index}].Id" value="0" />
                         <button type="button" class="btn btn-danger btn-sm remove-question">Remove Question</button>
                     </div>
                     <div class="form-group">
@@ -146,15 +170,19 @@
                         <label>Options</label>
                         <div class="options-container">
                             <div class="input-group mb-2 option-item" data-index="0">
+                                <input type="hidden" name="Questions[${index}].Options[0].Id" value="0" />
                                 <input class="form-control" type="text" name="Questions[${index}].Options[0].OptionText" placeholder="Option 1" />
                             </div>
                             <div class="input-group mb-2 option-item" data-index="1">
+                                <input type="hidden" name="Questions[${index}].Options[1].Id" value="0" />
                                 <input class="form-control" type="text" name="Questions[${index}].Options[1].OptionText" placeholder="Option 2" />
                             </div>
                             <div class="input-group mb-2 option-item" data-index="2">
+                                <input type="hidden" name="Questions[${index}].Options[2].Id" value="0" />
                                 <input class="form-control" type="text" name="Questions[${index}].Options[2].OptionText" placeholder="Option 3" />
                             </div>
                             <div class="input-group mb-2 option-item" data-index="3">
+                                <input type="hidden" name="Questions[${index}].Options[3].Id" value="0" />
                                 <input class="form-control" type="text" name="Questions[${index}].Options[3].OptionText" placeholder="Option 4" />
                             </div>
                         </div>
@@ -175,12 +203,11 @@
         document.getElementById('questions-container').addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-question')) {
                 const container = document.getElementById('questions-container');
-                if (container.children.length > 1) {
+                // Allow removing all questions now for flexibility, or keep > 1 check
+                if (container.children.length > 0) {
                     const questionDiv = e.target.closest('.question-item');
                     questionDiv.remove();
                     reindexQuestions();
-                } else {
-                    alert("At least one question is required.");
                 }
             }
             if (e.target.classList.contains('add-option')) {
@@ -194,6 +221,7 @@
                 const newIndex = optionsContainer.children.length;
                 const optionHtml = `
                     <div class="input-group mb-2 option-item" data-index="${newIndex}">
+                        <input type="hidden" name="Questions[${qIndex}].Options[${newIndex}].Id" value="0" />
                         <input class="form-control" type="text" name="Questions[${qIndex}].Options[${newIndex}].OptionText" placeholder="Option ${newIndex + 1}" />
                     </div>`;
                 optionsContainer.insertAdjacentHTML('beforeend', optionHtml);
@@ -202,12 +230,11 @@
             if (e.target.classList.contains('remove-last-option')) {
                 const questionDiv = e.target.closest('.question-item');
                 const optionsContainer = questionDiv.querySelector('.options-container');
-                if (optionsContainer.children.length > 1) {
+                // Allow removing all options if needed, or keep > 1 check
+                if (optionsContainer.children.length > 0) {
                     optionsContainer.lastElementChild.remove();
                     const qIndex = questionDiv.getAttribute('data-index');
                     reindexOptions(questionDiv, qIndex);
-                } else {
-                    alert("A question must have at least one option.");
                 }
             }
         });

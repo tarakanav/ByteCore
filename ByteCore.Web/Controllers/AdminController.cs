@@ -131,7 +131,16 @@ namespace ByteCore.Web.Controllers
                 return View(users);
             }
 
-            _userBl.UpdateUserRange(users);
+            try
+            {
+                _userBl.UpdateUserRange(users);
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", $"An error occurred while updating users: {ex.Message}");
+                users = _userBl.GetAll(1, 20).ToList();
+                return View(users);
+            }
             return RedirectToAction("ManageUsers");
         }
     }

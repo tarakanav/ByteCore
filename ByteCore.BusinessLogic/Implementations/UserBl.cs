@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using ByteCore.BusinessLogic.Data;
@@ -20,6 +21,26 @@ namespace ByteCore.BusinessLogic.Implementations
             _db = db;
         }
 
+        private bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return false;
+            }
+            try
+            {
+                return Regex.IsMatch(email,
+                    @"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|"
+                    + @"([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)"
+                    + @"(?<!\.)@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$",
+                    RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
+        }
+
         public async Task<User> RegisterUserAsync(
             string name,
             string email,
@@ -28,6 +49,11 @@ namespace ByteCore.BusinessLogic.Implementations
             string ip = null,
             string userAgent = null)
         {
+            if (!IsValidEmail(email))
+            {
+                throw new InvalidOperationException("Invalid email format.");
+            }
+
             if (_db.Users.Any(u => u.Email == email || u.Name == name))
             {
                 throw new InvalidOperationException("User with this name or email already exists.");
@@ -65,6 +91,11 @@ namespace ByteCore.BusinessLogic.Implementations
             string ip = null,
             string userAgent = null)
         {
+            if (!IsValidEmail(email))
+            {
+                throw new InvalidOperationException("Invalid email format.");
+            }
+
             var user = _db.Users.FirstOrDefault(u => u.Email == email);
             if (user == null || !PasswordHasher.VerifyPassword(password, user.Password))
             {
@@ -97,6 +128,11 @@ namespace ByteCore.BusinessLogic.Implementations
 
         public User GetUserByEmail(string email)
         {
+            if (!IsValidEmail(email))
+            {
+                throw new ArgumentException("Invalid email format.");
+            }
+
             return _db.Users
                 .Include(u => u.EnrolledCourses.Select(c => c.Course.Chapters))
                 .Include(u => u.CompletedChapters)
@@ -105,20 +141,30 @@ namespace ByteCore.BusinessLogic.Implementations
 
         public async Task<User> UpdateUserAsync(string currentEmail, User updatedUser)
         {
+            if (!IsValidEmail(currentEmail))
+            {
+                throw new ArgumentException("Invalid current email format.");
+            }
+
+            if (!IsValidEmail(updatedUser.Email))
+            {
+                throw new ArgumentException("Invalid email format for updated user.");
+            }
+
             var user = _db.Users.FirstOrDefault(u => u.Email == currentEmail);
             if (user == null)
             {
                 throw new InvalidOperationException("User not found.");
             }
-
-            if (_db.Users.Any(u => u.Name == updatedUser.Name && u.Email != currentEmail))
-            {
-                throw new InvalidOperationException("User with this name already exists.");
-            }
-
-            if (_db.Users.Any(u => u.Email == updatedUser.Email && u.Email != currentEmail))
+            
+            if (!user.Email.Equals(updatedUser.Email, StringComparison.OrdinalIgnoreCase) && _db.Users.Any(u => u.Email == updatedUser.Email && u.Id != user.Id))
             {
                 throw new InvalidOperationException("User with this email already exists.");
+            }
+            
+            if (_db.Users.Any(u => u.Name == updatedUser.Name && u.Id != user.Id))
+            {
+                throw new InvalidOperationException("User with this name already exists.");
             }
 
             user.Name = updatedUser.Name;
@@ -131,6 +177,11 @@ namespace ByteCore.BusinessLogic.Implementations
 
         public async Task<HttpCookie> GetUserCookieAsync(string email, bool rememberMe = false)
         {
+            if (!IsValidEmail(email))
+            {
+                throw new InvalidOperationException("Invalid email format.");
+            }
+
             var cookie = new HttpCookie("X-KEY")
             {
                 Value = CookieGenerator.Create(email),
@@ -141,6 +192,10 @@ namespace ByteCore.BusinessLogic.Implementations
             if (session == null)
             {
                 var user = await _db.Users.FirstOrDefaultAsync(x => x.Email == email);
+                if (user == null)
+                {
+                    throw new InvalidOperationException("User not found for cookie creation.");
+                }
                 session = new UserSession
                 {
                     User = user,
@@ -173,14 +228,18 @@ namespace ByteCore.BusinessLogic.Implementations
                 _db.SaveChanges();
             }
 
-            if (!session?.User.LastSeenHistory.Select(x => x.SeenOn).Contains(DateTime.Today) ?? false)
+            if (session?.User != null && (session.User.LastSeenHistory == null || !session.User.LastSeenHistory.Select(x => x.SeenOn).Contains(DateTime.Today)))
             {
-                if (session.User.LastSeenHistory != null)
-                    session.User.LastSeenHistory.Add(new UserLastSeen
-                    {
-                        SeenOn = DateTime.Today,
-                        User = session.User
-                    });
+                if (session.User.LastSeenHistory == null)
+                {
+                    session.User.LastSeenHistory = new List<UserLastSeen>();
+                }
+                session.User.LastSeenHistory.Add(new UserLastSeen
+                {
+                    SeenOn = DateTime.Today,
+                    User = session.User
+                });
+                _db.SaveChanges();
             }
 
             return session?.User;
@@ -310,9 +369,24 @@ namespace ByteCore.BusinessLogic.Implementations
         {
             foreach (var user in users)
             {
+                if (!IsValidEmail(user.Email))
+                {
+                    throw new InvalidOperationException($"Invalid email format for user with ID: {user.Id} or Name: {user.Name}.");
+                }
+
                 var existingUser = _db.Users.FirstOrDefault(u => u.Id == user.Id);
                 if (existingUser != null)
                 {
+                    if (!existingUser.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase) && _db.Users.Any(u => u.Email == user.Email && u.Id != user.Id))
+                    {
+                        throw new InvalidOperationException($"Cannot update user with ID: {user.Id}. The email '{user.Email}' is already in use by another user.");
+                    }
+
+                    if (_db.Users.Any(u => u.Name == user.Name && u.Id != user.Id))
+                    {
+                        throw new InvalidOperationException($"Cannot update user with ID: {user.Id}. Another user already has this name.");
+                    }
+
                     existingUser.Name = user.Name;
                     existingUser.Email = user.Email;
                     existingUser.Role = user.Role;

@@ -217,6 +217,10 @@
     <Compile Include="Migrations\202505141211351_Added_Data_Annotations_3.Designer.cs">
       <DependentUpon>202505141211351_Added_Data_Annotations_3.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202505192237130_Data_Annotations_Fix.cs" />
+    <Compile Include="Migrations\202505192237130_Data_Annotations_Fix.Designer.cs">
+      <DependentUpon>202505192237130_Data_Annotations_Fix.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interfaces\IAdminBl.cs" />
@@ -283,6 +287,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202505141211351_Added_Data_Annotations_3.resx">
       <DependentUpon>202505141211351_Added_Data_Annotations_3.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505192237130_Data_Annotations_Fix.resx">
+      <DependentUpon>202505192237130_Data_Annotations_Fix.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
