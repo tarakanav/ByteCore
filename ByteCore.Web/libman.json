@@ -1,0 +1,30 @@
+{
+  "version": "3.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "jquery@3.7.1",
+      "destination": "lib/jquery/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "bootstrap@5.3.3",
+      "destination": "lib/bootstrap/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "jQuery-slimScroll@1.3.8",
+      "destination": "lib/jQuery-slimScroll/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "jqueryui@1.14.1",
+      "destination": "lib/jqueryui/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "modernizr@2.8.3",
+      "destination": "lib/modernizr/"
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Optimization;
 using System.Web.Routing;
 using ByteCore.BusinessLogic.Interfaces;
 
@@ -14,7 +15,7 @@ namespace ByteCore.Web
            AreaRegistration.RegisterAllAreas();
            RouteConfig.RegisterRoutes(RouteTable.Routes);
            UnityConfig.RegisterComponents();
-           // BundleConfig.RegisterBundles(BundleTable.Bundles);
+           BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
         
         protected void Application_AuthenticateRequest(object sender, EventArgs e)
