@@ -7,25 +7,25 @@ namespace ByteCore.Web
         public static void RegisterBundles(BundleCollection bundles)
         {
             bundles.Add(new Bundle("~/bundles/mainjs").Include(
-                "~/lib/jquery/js/jquery.min.js",
-                "~/lib/popper.js/js/popper.min.js",
-                "~/lib/bootstrap/js/bootstrap.min.js",
-                "~/lib/jquery-slimscroll/js/jquery.slimscroll.js",
-                "~/lib/modernizr/js/modernizr.js",
-                "~/lib/amchart/amcharts.min.js",
-                "~/lib/amchart/serial.min.js",
-                "~/lib/chart.js/js/Chart.js",
-                "~/lib/todo/todo.js",
-                "~/lib/i18next/js/i18next.min.js",
-                "~/lib/i18next-xhr-backend/js/i18nextXHRBackend.min.js",
-                "~/lib/i18next-browser-languagedetector/js/i18nextBrowserLanguageDetector.min.js",
-                "~/lib/jquery-i18next/js/jquery-i18next.min.js",
-                "~/lib/dashboard/custom-dashboard.min.js",
-                "~/lib/SmoothScroll.js",
-                "~/lib/pcoded.min.js",
-                "~/lib/demo-12.js",
-                "~/lib/jquery.mCustomScrollbar.concat.min.js",
-                "~/lib/script.min.js"
+                "~/Content/lib/jquery.min.js",
+                "~/Content/lib/popper.min.js",
+                "~/Content/lib/bootstrap.min.js",
+                "~/Content/lib/jquery.slimscroll.js",
+                "~/Content/lib/modernizr.js",
+                "~/Content/lib/amcharts.min.js",
+                "~/Content/lib/serial.min.js",
+                "~/Content/lib/Chart.js",
+                "~/Content/lib/todo.js",
+                "~/Content/lib/i18next.min.js",
+                "~/Content/lib/i18nextXHRBackend.min.js",
+                "~/Content/lib/i18nextBrowserLanguageDetector.min.js",
+                "~/Content/lib/jquery-i18next.min.js",
+                "~/Content/lib/custom-dashboard.min.js",
+                "~/Content/lib/SmoothScroll.js",
+                "~/Content/lib/pcoded.min.js",
+                "~/Content/lib/demo-12.js",
+                "~/Content/lib/jquery.mCustomScrollbar.concat.min.js",
+                "~/Content/lib/script.min.js"
             ));
 
             BundleTable.EnableOptimizations = true;
