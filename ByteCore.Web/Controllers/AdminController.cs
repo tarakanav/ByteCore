@@ -29,14 +29,14 @@ namespace ByteCore.Web.Controllers
                 TotalEnrollments = courseBl.GetEnrollmentCount(),
                 TotalQuizResults = quizBl.GetQuizResultCount(),
                 ProjectStartDate = userBl.GetFirstUser().RegistrationTime,
-                ActiveUsers = userBl.GetActiveUserCount(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date),
+                ActiveUsers = userBl.GetActiveUserCount(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date).ToList(),
                 NewUsers = userBl.GetUserCountByRegistrationDate(DateTime.UtcNow.AddDays(-6).Date,
-                    DateTime.UtcNow.Date),
+                    DateTime.UtcNow.Date).ToList(),
                 NewEnrollments = courseBl
                     .GetEnrollmentCountByDate(DateTime.UtcNow.AddDays(-6).Date, DateTime.UtcNow.Date).ToList(),
                 CelsiusTemperature = adminBl.GetCurrentTemperature(),
                 LastUser = userBl.GetLastUser(),
-                BrowserUsages = userBl.GetBrowserUsages(),
+                BrowserUsages = userBl.GetBrowserUsages().ToDictionary(x => x.Key, x => x.Value),
                 LastEnrollmentDate = courseBl.GetLatestEnrollment()?.EnrolledDate ?? DateTime.MinValue
             };
             return View(model);

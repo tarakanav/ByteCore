@@ -4,7 +4,6 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web;
 using ByteCore.BusinessLogic.Data;
 using ByteCore.Domain.UserScope;
 using ByteCore.Helpers;
@@ -13,100 +12,36 @@ namespace ByteCore.BusinessLogic.APIs
 {
     public class UserApi
     {
-        internal bool IsValidEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-                return false;
-            try
-            {
-                return Regex.IsMatch(email,
-                    @"^(?!\.)""([^""\r\\]|\\[""\r\\])*""|"
-                    + @"([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)" +
-                    @"(?<!\.)@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*(?:[a-z])$",
-                    RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        internal async Task<User> RegisterUserAction(User user, LoginLog log)
+        internal bool UserExistsByEmailOrNameAction(string email, string name)
         {
             using (var db = new ApplicationDbContext())
             {
-                db.Users.Add(user);
-                db.LoginLogs.Add(log);
+                return db.Users.Any(u => u.Email == email || u.Name == name);
+            }
+        }
+
+        internal bool UserExistsByEmailExcludingIdAction(string email, int userId)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                return db.Users.Any(u => u.Email == email && u.Id != userId);
+            }
+        }
+
+        internal bool UserExistsByNameExcludingIdAction(string name, int userId)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                return db.Users.Any(u => u.Name == name && u.Id != userId);
+            }
+        }
+
+        internal async Task AddUserAction(User newUser)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                db.Users.Add(newUser);
                 await db.SaveChangesAsync();
-                return user;
-            }
-        }
-
-        internal User AuthenticateUserAction(string email, string passwordHash, LoginLog log)
-        {
-            using (var db = new ApplicationDbContext())
-            {
-                var user = db.Users.FirstOrDefault(u => u.Email == email && u.Password == passwordHash);
-                if (user != null)
-                {
-                    db.LoginLogs.Add(log);
-                    db.SaveChanges();
-                }
-
-                return user;
-            }
-        }
-
-        internal User GetUserByEmailAction(string email)
-        {
-            using (var db = new ApplicationDbContext())
-            {
-                return db.Users
-                    .Include(u => u.EnrolledCourses.Select(ec => ec.Course.Chapters))
-                    .Include(u => u.CompletedChapters)
-                    .FirstOrDefault(u => u.Email == email);
-            }
-        }
-
-        internal async Task<User> UpdateUserAction(User existing, User updates)
-        {
-            using (var db = new ApplicationDbContext())
-            {
-                var user = db.Users.Find(existing.Id);
-                if (user == null)
-                {
-                    throw new InvalidOperationException("User not found.");
-                }
-
-                user.Name = updates.Name;
-                user.Email = updates.Email;
-                user.Role = updates.Role;
-                await db.SaveChangesAsync();
-                return user;
-            }
-        }
-
-        internal async Task<HttpCookie> GetUserCookieAction(User user, bool rememberMe)
-        {
-            using (var db = new ApplicationDbContext())
-            {
-                var cookie = new HttpCookie("X-KEY") { Value = CookieGenerator.Create(user.Email) };
-                var session = await db.UserSessions.FirstOrDefaultAsync(s => s.User.Id == user.Id);
-                var expireTime = rememberMe ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow.AddHours(1);
-                if (session == null)
-                {
-                    session = new UserSession { User = user, CookieString = cookie.Value, ExpireTime = expireTime };
-                    db.UserSessions.Add(session);
-                }
-                else
-                {
-                    session.CookieString = cookie.Value;
-                    session.ExpireTime = expireTime;
-                }
-
-                await db.SaveChangesAsync();
-                cookie.Expires = session.ExpireTime;
-                return cookie;
             }
         }
 
@@ -115,77 +50,264 @@ namespace ByteCore.BusinessLogic.APIs
             using (var db = new ApplicationDbContext())
             {
                 var session = db.UserSessions
-                    .Include(s => s.User.LastSeenHistory)
-                    .FirstOrDefault(s => s.CookieString == cookie && s.ExpireTime >= DateTime.UtcNow);
+                    .Include(x => x.User.LastSeenHistory)
+                    .FirstOrDefault(x => x.CookieString == cookie && x.ExpireTime >= DateTime.UtcNow);
+
+                if (session?.User.LastSeen < DateTime.UtcNow.AddMinutes(-5))
+                {
+                    session.User.LastSeen = DateTime.UtcNow;
+                    db.SaveChanges();
+                }
+
+                if (session?.User != null && (session.User.LastSeenHistory == null ||
+                                              !session.User.LastSeenHistory.Select(x => x.SeenOn)
+                                                  .Contains(DateTime.Today)))
+                {
+                    if (session.User.LastSeenHistory == null)
+                    {
+                        session.User.LastSeenHistory = new List<UserLastSeen>();
+                    }
+
+                    session.User.LastSeenHistory.Add(new UserLastSeen
+                    {
+                        SeenOn = DateTime.Today,
+                        User = session.User
+                    });
+                    db.SaveChanges();
+                }
+
                 return session?.User;
+            }
+        }
+
+        internal User GetUserByEmailAction(string email)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                return db.Users
+                    .Include(u => u.EnrolledCourses.Select(c => c.Course.Chapters))
+                    .Include(u => u.CompletedChapters)
+                    .FirstOrDefault(u => u.Email == email);
+            }
+        }
+
+        internal User GetUserByEmailSimpleAction(string email)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                return db.Users.FirstOrDefault(u => u.Email == email);
+            }
+        }
+        
+        protected bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return false;
+            }
+            try
+            {
+                return Regex.IsMatch(email,
+                    @"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|"
+                    + @"([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)"
+                    + @"(?<!\.)@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$",
+                    RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
+        }
+
+        internal User AuthenticateUserAction(
+            string email,
+            string password,
+            string browser = null,
+            string ip = null,
+            string userAgent = null)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                if (!IsValidEmail(email))
+                {
+                    throw new InvalidOperationException("Invalid email format.");
+                }
+
+                var user = db.Users.FirstOrDefault(u => u.Email == email);
+                if (user == null || !PasswordHasher.VerifyPassword(password, user.Password))
+                {
+                    throw new UnauthorizedAccessException("Invalid credentials.");
+                }
+
+                if (browser != null)
+                {
+                    user.LatestBrowserUsed = browser;
+                }
+
+                var loginLog = CreateLoginLog(user, ip, userAgent);
+                user.LoginLogs.Add(loginLog);
+                db.SaveChanges();
+
+                return user;
+            }
+        }
+        
+        private LoginLog CreateLoginLog(User user, string ip, string userAgent)
+        {
+            var log = new LoginLog
+            {
+                User = user,
+                IpAddress = ip,
+                UserAgent = userAgent
+            };
+
+            return log;
+        }
+
+        internal async Task SaveUserAction(User user)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                db.Users.Attach(user);
+                db.Entry(user).State = EntityState.Modified;
+
+                foreach (var log in user.LoginLogs.Where(l => l.Id == 0))
+                {
+                    db.LoginLogs.Add(log);
+                }
+
+                await db.SaveChangesAsync();
+            }
+        }
+
+        internal void SaveUserRangeAction(IEnumerable<User> users)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                foreach (var user in users)
+                {
+                    var existingUser = db.Users.Find(user.Id);
+                    if (existingUser != null)
+                    {
+                        existingUser.Name = user.Name;
+                        existingUser.Email = user.Email;
+                        existingUser.Role = user.Role;
+                    }
+                }
+
+                db.SaveChanges();
+            }
+        }
+
+        internal async Task<UserSession> GetUserSessionAction(string email)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                return await db.UserSessions.FirstOrDefaultAsync(x => x.User.Email == email);
+            }
+        }
+
+        internal async Task AddUserSessionAction(UserSession session)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                if (session.User != null && session.User.Id != 0)
+                {
+                    db.Users.Attach(session.User);
+                }
+
+                db.UserSessions.Add(session);
+                await db.SaveChangesAsync();
+            }
+        }
+
+        internal async Task UpdateUserSessionAction(UserSession session)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                db.UserSessions.Attach(session);
+                db.Entry(session).State = EntityState.Modified;
+                await db.SaveChangesAsync();
             }
         }
 
         internal int GetUserCountAction()
         {
             using (var db = new ApplicationDbContext())
+            {
                 return db.Users.Count();
+            }
         }
 
         internal User GetFirstUserAction()
         {
             using (var db = new ApplicationDbContext())
-                return db.Users.OrderBy(u => u.Id).FirstOrDefault();
+            {
+                return db.Users.OrderBy(x => x.Id).FirstOrDefault();
+            }
         }
 
         internal User GetLastUserAction()
         {
             using (var db = new ApplicationDbContext())
-                return db.Users.OrderByDescending(u => u.Id).FirstOrDefault();
+            {
+                return db.Users.OrderByDescending(x => x.Id).FirstOrDefault();
+            }
         }
 
         internal Dictionary<string, int> GetBrowserUsagesAction()
         {
             using (var db = new ApplicationDbContext())
             {
-                var total = db.Users.Count(u => !string.IsNullOrEmpty(u.LatestBrowserUsed));
-                if (total == 0) return new Dictionary<string, int>();
-                return db.Users
+                var browserCounts = db.Users
                     .Where(u => !string.IsNullOrEmpty(u.LatestBrowserUsed))
                     .GroupBy(u => u.LatestBrowserUsed)
-                    .Select(g => new { Browser = g.Key, Count = (int)Math.Round((double)g.Count() * 100 / total) })
-                    .ToDictionary(x => x.Browser, x => x.Count);
-            }
-        }
+                    .Select(g => new
+                    {
+                        Browser = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToList();
 
-        internal List<int> GetActiveUserCountAction(DateTime fromDate, DateTime toDate)
-        {
-            using (var db = new ApplicationDbContext())
-            {
-                var list = new List<int>();
-                for (var date = fromDate.Date; date <= toDate.Date; date = date.AddDays(1))
-                {
-                    var count = db.UserSessions.Count(s => DbFunctions.TruncateTime(s.ExpireTime) == date);
-                    list.Add(count);
-                }
+                var total = browserCounts.Sum(x => x.Count);
+                if (total == 0)
+                    return new Dictionary<string, int>();
 
-                return list;
-            }
-        }
-
-        internal List<int> GetUserCountByRegistrationDateAction(DateTime fromDate, DateTime toDate)
-        {
-            using (var db = new ApplicationDbContext())
-            {
-                var dict = db.Users
-                    .Where(u => DbFunctions.TruncateTime(u.RegistrationTime) >= fromDate.Date
-                                && DbFunctions.TruncateTime(u.RegistrationTime) <= toDate.Date)
-                    .GroupBy(u => DbFunctions.TruncateTime(u.RegistrationTime))
-                    .Select(g => new { Date = g.Key.Value, Count = g.Count() })
-                    .ToDictionary(x => x.Date, x => x.Count);
-                var result = new List<int>();
-                for (var date = fromDate.Date; date <= toDate.Date; date = date.AddDays(1))
-                {
-                    dict.TryGetValue(date, out var count);
-                    result.Add(count);
-                }
+                var result = browserCounts.ToDictionary(
+                    x => x.Browser,
+                    x => (int)Math.Round((double)x.Count * 100 / total)
+                );
 
                 return result;
+            }
+        }
+
+        internal List<User> GetActiveUsersByDateRangeAction(DateTime fromDate, DateTime toDate)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                return db.Users
+                    .Where(x => x.LastSeenHistory
+                        .Any(y => y.SeenOn >= fromDate.Date && y.SeenOn <= toDate.Date))
+                    .Include(user => user.LastSeenHistory)
+                    .ToList();
+            }
+        }
+
+        internal Dictionary<DateTime, int> GetUserRegistrationCountsByDateAction(DateTime startDate,
+            DateTime endExclusive)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                return db.Users
+                    .Where(u => u.RegistrationTime >= startDate && u.RegistrationTime < endExclusive)
+                    .GroupBy(u => DbFunctions.TruncateTime(u.RegistrationTime))
+                    .Select(g => new
+                    {
+                        Date = g.Key.Value,
+                        Count = g.Count()
+                    })
+                    .ToDictionary(x => x.Date, x => x.Count);
             }
         }
 
@@ -194,8 +316,8 @@ namespace ByteCore.BusinessLogic.APIs
             using (var db = new ApplicationDbContext())
             {
                 return db.LoginLogs
-                    .Include(l => l.User)
-                    .OrderByDescending(l => l.Id)
+                    .Include(x => x.User)
+                    .OrderByDescending(x => x.Id)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .ToList();
@@ -205,39 +327,22 @@ namespace ByteCore.BusinessLogic.APIs
         internal int GetLoginLogCountAction()
         {
             using (var db = new ApplicationDbContext())
+            {
                 return db.LoginLogs.Count();
+            }
         }
 
-        internal List<User> GetAllAction(int page, int pageSize)
+        internal IEnumerable<User> GetAllUsersAction(int page, int pageSize)
         {
             using (var db = new ApplicationDbContext())
             {
                 return db.Users
-                    .Include(u => u.CompletedChapters)
-                    .Include(u => u.EnrolledCourses.Select(ec => ec.Course.Chapters))
-                    .OrderByDescending(u => u.Id)
+                    .Include(x => x.EnrolledCourses.Select(c => c.Course.Chapters))
+                    .Include(x => x.CompletedChapters)
+                    .OrderByDescending(x => x.Id)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .ToList();
-            }
-        }
-
-        internal void UpdateUserRangeAction(IEnumerable<User> users)
-        {
-            using (var db = new ApplicationDbContext())
-            {
-                foreach (var user in users)
-                {
-                    var existing = db.Users.Find(user.Id);
-                    if (existing != null)
-                    {
-                        existing.Name = user.Name;
-                        existing.Email = user.Email;
-                        existing.Role = user.Role;
-                    }
-                }
-
-                db.SaveChanges();
             }
         }
     }

@@ -22,7 +22,7 @@ namespace ByteCore.BusinessLogic.Attributes
         {
             var httpContext = filterContext.HttpContext;
             var request = httpContext.Request;
-            var userBl = DependencyResolver.Current.GetService<IUserBl>();
+            var userBl = Bl.GetUserBl();
             User user = null;
 
             var cookie = request.Cookies["X-KEY"];

@@ -27,10 +27,10 @@ namespace ByteCore.BusinessLogic.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<AuditLog>()
-                .HasOptional(a => a.User)         // ← “optional” nav property
+                .HasOptional(a => a.User)
                 .WithMany(u => u.AuditLogs)
-                .HasForeignKey(a => a.UserId)     // ← points at your nullable int?
-                .WillCascadeOnDelete(false);      // ← prevents cascade delete
+                .HasForeignKey(a => a.UserId)
+                .WillCascadeOnDelete(false);
         }
 
     }

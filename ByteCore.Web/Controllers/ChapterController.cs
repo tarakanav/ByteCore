@@ -224,8 +224,8 @@ namespace ByteCore.Web.Controllers
         public async Task<ActionResult> Delete(int courseId, int chapterId)
         {
             var courseBl = Bl.GetCourseBl();
-            var quiz = courseBl.GetChapter(courseId, chapterId);
-            if (quiz == null)
+            var chapter = courseBl.GetChapter(courseId, chapterId);
+            if (chapter == null)
             {
                 return HttpNotFound();
             }

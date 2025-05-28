@@ -1,4 +1,5 @@
-﻿using System;
+﻿// File: ByteCore.BusinessLogic.APIs.CourseApi.cs
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -68,18 +69,37 @@ namespace ByteCore.BusinessLogic.APIs
             }
         }
 
+        private async Task ValidateCourseInApiContextAsync(Course course, bool isUpdate, ApplicationDbContext db)
+        {
+            if (!isUpdate && await db.Courses.AnyAsync(x => x.Title == course.Title))
+                throw new InvalidOperationException("A course with this title already exists");
+            if (string.IsNullOrWhiteSpace(course.Title))
+                throw new InvalidOperationException("Course title is required");
+            if (string.IsNullOrWhiteSpace(course.Description))
+                throw new InvalidOperationException("Course description is required");
+        }
+
         internal async Task CreateCourseAction(Course course)
         {
             using (var db = new ApplicationDbContext())
             {
-                for (var i = 1; i <= course.Chapters.Count; i++)
-                    course.Chapters[i - 1].ChapterNumber = i;
-                await ValidateCourseAsync(course, false);
-                foreach (var section in course.Chapters.SelectMany(ch => ch.Sections ?? new List<Section>()))
+                await ValidateCourseInApiContextAsync(course, false, db);
+                if (course.Chapters != null)
                 {
-                    section.TextContent = section.Type == SectionType.Read ? section.TextContent : null;
-                    section.VideoUrl = section.Type == SectionType.Video ? section.VideoUrl : null;
-                    section.Quiz = section.Type == SectionType.Quiz ? section.Quiz : null;
+                    foreach (var chapter in course.Chapters)
+                    {
+                        if (chapter.Sections != null)
+                        {
+                            foreach (var section in chapter.Sections)
+                            {
+                                section.TextContent = section.Type == SectionType.Read ? section.TextContent : null;
+                                section.VideoUrl = section.Type == SectionType.Video ? section.VideoUrl : null;
+                                section.Quiz = section.Type == SectionType.Quiz ? section.Quiz : null;
+                                if (section.Type != SectionType.Quiz) section.QuizId = null;
+                                else if (section.QuizId != null && section.Quiz == null) section.Quiz = await db.Quizzes.FindAsync(section.QuizId);
+                            }
+                        }
+                    }
                 }
                 db.Courses.Add(course);
                 await db.SaveChangesAsync();
@@ -90,10 +110,11 @@ namespace ByteCore.BusinessLogic.APIs
         {
             using (var db = new ApplicationDbContext())
             {
-                await ValidateCourseAsync(course, true);
-                var existing = await db.Courses.Include(c => c.Chapters).FirstOrDefaultAsync(c => c.Id == course.Id);
+                await ValidateCourseInApiContextAsync(course, true, db);
+                var existing = await db.Courses.Include(c => c.Chapters.Select(ch => ch.Sections)).FirstOrDefaultAsync(c => c.Id == course.Id);
                 if (existing == null)
                     throw new InvalidOperationException("Course not found.");
+                
                 existing.Title = course.Title;
                 existing.ShortDescription = course.ShortDescription;
                 existing.Description = course.Description;
@@ -101,11 +122,36 @@ namespace ByteCore.BusinessLogic.APIs
                 existing.Duration = course.Duration;
                 existing.StartDate = course.StartDate;
                 existing.ImageUrl = course.ImageUrl;
-                foreach (var upd in course.Chapters)
+
+                var chapterIdsToKeep = new HashSet<int>();
+                if (course.Chapters != null)
                 {
-                    var chap = existing.Chapters.FirstOrDefault(c => c.Id == upd.Id);
-                    if (chap != null)
-                        chap.ChapterNumber = upd.ChapterNumber;
+                    foreach (var updatedChapter in course.Chapters)
+                    {
+                        var existingChapter = updatedChapter.Id != 0 ? existing.Chapters.FirstOrDefault(c => c.Id == updatedChapter.Id) : null;
+                        if (existingChapter != null)
+                        {
+                            existingChapter.ChapterNumber = updatedChapter.ChapterNumber;
+                            existingChapter.Title = updatedChapter.Title;
+                            chapterIdsToKeep.Add(existingChapter.Id);
+                        }
+                        else
+                        {
+                            updatedChapter.Id = 0;
+                            updatedChapter.CourseId = existing.Id;
+                            existing.Chapters.Add(updatedChapter);
+                        }
+                    }
+                }
+                var chaptersToRemove = existing.Chapters.Where(c => c.Id != 0 && !chapterIdsToKeep.Contains(c.Id)).ToList();
+                if (chaptersToRemove.Any())
+                {
+                    foreach(var chapterToRemove in chaptersToRemove)
+                    {
+                        var sectionsInChapterToRemove = chapterToRemove.Sections.ToList();
+                        if(sectionsInChapterToRemove.Any()) db.Set<Section>().RemoveRange(sectionsInChapterToRemove);
+                    }
+                    db.Set<Chapter>().RemoveRange(chaptersToRemove);
                 }
                 await db.SaveChangesAsync();
             }
@@ -149,14 +195,50 @@ namespace ByteCore.BusinessLogic.APIs
         {
             using (var db = new ApplicationDbContext())
             {
-                if (string.IsNullOrWhiteSpace(chapter.Title))
-                    throw new InvalidOperationException("Chapter title is required");
-                var course = await db.Courses.Include(c => c.Chapters.Select(ch => ch.Sections)).FirstOrDefaultAsync(c => c.Id == chapter.CourseId);
-                var existing = course?.Chapters.FirstOrDefault(ch => ch.Id == chapter.Id);
-                if (existing == null)
-                    throw new InvalidOperationException("Chapter not found.");
-                existing.Title = chapter.Title;
-                existing.Description = chapter.Description;
+                var course = await db.Courses
+                    .Include(c => c.Chapters.Select(ch => ch.Sections))
+                    .FirstOrDefaultAsync(c => c.Id == chapter.CourseId);
+
+                if (course == null)
+                    throw new InvalidOperationException("Course not found for the chapter.");
+
+                var existingChapter = course.Chapters.FirstOrDefault(ch => ch.Id == chapter.Id);
+
+                if (existingChapter == null)
+                    throw new InvalidOperationException("Chapter not found to update.");
+                
+                existingChapter.Title = chapter.Title;
+                existingChapter.Description = chapter.Description;
+
+                var sectionIdsToKeep = new HashSet<int>();
+                if (chapter.Sections != null)
+                {
+                    foreach (var updatedSection in chapter.Sections)
+                    {
+                        var existingSection = updatedSection.Id != 0 ? existingChapter.Sections.FirstOrDefault(s => s.Id == updatedSection.Id) : null;
+                        if (existingSection != null)
+                        {
+                            existingSection.Title = updatedSection.Title;
+                            existingSection.Description = updatedSection.Description;
+                            existingSection.Type = updatedSection.Type;
+                            existingSection.TextContent = updatedSection.Type == SectionType.Read ? updatedSection.TextContent : null;
+                            existingSection.VideoUrl = updatedSection.Type == SectionType.Video ? updatedSection.VideoUrl : null;
+                            existingSection.QuizId = updatedSection.Type == SectionType.Quiz ? updatedSection.QuizId : null;
+                            if (existingSection.Type == SectionType.Quiz && existingSection.QuizId != null) existingSection.Quiz = await db.Quizzes.FindAsync(existingSection.QuizId); else existingSection.Quiz = null;
+                            sectionIdsToKeep.Add(existingSection.Id);
+                        }
+                        else
+                        {
+                            updatedSection.Id = 0;
+                            updatedSection.ChapterId = existingChapter.Id;
+                            if (updatedSection.Type == SectionType.Quiz && updatedSection.QuizId != null) updatedSection.Quiz = await db.Quizzes.FindAsync(updatedSection.QuizId); else updatedSection.Quiz = null;
+                            existingChapter.Sections.Add(updatedSection);
+                        }
+                    }
+                }
+                var sectionsToRemove = existingChapter.Sections.Where(s => s.Id != 0 && !sectionIdsToKeep.Contains(s.Id)).ToList();
+                if(sectionsToRemove.Any()) db.Set<Section>().RemoveRange(sectionsToRemove);
+                
                 await db.SaveChangesAsync();
             }
         }
@@ -168,32 +250,43 @@ namespace ByteCore.BusinessLogic.APIs
                 var course = await db.Courses
                     .Include(c => c.EnrolledUsers)
                     .Include(c => c.Chapters.Select(ch => ch.UsersCompleted))
-                    .Include(c => c.Chapters.Select(ch => ch.Sections))
+                    .Include(c => c.Chapters.Select(ch => ch.Sections.Select(s => s.Quiz)))
                     .FirstOrDefaultAsync(c => c.Id == id);
                 if (course == null)
                     throw new InvalidOperationException("Course not found.");
-                db.UserCourses.RemoveRange(course.EnrolledUsers);
-                foreach (var ch in course.Chapters)
-                    ch.UsersCompleted.Clear();
-                db.Set<Section>().RemoveRange(course.Chapters.SelectMany(ch => ch.Sections));
-                db.Set<Chapter>().RemoveRange(course.Chapters);
+                
+                if (course.EnrolledUsers.Any()) db.UserCourses.RemoveRange(course.EnrolledUsers);
+                
+                foreach (var ch in course.Chapters) ch.UsersCompleted.Clear();
+                
+                var allSections = course.Chapters.SelectMany(ch => ch.Sections).ToList();
+                if (allSections.Any()) db.Set<Section>().RemoveRange(allSections);
+                
+                if (course.Chapters.Any()) db.Set<Chapter>().RemoveRange(course.Chapters);
+                
                 db.Courses.Remove(course);
                 await db.SaveChangesAsync();
             }
         }
 
-        internal async Task DeleteChapterAction(int courseId, int chapterId)
+        internal async Task DeleteChapterAction(int courseId, int chapterNumber)
         {
             using (var db = new ApplicationDbContext())
             {
-                var chapter = await db.Courses
-                    .Include(c => c.Chapters.Select(ch => ch.Sections))
-                    .Where(c => c.Id == courseId)
-                    .SelectMany(c => c.Chapters)
-                    .FirstOrDefaultAsync(ch => ch.ChapterNumber == chapterId);
+                var course = await db.Courses
+                    .Include(c => c.Chapters.Select(ch => ch.Sections.Select(s => s.Quiz)))
+                    .FirstOrDefaultAsync(c => c.Id == courseId);
+
+                if (course == null) throw new InvalidOperationException("Course not found.");
+                
+                var chapter = course.Chapters.FirstOrDefault(ch => ch.ChapterNumber == chapterNumber);
+
                 if (chapter == null)
                     throw new InvalidOperationException("Chapter not found.");
-                db.Set<Section>().RemoveRange(chapter.Sections);
+                
+                var sectionsToRemove = chapter.Sections.ToList();
+                if(sectionsToRemove.Any()) db.Set<Section>().RemoveRange(sectionsToRemove);
+                
                 db.Set<Chapter>().Remove(chapter);
                 await db.SaveChangesAsync();
             }
@@ -203,13 +296,20 @@ namespace ByteCore.BusinessLogic.APIs
         {
             using (var db = new ApplicationDbContext())
             {
-                if (string.IsNullOrWhiteSpace(chapter.Title))
-                    throw new InvalidOperationException("Chapter title is required.");
                 var course = await db.Courses.Include(c => c.Chapters).FirstOrDefaultAsync(c => c.Id == chapter.CourseId);
                 if (course == null)
                     throw new InvalidOperationException("Course not found.");
+                
                 chapter.Id = 0;
-                chapter.Sections = new List<Section>();
+                if (chapter.Sections != null)
+                {
+                    foreach (var section in chapter.Sections)
+                    {
+                        section.Id = 0;
+                        section.ChapterId = chapter.Id; 
+                        if (section.Type == SectionType.Quiz && section.QuizId != null) section.Quiz = await db.Quizzes.FindAsync(section.QuizId); else section.Quiz = null;
+                    }
+                }
                 course.Chapters.Add(chapter);
                 await db.SaveChangesAsync();
             }
@@ -262,19 +362,6 @@ namespace ByteCore.BusinessLogic.APIs
                     result.Add(count);
                 }
                 return result;
-            }
-        }
-
-        private async Task ValidateCourseAsync(Course course, bool isUpdate)
-        {
-            using (var db = new ApplicationDbContext())
-            {
-                if (!isUpdate && await db.Courses.AnyAsync(x => x.Title == course.Title))
-                    throw new InvalidOperationException("A course with this title already exists");
-                if (string.IsNullOrWhiteSpace(course.Title))
-                    throw new InvalidOperationException("Course title is required");
-                if (string.IsNullOrWhiteSpace(course.Description))
-                    throw new InvalidOperationException("Course description is required");
             }
         }
     }

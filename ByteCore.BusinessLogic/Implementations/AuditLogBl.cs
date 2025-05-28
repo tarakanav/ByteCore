@@ -12,7 +12,7 @@ namespace ByteCore.BusinessLogic.Implementations
             SaveLogAction(log);
         }
 
-        public IEnumerable<AuditLog> GetAll(int page = 1, int pageSize = 20)
+        public List<AuditLog> GetAll(int page = 1, int pageSize = 20)
         {
             return GetAllLogsAction(page, pageSize);
         }

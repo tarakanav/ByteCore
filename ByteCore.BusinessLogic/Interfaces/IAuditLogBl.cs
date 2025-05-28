@@ -6,7 +6,7 @@ namespace ByteCore.BusinessLogic.Interfaces
     public interface IAuditLogBl
     {
         void SaveLog(AuditLog log);
-        IEnumerable<AuditLog> GetAll(int page = 1, int pageSize = 20);
+        List<AuditLog> GetAll(int page = 1, int pageSize = 20);
         int GetLogCount();
     }
 }
