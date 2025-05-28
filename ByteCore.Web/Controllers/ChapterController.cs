@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using ByteCore.BusinessLogic;
 using ByteCore.BusinessLogic.Attributes;
 using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Domain.CourseScope;
@@ -15,25 +16,17 @@ namespace ByteCore.Web.Controllers
     [RoutePrefix("Courses/{courseId:int}/Chapters")]
     public class ChapterController : BaseController
     {
-        private readonly ICourseBl _courseBl;
-        private readonly IQuizBl _quizBl;
-
-        public ChapterController(ICourseBl courseBl, IQuizBl quizBl, IAuditLogBl auditLogBl) : base(auditLogBl)
-        {
-            _courseBl = courseBl;
-            _quizBl = quizBl;
-        }
-
         [CustomAuthorize]
         [Route("{chapterId:int}")]
         public ActionResult Index(int courseId, int chapterId)
         {
-            if (!_courseBl.IsUserEnrolled(courseId, User.Identity.Name))
+            var courseBl = Bl.GetCourseBl();
+            if (!courseBl.IsUserEnrolled(courseId, User.Identity.Name))
             {
                 return RedirectToAction("Course", "Courses", new { id = courseId });
             }
             
-            var chapter = _courseBl.GetChapter(courseId, chapterId);
+            var chapter = courseBl.GetChapter(courseId, chapterId);
             if (chapter == null)
                 return HttpNotFound();
 
@@ -56,14 +49,16 @@ namespace ByteCore.Web.Controllers
             int sectionId,
             List<int> userAnswers)
         {
+            var courseBl = Bl.GetCourseBl();
+            var quizBl = Bl.GetQuizBl();
             try
             {
-                if (!_courseBl.IsUserEnrolled(courseId, User.Identity.Name))
+                if (!courseBl.IsUserEnrolled(courseId, User.Identity.Name))
                 {
                     return RedirectToAction("Course", "Courses", new { id = courseId });
                 }
                 
-                var chapter = _courseBl.GetChapter(courseId, chapterId);
+                var chapter = courseBl.GetChapter(courseId, chapterId);
                 if (chapter == null) return HttpNotFound();
                 
                 var section = chapter.Sections
@@ -75,7 +70,7 @@ namespace ByteCore.Web.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _quizBl
+                    var result = await quizBl
                         .SubmitQuizResultAsync(section.Quiz.Id, userAnswers, User.Identity.Name);
                     results[sectionId] = result;
                 }
@@ -100,12 +95,13 @@ namespace ByteCore.Web.Controllers
         [Route("{chapterNumber:int}/Complete")]
         public ActionResult CompleteChapter(int courseId, int chapterNumber)
         {
-            if (!_courseBl.IsUserEnrolled(courseId, User.Identity.Name))
+            var courseBl = Bl.GetCourseBl();
+            if (!courseBl.IsUserEnrolled(courseId, User.Identity.Name))
             {
                 return RedirectToAction("Course", "Courses", new { id = courseId });
             }
             
-            var course = _courseBl.GetCourse(courseId);
+            var course = courseBl.GetCourse(courseId);
             if (course == null)
             {
                 return HttpNotFound();
@@ -117,7 +113,7 @@ namespace ByteCore.Web.Controllers
                 return HttpNotFound();
             }
 
-            _courseBl.MarkChapterAsCompleted(courseId, chapterNumber, User.Identity.Name);
+            courseBl.MarkChapterAsCompleted(courseId, chapterNumber, User.Identity.Name);
             var nextChapter = course.Chapters.OrderBy(c => c.ChapterNumber).FirstOrDefault(c =>
                 c.ChapterNumber > chapter.ChapterNumber);
             return nextChapter != null
@@ -131,7 +127,8 @@ namespace ByteCore.Web.Controllers
         [Route("{chapterNumber:int}/Uncomplete")]
         public ActionResult UncompleteChapter(int courseId, int chapterNumber)
         {
-            var course = _courseBl.GetCourse(courseId);
+            var courseBl = Bl.GetCourseBl();
+            var course = courseBl.GetCourse(courseId);
             if (course == null)
             {
                 return HttpNotFound();
@@ -143,7 +140,7 @@ namespace ByteCore.Web.Controllers
                 return HttpNotFound();
             }
 
-            _courseBl.MarkChapterAsIncompleted(courseId, chapterNumber, User.Identity.Name);
+            courseBl.MarkChapterAsIncompleted(courseId, chapterNumber, User.Identity.Name);
 
             return RedirectToAction("Index", new { courseId, chapterId = chapterNumber });
         }
@@ -155,12 +152,13 @@ namespace ByteCore.Web.Controllers
         [Route("{chapterNumber:int}/MarkComplete")]
         public JsonResult MarkChapterComplete(int courseId, int chapterNumber)
         {
-            if (!_courseBl.IsUserEnrolled(courseId, User.Identity.Name))
+            var courseBl = Bl.GetCourseBl();
+            if (!courseBl.IsUserEnrolled(courseId, User.Identity.Name))
             {
                 return Json(new { success = false, error = "User not enrolled" });
             }
             
-            var course = _courseBl.GetCourse(courseId);
+            var course = courseBl.GetCourse(courseId);
             if (course == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -174,7 +172,7 @@ namespace ByteCore.Web.Controllers
                 return Json(new { success = false, error = "Chapter not found" });
             }
 
-            _courseBl.MarkChapterAsCompleted(courseId, chapterNumber, User.Identity.Name);
+            courseBl.MarkChapterAsCompleted(courseId, chapterNumber, User.Identity.Name);
 
             return Json(new { success = true });
         }
@@ -185,7 +183,8 @@ namespace ByteCore.Web.Controllers
         [Route("{chapterId:int}/Edit")]
         public ActionResult Edit(int courseId, int chapterId)
         {
-            var chapter = _courseBl.GetChapter(courseId, chapterId);
+            var courseBl = Bl.GetCourseBl();
+            var chapter = courseBl.GetChapter(courseId, chapterId);
             if (chapter == null)
                 return HttpNotFound();
 
@@ -199,6 +198,7 @@ namespace ByteCore.Web.Controllers
         [Route("{chapterId:int}/Edit")]
         public async Task<ActionResult> Edit(Chapter model)
         {
+            var courseBl = Bl.GetCourseBl();
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -206,7 +206,7 @@ namespace ByteCore.Web.Controllers
 
             try
             {
-                await _courseBl.UpdateChapterAsync(model);
+                await courseBl.UpdateChapterAsync(model);
                 return RedirectToAction("Edit", "Courses", new { id = model.CourseId });
             }
             catch (InvalidOperationException ex)
@@ -223,13 +223,14 @@ namespace ByteCore.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(int courseId, int chapterId)
         {
-            var quiz = _courseBl.GetChapter(courseId, chapterId);
+            var courseBl = Bl.GetCourseBl();
+            var quiz = courseBl.GetChapter(courseId, chapterId);
             if (quiz == null)
             {
                 return HttpNotFound();
             }
 
-            await _courseBl.DeleteChapterAsync(courseId, chapterId);
+            await courseBl.DeleteChapterAsync(courseId, chapterId);
             return RedirectToAction("Index", "Courses");
         }
         
@@ -239,7 +240,8 @@ namespace ByteCore.Web.Controllers
         [Route("Create")]
         public ActionResult Create(int courseId)
         {
-            var course = _courseBl.GetCourse(courseId);
+            var courseBl = Bl.GetCourseBl();
+            var course = courseBl.GetCourse(courseId);
             if (course == null) return HttpNotFound();
 
             var chapter = new Chapter { CourseId = courseId };
@@ -253,12 +255,13 @@ namespace ByteCore.Web.Controllers
         [Route("Create")]
         public async Task<ActionResult> Create(Chapter model)
         {
+            var courseBl = Bl.GetCourseBl();
             if (!ModelState.IsValid)
                 return View(model);
 
             try
             {
-                await _courseBl.AddChapterAsync(model);
+                await courseBl.AddChapterAsync(model);
                 return RedirectToAction("Edit", "Courses", new { id = model.CourseId });
             }
             catch (InvalidOperationException ex)

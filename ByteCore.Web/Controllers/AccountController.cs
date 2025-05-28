@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using ByteCore.BusinessLogic;
 using ByteCore.BusinessLogic.Attributes;
 using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Domain.UserScope;
@@ -9,13 +10,6 @@ namespace ByteCore.Web.Controllers
 {
     public class AccountController : BaseController
     {
-        private readonly IUserBl _userBl;
-
-        public AccountController(IUserBl userBl, IAuditLogBl auditLogBl) : base(auditLogBl)
-        {
-            _userBl = userBl;
-        }
-
         // GET: Account/Registration
         public ActionResult Registration()
         {
@@ -34,6 +28,7 @@ namespace ByteCore.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Registration(string username, string email, string password, string returnUrl = null)
         {
+            var userBl = Bl.GetUserBl();
             if (string.IsNullOrWhiteSpace(username) ||
                 string.IsNullOrWhiteSpace(email) ||
                 string.IsNullOrWhiteSpace(password))
@@ -44,14 +39,14 @@ namespace ByteCore.Web.Controllers
 
             try
             {
-                await _userBl.RegisterUserAsync(
+                await userBl.RegisterUserAsync(
                     username, 
                     email, 
                     password, 
                     Request.Browser.Browser,
                     Request.UserHostAddress,
                     Request.UserAgent);
-                var cookie = await _userBl.GetUserCookieAsync(email, true);
+                var cookie = await userBl.GetUserCookieAsync(email, true);
                 Response.Cookies.Add(cookie);
                 
                 return Redirect(returnUrl ?? "/");
@@ -81,6 +76,7 @@ namespace ByteCore.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(string email, string password, bool rememberMe = false, string returnUrl = null)
         {
+            var userBl = Bl.GetUserBl();
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
                 ModelState.AddModelError("", "You should enter email and password.");
@@ -89,8 +85,8 @@ namespace ByteCore.Web.Controllers
 
             try
             {
-                _userBl.AuthenticateUser(email, password, Request.Browser.Browser, Request.UserHostAddress, Request.UserAgent);
-                var cookie = await _userBl.GetUserCookieAsync(email, rememberMe);
+                userBl.AuthenticateUser(email, password, Request.Browser.Browser, Request.UserHostAddress, Request.UserAgent);
+                var cookie = await userBl.GetUserCookieAsync(email, rememberMe);
                 Response.Cookies.Add(cookie);
 
                 return Redirect(returnUrl ?? "/");
@@ -111,7 +107,8 @@ namespace ByteCore.Web.Controllers
         [CustomAuthorize]
         public ActionResult Dashboard()
         {
-            var user = _userBl.GetUserByEmail(User.Identity.Name);
+            var userBl = Bl.GetUserBl();
+            var user = userBl.GetUserByEmail(User.Identity.Name);
 
             if (user == null)
             {
@@ -125,7 +122,8 @@ namespace ByteCore.Web.Controllers
         [CustomAuthorize]
         public ActionResult Manage()
         {
-            var user = _userBl.GetUserByEmail(User.Identity.Name);
+            var userBl = Bl.GetUserBl();
+            var user = userBl.GetUserByEmail(User.Identity.Name);
             
             if (user == null)
             {
@@ -141,12 +139,13 @@ namespace ByteCore.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Manage(User model)
         {
+            var userBl = Bl.GetUserBl();
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _userBl.UpdateUserAsync(User.Identity.Name, model);
-                    var cookie = await _userBl.GetUserCookieAsync(model.Email, false);
+                    await userBl.UpdateUserAsync(User.Identity.Name, model);
+                    var cookie = await userBl.GetUserCookieAsync(model.Email, false);
                     Response.Cookies.Add(cookie);
 
                     return RedirectToAction("Dashboard");

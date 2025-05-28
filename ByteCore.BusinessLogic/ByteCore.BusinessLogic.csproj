@@ -143,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\CustomAuthorize.cs" />
+    <Compile Include="Bl.cs" />
     <Compile Include="Data\ApplicationDbContext.cs" />
     <Compile Include="Implementations\AdminBl.cs" />
     <Compile Include="Implementations\AuditLogBl.cs" />

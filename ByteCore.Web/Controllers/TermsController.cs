@@ -5,10 +5,6 @@ namespace ByteCore.Web.Controllers
 {
     public class TermsController : BaseController
     {
-        public TermsController(IAuditLogBl auditLogBl) : base(auditLogBl)
-        {
-        }
-        
         // GET: /Terms/
         public ActionResult Index()
         {

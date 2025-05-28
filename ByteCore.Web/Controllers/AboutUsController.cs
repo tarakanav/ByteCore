@@ -7,10 +7,6 @@ namespace ByteCore.Web.Controllers
 {
     public class AboutUsController : BaseController
     {
-        public AboutUsController(IAuditLogBl auditLogBl) : base(auditLogBl)
-        {
-        }
-
         public ActionResult Index()
         {
             return View();

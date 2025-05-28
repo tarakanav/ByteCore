@@ -5,10 +5,6 @@ namespace ByteCore.Web.Controllers
 {
     public class ErrorController : BaseController
     {
-        public ErrorController(IAuditLogBl auditLogBl) : base(auditLogBl)
-        {
-        }
-
         // GET: Error/403
         [Route("Error/403")]
         public ActionResult AccessDenied()

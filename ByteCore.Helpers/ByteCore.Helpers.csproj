@@ -33,15 +33,26 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="ByteCore.BusinessLogic">
+          <HintPath>..\ByteCore.Web\Bin\ByteCore.BusinessLogic.dll</HintPath>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Data"/>
+        <Reference Include="System.Web" />
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="AuthenticateRequestHelper.cs" />
         <Compile Include="CookieGenerator.cs" />
         <Compile Include="PasswordHasher.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\ByteCore.Domain\ByteCore.Domain.csproj">
+        <Project>{7eb7c489-f367-4535-8f77-8e5bc8f1b272}</Project>
+        <Name>ByteCore.Domain</Name>
+      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

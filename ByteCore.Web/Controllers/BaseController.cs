@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
+using ByteCore.BusinessLogic;
 using ByteCore.BusinessLogic.Interfaces;
 using ByteCore.Domain.UserScope;
 
@@ -10,13 +11,7 @@ namespace ByteCore.Web.Controllers
 {
     public abstract class BaseController : Controller
     {
-        private readonly IAuditLogBl _auditLogBl;
         private DateTime? _actionStart;
-
-        protected BaseController(IAuditLogBl auditLogBl)
-        {
-            _auditLogBl = auditLogBl;
-        }
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
@@ -69,7 +64,8 @@ namespace ByteCore.Web.Controllers
                     ExecutionTimeMs = elapsedMs
                 };
 
-                _auditLogBl.SaveLog(log);
+                var auditLogBl = Bl.GetAuditLogBl();
+                auditLogBl.SaveLog(log);
             }
 
             base.OnActionExecuted(filterContext);

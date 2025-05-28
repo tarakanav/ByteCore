@@ -5,10 +5,6 @@ namespace ByteCore.Web.Controllers
 {
     public class PrivacyController : BaseController
     {
-        public PrivacyController(IAuditLogBl auditLogBl) : base(auditLogBl)
-        {
-        }
-
         // GET: /Privacy/
         public ActionResult Index()
         {

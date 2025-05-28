@@ -5,10 +5,6 @@ namespace ByteCore.Web.Controllers
 {
     public class HomeController : BaseController
     {
-        public HomeController(IAuditLogBl auditLogBl) : base(auditLogBl)
-        {
-        }
-
         // GET: Home
         public ActionResult Index()
         {
