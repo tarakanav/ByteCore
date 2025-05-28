@@ -142,6 +142,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="APIs\AuditLogApi.cs" />
+    <Compile Include="APIs\CourseApi.cs" />
+    <Compile Include="APIs\QuizApi.cs" />
+    <Compile Include="APIs\UserApi.cs" />
     <Compile Include="Attributes\CustomAuthorize.cs" />
     <Compile Include="Bl.cs" />
     <Compile Include="Data\ApplicationDbContext.cs" />
