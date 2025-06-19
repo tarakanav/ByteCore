@@ -53,6 +53,8 @@ namespace ByteCore.BusinessLogic.Attributes
             {
                 var currentUrl = HttpUtility.UrlEncode(request.RawUrl);
                 var loginUrl = $"/Account/Login?returnUrl={currentUrl}";
+                if (loginUrl.EndsWith("Enroll"))
+                    loginUrl = loginUrl.Substring(0, loginUrl.Length - "Enroll".Length);
                 filterContext.Result = new RedirectResult(loginUrl);
                 return;
             }
